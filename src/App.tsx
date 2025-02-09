@@ -24,6 +24,9 @@ const App: React.FC = () => {
 
   useThemeWatcher();
 
+  // console.log("Current environment:", process.env.NODE_ENV);
+  console.log(process.env.REACT_APP_BASE_URL);
+  
   return (
     <>
       <meta name="theme-color" content={themeObject[theme].primary} />

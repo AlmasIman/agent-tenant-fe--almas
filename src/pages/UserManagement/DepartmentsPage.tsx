@@ -1,17 +1,16 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Tables } from '@app/components/tables/Tables/Tables';
 import { PageTitle } from '@app/components/common/PageTitle/PageTitle';
-import { NewsFeed } from '@app/components/apps/newsFeed/NewsFeed';
 
-const NewsFeedPage: React.FC = () => {
+const DepartmentsPage: React.FC = () => {
   const { t } = useTranslation();
-
   return (
     <>
-      <PageTitle>{t('common.feed')}</PageTitle>
-      <NewsFeed />
+      <PageTitle>Департаменты</PageTitle>
+      <Tables />
     </>
   );
 };
 
-export default NewsFeedPage;
+export default DepartmentsPage;

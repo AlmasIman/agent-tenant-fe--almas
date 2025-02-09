@@ -18,7 +18,7 @@ import * as S from './DashboardPage.styles';
 import { BaseRow } from '@app/components/common/BaseRow/BaseRow';
 import { BaseCol } from '@app/components/common/BaseCol/BaseCol';
 
-const MedicalDashboardPage: React.FC = () => {
+const TenantDashboardPage: React.FC = () => {
   const { isTablet, isDesktop } = useResponsive();
 
   const { t } = useTranslation();
@@ -136,4 +136,4 @@ const MedicalDashboardPage: React.FC = () => {
   );
 };
 
-export default MedicalDashboardPage;
+export default TenantDashboardPage;

@@ -14,7 +14,10 @@ httpApi.interceptors.request.use((config) => {
 });
 
 httpApi.interceptors.response.use(undefined, (error: AxiosError) => {
-  throw new ApiError<ApiErrorData>(error.response?.data.message || error.message, error.response?.data);
+  const errorMessage = error.response?.data?.message || error.message || "An unknown error occurred";
+  const errorData = error.response?.data || {};
+
+  throw new ApiError<ApiErrorData>(errorMessage, errorData);
 });
 
 export interface ApiErrorData {
