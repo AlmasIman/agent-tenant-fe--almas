@@ -27,7 +27,6 @@ export const doLogin = createAsyncThunk('auth/doLogin', async (loginPayload: Log
   const tokenResponse = await login(loginPayload);
   persistToken(tokenResponse.access);
 
-  console.log('tokenResponse' + tokenResponse.access);
   const user = await currentUser();
   dispatch(setUser(user));
 

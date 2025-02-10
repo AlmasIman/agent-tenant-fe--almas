@@ -8,11 +8,12 @@ import { useMounted } from '@app/hooks/useMounted';
 
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { httpApi } from '@app/api/http.api';
+import { Button } from 'antd';
 
 interface GroupDataRow {
   id: number;
   name: string;
-  employee_count: number;
+  employees_count: number;
 }
 
 const initialPagination: Pagination = {
@@ -32,7 +33,7 @@ const GroupsPage: React.FC = () => {
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
-      httpApi.get<GroupDataRow[]>('/api/my/user-groups/').then(({ data }) => {
+      httpApi.get<GroupDataRow[]>('my/user-groups/').then(({ data }) => {
         if (isMounted.current) {
           setTableData({ data: data, pagination: pagination, loading: false });
         }
@@ -69,8 +70,8 @@ const GroupsPage: React.FC = () => {
     },
     {
       title: 'Количество пользователей',
-      dataIndex: 'user_count',
-      key: 'user_count',
+      dataIndex: 'employees_count',
+      key: 'employees_count',
       width: '20%',
     }
   ];
@@ -80,6 +81,12 @@ const GroupsPage: React.FC = () => {
       <PageTitle>Группы</PageTitle>
       <S.TablesWrapper>
         <S.Card id="groups-table" title="Группы" padding="1.25rem 1.25rem 0">
+        <S.ButtonsWrapper>
+          <Button type="primary" onClick={() => {}}>Добавить</Button>
+          <Button type="default" danger onClick={() => {}} disabled={false}>
+            Удалить
+          </Button>
+        </S.ButtonsWrapper>
         <BaseTable
           columns={columns}
           dataSource={tableData.data}

@@ -8,3 +8,11 @@ export const TablesWrapper = styled.div`
 export const Card = styled(CommonCard)`
   margin-bottom: 2rem;
 `;
+
+export const ButtonsWrapper = styled.div`
+  display: flex;
+  margin-top: -4.0rem;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+`;
