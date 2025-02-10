@@ -1,6 +1,7 @@
-import { httpApi } from '@app/api/http.api';
+import { httpApi, httpApi2 } from '@app/api/http.api';
 import './mocks/auth.api.mock';
 import { UserModel } from '@app/domain/UserModel';
+import axios from 'axios';
 
 export interface AuthData {
   email: string;
@@ -27,17 +28,17 @@ export interface NewPasswordData {
 }
 
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface LoginResponse {
-  token: string;
-  user: UserModel;
+  access: string;
+  refresh: string;
 }
 
-export const login = (loginPayload: LoginRequest): Promise<LoginResponse> =>
-  httpApi.post<LoginResponse>('login', { ...loginPayload }).then(({ data }) => data);
+export const login = async (loginPayload: LoginRequest): Promise<LoginResponse> => 
+  httpApi.post<LoginResponse>('token/', { ...loginPayload }).then(({ data }) => data);
 
 export const signUp = (signUpData: SignUpRequest): Promise<undefined> =>
   httpApi.post<undefined>('signUp', { ...signUpData }).then(({ data }) => data);
@@ -50,3 +51,6 @@ export const verifySecurityCode = (securityCodePayload: SecurityCodePayload): Pr
 
 export const setNewPassword = (newPasswordData: NewPasswordData): Promise<undefined> =>
   httpApi.post<undefined>('setNewPassword', { ...newPasswordData }).then(({ data }) => data);
+
+export const currentUser = async (): Promise<UserModel> => 
+  httpApi.get<UserModel>('my/users/current').then(({ data }) => data);

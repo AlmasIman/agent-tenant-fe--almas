@@ -4,7 +4,11 @@ import { ApiError } from '@app/api/ApiError';
 import { readToken } from '@app/services/localStorage.service';
 
 export const httpApi = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL,
+  baseURL: 'http://127.0.0.1:8000/api/', // process.env.REACT_APP_BASE_URL
+});
+
+export const httpApi2 = axios.create({ // for mocks or so
+  baseURL: process.env.REACT_APP_BASE_URL
 });
 
 httpApi.interceptors.request.use((config) => {

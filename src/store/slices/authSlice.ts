@@ -10,6 +10,7 @@ import {
   SecurityCodePayload,
   NewPasswordData,
   setNewPassword,
+  currentUser,
 } from '@app/api/auth.api';
 import { setUser } from '@app/store/slices/userSlice';
 import { deleteToken, deleteUser, persistToken, readToken } from '@app/services/localStorage.service';
@@ -22,14 +23,16 @@ const initialState: AuthSlice = {
   token: readToken(),
 };
 
-export const doLogin = createAsyncThunk('auth/doLogin', async (loginPayload: LoginRequest, { dispatch }) =>
-  login(loginPayload).then((res) => {
-    dispatch(setUser(res.user));
-    persistToken(res.token);
+export const doLogin = createAsyncThunk('auth/doLogin', async (loginPayload: LoginRequest, { dispatch }) => {
+  const tokenResponse = await login(loginPayload);
+  persistToken(tokenResponse.access);
 
-    return res.token;
-  }),
-);
+  console.log('tokenResponse' + tokenResponse.access);
+  const user = await currentUser();
+  dispatch(setUser(user));
+
+  return tokenResponse.access;
+});
 
 export const doSignUp = createAsyncThunk('auth/doSignUp', async (signUpPayload: SignUpRequest) =>
   signUp(signUpPayload),
