@@ -103,9 +103,9 @@ const GroupItemPage: React.FC = () => {
       key: 'full_name'
     },
     {
-      title: 'Статус',
-      dataIndex: 'status_name',
-      key: 'status_name',
+      title: 'Должность',
+      dataIndex: 'position_name',
+      key: 'position_name',
     },
     {
       title: 'Департамент',

@@ -1,4 +1,14 @@
-export interface UserData{
+export interface UserDataDetailed {
+  id: number;
+  full_name: string;
+  email: string;
+  user_name: string;
+  department_name: string;
+  position_name: string;
+  last_login: Date;
+}
+
+export interface UserData {
     id: number;
     full_name: string;
     status_name: string;

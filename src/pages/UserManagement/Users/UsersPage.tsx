@@ -9,7 +9,7 @@ import { useMounted } from '@app/hooks/useMounted';
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { httpApi } from '@app/api/http.api';
 
-interface UserDataRow {
+interface UserDataDetailed {
   id: number;
   full_name: string;
   email: string;
@@ -23,7 +23,7 @@ const initialPagination: Pagination = {
 };
 
 const UsersPage: React.FC = () => {
-  const [tableData, setTableData] = useState<{ data: UserDataRow[]; pagination: Pagination; loading: boolean }>({
+  const [tableData, setTableData] = useState<{ data: UserDataDetailed[]; pagination: Pagination; loading: boolean }>({
     data: [],
     pagination: initialPagination,
     loading: false,
@@ -34,7 +34,7 @@ const UsersPage: React.FC = () => {
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
-      httpApi.get<UserDataRow[]>('my/users/').then(({ data }) => {
+      httpApi.get<UserDataDetailed[]>('my/users/').then(({ data }) => {
         if (isMounted.current) {
           setTableData({ data: data, pagination: pagination, loading: false });
         }
@@ -81,13 +81,13 @@ const UsersPage: React.FC = () => {
     },
     {
       title: 'Подразделение',
-      dataIndex: 'department',
-      key: 'department',
+      dataIndex: 'department_name',
+      key: 'department_name',
     },
     {
       title: 'Должность',
-      dataIndex: 'position',
-      key: 'position',
+      dataIndex: 'position_name',
+      key: 'position_name',
     },
     {
       title: 'Группы',
