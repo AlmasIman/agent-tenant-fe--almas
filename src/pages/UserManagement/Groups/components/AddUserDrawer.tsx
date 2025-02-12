@@ -1,7 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space } from 'antd';
 import React, { Key, useCallback, useEffect, useState } from 'react';
-import { UserData } from './userManagementModels';
+import { UserData } from '../../userManagementModels';
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { Pagination } from '@app/api/table.api';

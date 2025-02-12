@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { PageTitle } from '@app/components/common/PageTitle/PageTitle';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { Key, DefaultRecordType } from 'rc-table/lib/interface';
-import { TreeTableRow, Pagination, getTreeTableData } from 'api/table.api';
+import { Pagination, getTreeTableData } from 'api/table.api';
 import { useTranslation } from 'react-i18next';
 import { useMounted } from '@app/hooks/useMounted';
 
@@ -13,7 +13,7 @@ import { Button, Modal } from 'antd';
 import CreateGroupDrawer from './components/CreateGroupDrawer';
 import { Link } from 'react-router-dom';
 import { TeamOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { GroupData } from '../components/userManagementModels';
+import { GroupData } from '../userManagementModels';
 import { RootState } from '@app/store/store';
 
 const initialPagination: Pagination = {
@@ -58,7 +58,7 @@ const GroupsListPage: React.FC = () => {
   
   const handleCreate = (name: string) => {
     if (tenantId) {
-      httpApi.post<GroupData[]>('my/user-groups/', { name: name, tenant: tenantId }).then(({ data }) => {
+      httpApi.post<GroupData>('my/user-groups/', { name: name, tenant: tenantId }).then(() => {
         fetch(initialPagination);
       });
     }

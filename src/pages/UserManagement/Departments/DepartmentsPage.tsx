@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { PageTitle } from '@app/components/common/PageTitle/PageTitle';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { Key, DefaultRecordType } from 'rc-table/lib/interface';
@@ -8,12 +9,11 @@ import { useMounted } from '@app/hooks/useMounted';
 
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { httpApi } from '@app/api/http.api';
-
-interface DepartmentDataRow {
-  id: number;
-  name: string;
-  employees_count: number;
-}
+import { Button, Modal } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import CreateDepartmentDrawer from './components/CreateDepartmentDrawer';
+import { DepartmentData } from '../userManagementModels';
+import { RootState } from '@app/store/store';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -21,20 +21,48 @@ const initialPagination: Pagination = {
 };
 
 const DepartmentsPage: React.FC = () => {
-  const [tableData, setTableData] = useState<{ data: DepartmentDataRow[]; pagination: Pagination; loading: boolean }>({
+  const [tableData, setTableData] = useState<{ data: DepartmentData[]; pagination: Pagination; loading: boolean }>({
     data: [],
     pagination: initialPagination,
     loading: false,
   });
+  const [departments, setDepartments] = useState<DepartmentData[]>([]);
+  const [selectedRows, setSelectedRows] = useState<DepartmentData[]>([]);
+  const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
   const { t } = useTranslation();
   const { isMounted } = useMounted();
+  const tenantId = useSelector((state: RootState) => state.user.user?.tenant_id);
+
+  const restructureData = (data: DepartmentData[]): DepartmentData[] => {
+    const map = new Map<number, DepartmentData>();
+    const result: DepartmentData[] = [];
+
+    data.forEach((item) => {
+      map.set(item.id, { ...item, children: [] });
+    });
+
+    data.forEach((item) => {
+      if (item.parent) {
+        const parent = map.get(item.parent);
+        if (parent) {
+          parent.children.push(map.get(item.id)!);
+        }
+      } else {
+        result.push(map.get(item.id)!);
+      }
+    });
+
+    return result;
+  };
 
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
-      httpApi.get<DepartmentDataRow[]>('my/departments/').then(({ data }) => {
+      httpApi.get<DepartmentData[]>('my/departments/').then(({ data }) => {
         if (isMounted.current) {
-          setTableData({ data: data, pagination: pagination, loading: false });
+          const restructuredData = restructureData(data);
+          setDepartments(data);
+          setTableData({ data: restructuredData, pagination: pagination, loading: false });
         }
       });
     },
@@ -49,15 +77,39 @@ const DepartmentsPage: React.FC = () => {
     fetch(pagination);
   };
 
+  const handleDeleteSelected = () => {
+    Modal.confirm({
+      title: "Удалить выбранные департаменты?",
+      icon: <ExclamationCircleOutlined />,
+      content: `Вы действительно хотите удалить выбранные департаменты?`,
+      okText: "Да, удалить",
+      okType: "danger",
+      cancelText: "Отмена",
+      centered: true,
+      onOk() {
+        selectedRows.forEach(department => {
+          httpApi.delete(`my/departments/${department.id}/`).then(() => {
+            fetch(initialPagination);
+          });
+        });
+      },
+      onCancel() {},
+    });
+  };
+
+  const handleCreateDrawerOpen = () => setCreateDrawerOpen(true);
+  const handleCreateDrawerClose = () => setCreateDrawerOpen(false);
+
+  const handleCreate = async (name: string, parent?: number) => {
+    httpApi.post('my/departments/', { name, parent, tenant: tenantId }).then(() => {
+      fetch(initialPagination);
+      handleCreateDrawerClose();
+    });
+  };
+
   const rowSelection = {
     onChange: (selectedRowKeys: Key[], selectedRows: DefaultRecordType[]) => {
-      console.log(selectedRowKeys, selectedRows);
-    },
-    onSelect: (record: DefaultRecordType, selected: boolean, selectedRows: DefaultRecordType[]) => {
-      console.log(record, selected, selectedRows);
-    },
-    onSelectAll: (selected: boolean, selectedRows: DefaultRecordType[]) => {
-      console.log(selected, selectedRows);
+      setSelectedRows(selectedRows as DepartmentData[]);
     },
   };
 
@@ -69,8 +121,8 @@ const DepartmentsPage: React.FC = () => {
     },
     {
       title: 'Количество пользователей',
-      dataIndex: 'employees_count',
-      key: 'employees_count',
+      dataIndex: 'users_count',
+      key: 'users_count',
       width: '20%',
     }
   ];
@@ -80,6 +132,12 @@ const DepartmentsPage: React.FC = () => {
       <PageTitle>Департаменты</PageTitle>
       <S.TablesWrapper>
         <S.Card id="departments-table" title="Департаменты" padding="1.25rem 1.25rem 0">
+        <S.ButtonsWrapper>
+          <Button type="primary" onClick={handleCreateDrawerOpen}>Добавить департамент</Button>
+          <Button type="default" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
+            Удалить
+          </Button>
+        </S.ButtonsWrapper>
         <BaseTable
           columns={columns}
           dataSource={tableData.data}
@@ -91,6 +149,13 @@ const DepartmentsPage: React.FC = () => {
         />
         </S.Card>
       </S.TablesWrapper>
+
+      <CreateDepartmentDrawer
+        open={createDrawerOpen}
+        onClose={handleCreateDrawerClose}
+        onCreate={handleCreate}
+        departments={departments}
+      />
     </>
   );
 };

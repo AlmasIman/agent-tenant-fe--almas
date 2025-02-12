@@ -2,13 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { PageTitle } from '@app/components/common/PageTitle/PageTitle';
 import { httpApi } from '@app/api/http.api';
-import { GroupData, UserData } from '../components/userManagementModels';
+import { GroupData, UserData } from '../userManagementModels';
 import { Spin, Card, Descriptions, Button, Modal } from 'antd';
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { Pagination } from '@app/api/table.api';
 import { useMounted } from '@app/hooks/useMounted';
-import AddUserDrawer from '../components/AddUserDrawer';
+import AddUserDrawer from './components/AddUserDrawer';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 const initialPagination: Pagination = {

@@ -10,4 +10,13 @@ export interface GroupData {
     name: string;
     tenant: number;
     users_count: number;
-  }
+}
+
+export interface DepartmentData {
+  id: number;
+  name: string;
+  tenant: number;
+  users_count: number;
+  parent: number;
+  children: DepartmentData[];
+}
