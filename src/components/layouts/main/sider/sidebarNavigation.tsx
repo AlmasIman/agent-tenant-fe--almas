@@ -30,20 +30,17 @@ export const sidebarNavigation: SidebarNavigationItem[] = [
       {
         title: 'Все пользователи',
         key: 'users',
-        url: '/user-management/users',
-        icon: <FileDoneOutlined />
+        url: '/user-management/users'
       },
       {
         title: 'Департаменты',
         key: 'departments',
-        url: '/user-management/departments',
-        icon: <FileDoneOutlined />
+        url: '/user-management/departments'
       },
       {
         title: 'Группы',
         key: 'groups',
-        url: '/user-management/groups',
-        icon: <FileDoneOutlined />
+        url: '/user-management/groups'
       },
     ]
   },

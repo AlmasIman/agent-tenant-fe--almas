@@ -1,5 +1,7 @@
 export interface UserModel {
   id: number;
+  tenant_name: string;
+  tenant_id: number;
   firstName: string;
   lastName: string;
   imgUrl: string;

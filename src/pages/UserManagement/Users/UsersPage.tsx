@@ -8,12 +8,13 @@ import { useMounted } from '@app/hooks/useMounted';
 
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { httpApi } from '@app/api/http.api';
-import { Button } from 'antd';
 
-interface GroupDataRow {
+interface UserDataRow {
   id: number;
-  name: string;
-  employees_count: number;
+  full_name: string;
+  email: string;
+  user_name: string;
+  last_login: Date;
 }
 
 const initialPagination: Pagination = {
@@ -21,8 +22,8 @@ const initialPagination: Pagination = {
   pageSize: 10,
 };
 
-const GroupsPage: React.FC = () => {
-  const [tableData, setTableData] = useState<{ data: GroupDataRow[]; pagination: Pagination; loading: boolean }>({
+const UsersPage: React.FC = () => {
+  const [tableData, setTableData] = useState<{ data: UserDataRow[]; pagination: Pagination; loading: boolean }>({
     data: [],
     pagination: initialPagination,
     loading: false,
@@ -33,7 +34,7 @@ const GroupsPage: React.FC = () => {
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
-      httpApi.get<GroupDataRow[]>('my/user-groups/').then(({ data }) => {
+      httpApi.get<UserDataRow[]>('my/users/').then(({ data }) => {
         if (isMounted.current) {
           setTableData({ data: data, pagination: pagination, loading: false });
         }
@@ -64,29 +65,42 @@ const GroupsPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'Наименование',
-      dataIndex: 'name',
-      key: 'name',
+      title: 'ФИО',
+      dataIndex: 'full_name',
+      key: 'full_name',
     },
     {
-      title: 'Количество пользователей',
-      dataIndex: 'employees_count',
-      key: 'employees_count',
-      width: '20%',
+      title: 'Эл. адрес',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Логин',
+      dataIndex: 'username',
+      key: 'username',
+    },
+    {
+      title: 'Подразделение',
+      dataIndex: 'department',
+      key: 'department',
+    },
+    {
+      title: 'Должность',
+      dataIndex: 'position',
+      key: 'position',
+    },
+    {
+      title: 'Группы',
+      dataIndex: 'groups',
+      key: 'groups',
     }
   ];
 
   return (
     <>
-      <PageTitle>Группы</PageTitle>
+      <PageTitle>Пользователи</PageTitle>
       <S.TablesWrapper>
-        <S.Card id="groups-table" title="Группы" padding="1.25rem 1.25rem 0">
-        <S.ButtonsWrapper>
-          <Button type="primary" onClick={() => {}}>Добавить</Button>
-          <Button type="default" danger onClick={() => {}} disabled={false}>
-            Удалить
-          </Button>
-        </S.ButtonsWrapper>
+        <S.Card id="departments-table" title="Пользователи" padding="1.25rem 1.25rem 0">
         <BaseTable
           columns={columns}
           dataSource={tableData.data}
@@ -102,4 +116,4 @@ const GroupsPage: React.FC = () => {
   );
 };
 
-export default GroupsPage;
+export default UsersPage;

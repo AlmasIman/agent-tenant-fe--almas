@@ -79,7 +79,7 @@ const DepartmentsPage: React.FC = () => {
     <>
       <PageTitle>Департаменты</PageTitle>
       <S.TablesWrapper>
-        <S.Card id="departments-table" title="Группы" padding="1.25rem 1.25rem 0">
+        <S.Card id="departments-table" title="Департаменты" padding="1.25rem 1.25rem 0">
         <BaseTable
           columns={columns}
           dataSource={tableData.data}
