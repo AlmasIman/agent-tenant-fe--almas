@@ -133,8 +133,8 @@ const GroupItemPage: React.FC = () => {
       <S.TablesWrapper>
         <S.Card title="Пользователи" padding="1.25rem 1.25rem 0">
         <S.ButtonsWrapper>
-          <Button type="primary" onClick={handleAddDrawerOpen}>Добавить пользователей</Button>
-          <Button type="default" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
+          <Button type="link" onClick={handleAddDrawerOpen}>Добавить пользователей</Button>
+          <Button type="link" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
             Удалить
           </Button>
         </S.ButtonsWrapper>

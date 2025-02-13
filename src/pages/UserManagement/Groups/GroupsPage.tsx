@@ -117,8 +117,8 @@ const GroupsPage: React.FC = () => {
       <S.TablesWrapper>
         <S.Card id="groups-table" title="Группы" padding="1.25rem 1.25rem 0">
         <S.ButtonsWrapper>
-          <Button type="primary" onClick={handleCreateDrawerOpen}>Создать новую группу</Button>
-          <Button type="default" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
+          <Button type="link" onClick={handleCreateDrawerOpen}>Создать новую группу</Button>
+          <Button type="link" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
             Удалить
           </Button>
         </S.ButtonsWrapper>

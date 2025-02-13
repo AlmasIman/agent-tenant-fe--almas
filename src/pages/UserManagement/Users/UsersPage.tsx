@@ -156,11 +156,11 @@ const UsersPage: React.FC = () => {
       <S.TablesWrapper>
         <S.Card id="users-table" title="Пользователи" padding="1.25rem 1.25rem 0">
         <S.ButtonsWrapper>
-          <Button type="primary" onClick={handleCreateDrawerOpen}>Зарегистрировать нового пользователя</Button>
-          <Button type="default" danger onClick={handleDeactivateSelected} disabled={!selectedRows.length}>
+          <Button type="link" onClick={handleCreateDrawerOpen}>Зарегистрировать нового пользователя</Button>
+          <Button type="link" danger onClick={handleDeactivateSelected} disabled={!selectedRows.length}>
             Деактивировать
           </Button>
-          <Button type="default" onClick={handleActivateSelected} disabled={!selectedRows.length}>
+          <Button type="link" onClick={handleActivateSelected} disabled={!selectedRows.length}>
             Активировать
           </Button>
         </S.ButtonsWrapper>

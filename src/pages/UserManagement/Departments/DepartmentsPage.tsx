@@ -133,8 +133,8 @@ const DepartmentsPage: React.FC = () => {
       <S.TablesWrapper>
         <S.Card id="departments-table" title="Департаменты" padding="1.25rem 1.25rem 0">
         <S.ButtonsWrapper>
-          <Button type="primary" onClick={handleCreateDrawerOpen}>Добавить департамент</Button>
-          <Button type="default" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
+          <Button type="link" onClick={handleCreateDrawerOpen}>Добавить департамент</Button>
+          <Button type="link" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
             Удалить
           </Button>
         </S.ButtonsWrapper>

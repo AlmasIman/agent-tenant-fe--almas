@@ -4,14 +4,15 @@ import { useSelector } from 'react-redux';
 import { PageTitle } from '@app/components/common/PageTitle/PageTitle';
 import { httpApi } from '@app/api/http.api';
 import { UserDataDetailed } from '../userManagementModels';
-import { Spin, Card, Descriptions, Tag } from 'antd';
-import { CheckCircleOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { Spin, Card, Descriptions, Tag, Button } from 'antd';
 import { RootState } from '@app/store/store';
+import EditUserDrawer from './components/EditUserDrawer';
 
 const UserItemPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<UserDataDetailed | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [editDrawerOpen, setEditDrawerOpen] = useState<boolean>(false);
   const currentUserId = useSelector((state: RootState) => state.user.user?.id);
 
   useEffect(() => {
@@ -23,6 +24,14 @@ const UserItemPage: React.FC = () => {
     }
   }, [id]);
 
+  const handleEditDrawerOpen = () => setEditDrawerOpen(true);
+  const handleEditDrawerClose = () => setEditDrawerOpen(false);
+
+  const handleUpdate = (updatedUser: UserDataDetailed) => {
+    setUser(updatedUser);
+    handleEditDrawerClose();
+  };
+
   if (loading) {
     return <Spin />;
   }
@@ -31,7 +40,8 @@ const UserItemPage: React.FC = () => {
     <>
       <PageTitle>Информация о пользователе</PageTitle>
       <Card>
-        <Descriptions title="Информация о пользователе">
+        <Descriptions title="Информация о пользователе" 
+            extra={<Button type="link" onClick={handleEditDrawerOpen}>Редактировать</Button>}>
           <Descriptions.Item label="ФИО">{user?.full_name}</Descriptions.Item>
           <Descriptions.Item label="Email">{user?.email}</Descriptions.Item>
           <Descriptions.Item label="Логин">{user?.username}</Descriptions.Item>
@@ -52,10 +62,9 @@ const UserItemPage: React.FC = () => {
           </Descriptions.Item>
           <Descriptions.Item label="Группы">
             {user?.groups.map((group: string) => {
-                return (<Tag>{group}</Tag>);
+                return (<Tag key={group}>{group}</Tag>);
             })}
           </Descriptions.Item>
-
         </Descriptions>
       </Card>
 
@@ -66,6 +75,13 @@ const UserItemPage: React.FC = () => {
       <Card style={{ marginTop: '20px' }}>
         <Descriptions title="Доступ к базам знаний"></Descriptions>
       </Card>
+
+      <EditUserDrawer
+        open={editDrawerOpen}
+        onClose={handleEditDrawerClose}
+        user={user}
+        onUpdate={handleUpdate}
+      />
     </>
   );
 };
