@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space } from 'antd';
+import { Button, Col, DatePicker, Descriptions, Drawer, Form, Input, Row, Select, Space } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { UserDataDetailed } from '../../userManagementModels';
 import { httpApi } from '@app/api/http.api';
@@ -54,6 +54,9 @@ const CreateUserDrawer: React.FC<CreateUserDrawerProps> = ({
           </Space>
         }
       >
+        <Descriptions>
+          <Descriptions.Item style={{ fontStyle: 'italic' }}>После регистрации пользователь получит по email инструкцию для входа в систему.</Descriptions.Item>
+        </Descriptions>
         <Form form={form} layout="vertical" hideRequiredMark>
           <Row gutter={16}>
             <Col span={12}>

@@ -16,11 +16,12 @@ import RequireAuth from '@app/components/router/RequireAuth';
 import { withLoading } from '@app/hocs/withLoading.hoc';
 import TenantDashboardPage from '@app/pages/DashboardPages/TenantDashboardPage';
 import UsersPage from '@app/pages/UserManagement/Users/UsersPage';
-import GroupsListPage from '@app/pages/UserManagement/Groups/GroupsPage';
+import GroupsPage from '@app/pages/UserManagement/Groups/GroupsPage';
 import DepartmentsPage from '@app/pages/UserManagement/Departments/DepartmentsPage';
 import TrainingsPage from '@app/pages/Trainings/TrainingsPage';
 import KbArticlesPage from '@app/pages/Kb/KbArticlesPage';
 import GroupItemPage from '@app/pages/UserManagement/Groups/GroupItemPage';
+import UserItemPage from '@app/pages/UserManagement/Users/UserItemPage';
 
 const ServerErrorPage = React.lazy(() => import('@app/pages/ServerErrorPage'));
 const Error404Page = React.lazy(() => import('@app/pages/Error404Page'));
@@ -60,10 +61,13 @@ export const AppRouter: React.FC = () => {
           <Route index element={<TenantDashboard />} />
           <Route path="overview" element={<TenantDashboard />} />
           <Route path="user-management">
-            <Route path="users" element={<UsersPage />} />
+            <Route path="users" >
+              <Route index element={<UsersPage />} />
+              <Route path=":id" element={<UserItemPage />} />
+            </Route>
             <Route path="departments" element={<DepartmentsPage />} />
             <Route path="groups">
-              <Route index element={<GroupsListPage />} />
+              <Route index element={<GroupsPage />} />
               <Route path=":id" element={<GroupItemPage />} />
             </Route>
           </Route>

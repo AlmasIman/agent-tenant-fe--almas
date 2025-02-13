@@ -21,7 +21,7 @@ const initialPagination: Pagination = {
   pageSize: 10,
 };
 
-const GroupsListPage: React.FC = () => {
+const GroupsPage: React.FC = () => {
   const [tableData, setTableData] = useState<{ data: GroupData[]; pagination: Pagination; loading: boolean }>({
     data: [],
     pagination: initialPagination,
@@ -143,4 +143,4 @@ const GroupsListPage: React.FC = () => {
   );
 };
 
-export default GroupsListPage;
+export default GroupsPage;

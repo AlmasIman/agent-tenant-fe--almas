@@ -10,10 +10,11 @@ import { useMounted } from '@app/hooks/useMounted';
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { httpApi } from '@app/api/http.api';
 import { Button, Modal } from 'antd';
-import { CheckCircleOutlined, ExclamationCircleOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ExclamationCircleOutlined, MinusCircleOutlined, UserOutlined } from '@ant-design/icons';
 import CreateUserDrawer from './components/CreateUserDrawer';
 import { UserDataDetailed } from '../userManagementModels';
 import { RootState } from '@app/store/store';
+import { Link } from 'react-router-dom';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -113,6 +114,12 @@ const UsersPage: React.FC = () => {
       title: 'ФИО',
       dataIndex: 'full_name',
       key: 'full_name',
+      render: (text: string, record: any) => (
+        <Link to={`/user-management/users/${record.id}`}>
+          <UserOutlined style={{ marginRight: 8 }} />
+          {text}
+        </Link>
+      ),
     },
     {
       title: 'Email',

@@ -10,6 +10,9 @@ export interface UserDataDetailed {
   position_name: string;
   tenant: number; // tenant id
   is_active: boolean;
+  date_joined: Date;
+  last_login: Date;
+  groups: string[];
 }
 
 export interface UserData {
