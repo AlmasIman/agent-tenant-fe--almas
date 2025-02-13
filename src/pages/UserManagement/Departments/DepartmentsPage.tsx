@@ -10,7 +10,7 @@ import { useMounted } from '@app/hooks/useMounted';
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { httpApi } from '@app/api/http.api';
 import { Button, Modal } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import CreateDepartmentDrawer from './components/CreateDepartmentDrawer';
 import { DepartmentData } from '../userManagementModels';
 import { RootState } from '@app/store/store';
@@ -133,9 +133,11 @@ const DepartmentsPage: React.FC = () => {
       <S.TablesWrapper>
         <S.Card id="departments-table" title="Департаменты" padding="1.25rem 1.25rem 0">
         <S.ButtonsWrapper>
-          <Button type="link" onClick={handleCreateDrawerOpen}>Добавить департамент</Button>
+          <Button type="link" onClick={handleCreateDrawerOpen}>
+            <PlusOutlined /> Добавить департамент
+          </Button>
           <Button type="link" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
-            Удалить
+            <DeleteOutlined /> Удалить
           </Button>
         </S.ButtonsWrapper>
         <BaseTable

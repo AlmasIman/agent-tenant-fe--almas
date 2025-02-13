@@ -9,7 +9,7 @@ import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { Pagination } from '@app/api/table.api';
 import { useMounted } from '@app/hooks/useMounted';
 import AddUserDrawer from './components/AddUserDrawer';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, UserAddOutlined, UserDeleteOutlined } from '@ant-design/icons';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -133,9 +133,11 @@ const GroupItemPage: React.FC = () => {
       <S.TablesWrapper>
         <S.Card title="Пользователи" padding="1.25rem 1.25rem 0">
         <S.ButtonsWrapper>
-          <Button type="link" onClick={handleAddDrawerOpen}>Добавить пользователей</Button>
+          <Button type="link" onClick={handleAddDrawerOpen}>
+            <UserAddOutlined /> Добавить пользователей
+          </Button>
           <Button type="link" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
-            Удалить
+            <UserDeleteOutlined /> Удалить
           </Button>
         </S.ButtonsWrapper>
         <BaseTable

@@ -10,7 +10,7 @@ import { useMounted } from '@app/hooks/useMounted';
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { httpApi } from '@app/api/http.api';
 import { Button, Modal } from 'antd';
-import { CheckCircleOutlined, ExclamationCircleOutlined, MinusCircleOutlined, UserOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ExclamationCircleOutlined, MinusCircleOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons';
 import CreateUserDrawer from './components/CreateUserDrawer';
 import { UserDataDetailed } from '../userManagementModels';
 import { RootState } from '@app/store/store';
@@ -156,12 +156,14 @@ const UsersPage: React.FC = () => {
       <S.TablesWrapper>
         <S.Card id="users-table" title="Пользователи" padding="1.25rem 1.25rem 0">
         <S.ButtonsWrapper>
-          <Button type="link" onClick={handleCreateDrawerOpen}>Зарегистрировать нового пользователя</Button>
+          <Button type="link" onClick={handleCreateDrawerOpen}>
+            <UserAddOutlined /> Зарегистрировать нового пользователя
+          </Button>
           <Button type="link" danger onClick={handleDeactivateSelected} disabled={!selectedRows.length}>
-            Деактивировать
+            <MinusCircleOutlined /> Деактивировать
           </Button>
           <Button type="link" onClick={handleActivateSelected} disabled={!selectedRows.length}>
-            Активировать
+            <CheckCircleOutlined />Активировать
           </Button>
         </S.ButtonsWrapper>
         <BaseTable
