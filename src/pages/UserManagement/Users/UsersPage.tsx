@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { PageTitle } from '@app/components/common/PageTitle/PageTitle';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { Key, DefaultRecordType } from 'rc-table/lib/interface';
@@ -8,14 +9,11 @@ import { useMounted } from '@app/hooks/useMounted';
 
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { httpApi } from '@app/api/http.api';
-
-interface UserDataDetailed {
-  id: number;
-  full_name: string;
-  email: string;
-  user_name: string;
-  last_login: Date;
-}
+import { Button, Modal } from 'antd';
+import { CheckCircleOutlined, ExclamationCircleOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import CreateUserDrawer from './components/CreateUserDrawer';
+import { UserDataDetailed } from '../userManagementModels';
+import { RootState } from '@app/store/store';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -28,8 +26,11 @@ const UsersPage: React.FC = () => {
     pagination: initialPagination,
     loading: false,
   });
+  const [selectedRows, setSelectedRows] = useState<UserDataDetailed[]>([]);
+  const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
   const { t } = useTranslation();
   const { isMounted } = useMounted();
+  const tenantId = useSelector((state: RootState) => state.user.user?.tenant_id);
 
   const fetch = useCallback(
     (pagination: Pagination) => {
@@ -51,15 +52,59 @@ const UsersPage: React.FC = () => {
     fetch(pagination);
   };
 
+  const handleCreateDrawerOpen = () => setCreateDrawerOpen(true);
+  const handleCreateDrawerClose = () => setCreateDrawerOpen(false);
+
+  const handleCreate = async (newUser: UserDataDetailed) => {
+    httpApi.post('my/users/', newUser).then(() => {
+      fetch(initialPagination);
+      handleCreateDrawerClose();
+    });
+  };
+
+  const handleDeactivateSelected = () => {
+    Modal.confirm({
+      title: "Деактивировать выбранных пользователей?",
+      icon: <ExclamationCircleOutlined />,
+      content: `Вы действительно хотите деактивировать выбранных пользователей?`,
+      okText: "Да, деактивировать",
+      okType: "danger",
+      cancelText: "Отмена",
+      centered: true,
+      onOk() {
+        selectedRows.forEach(user => {
+          httpApi.patch(`my/users/${user.id}/`, { is_active: false }).then(() => {
+            fetch(initialPagination);
+          });
+        });
+      },
+      onCancel() {},
+    });
+  };
+
+  const handleActivateSelected = () => {
+    Modal.confirm({
+      title: "Активировать выбранных пользователей?",
+      icon: <ExclamationCircleOutlined />,
+      content: `Вы действительно хотите активировать выбранных пользователей?`,
+      okText: "Да, активировать",
+      okType: "primary",
+      cancelText: "Отмена",
+      centered: true,
+      onOk() {
+        selectedRows.forEach(user => {
+          httpApi.patch(`my/users/${user.id}/`, { is_active: true }).then(() => {
+            fetch(initialPagination);
+          });
+        });
+      },
+      onCancel() {},
+    });
+  };
+
   const rowSelection = {
     onChange: (selectedRowKeys: Key[], selectedRows: DefaultRecordType[]) => {
-      console.log(selectedRowKeys, selectedRows);
-    },
-    onSelect: (record: DefaultRecordType, selected: boolean, selectedRows: DefaultRecordType[]) => {
-      console.log(record, selected, selectedRows);
-    },
-    onSelectAll: (selected: boolean, selectedRows: DefaultRecordType[]) => {
-      console.log(selected, selectedRows);
+      setSelectedRows(selectedRows as UserDataDetailed[]);
     },
   };
 
@@ -70,7 +115,7 @@ const UsersPage: React.FC = () => {
       key: 'full_name',
     },
     {
-      title: 'Эл. адрес',
+      title: 'Email',
       dataIndex: 'email',
       key: 'email',
     },
@@ -80,7 +125,7 @@ const UsersPage: React.FC = () => {
       key: 'username',
     },
     {
-      title: 'Подразделение',
+      title: 'Департамент',
       dataIndex: 'department_name',
       key: 'department_name',
     },
@@ -90,9 +135,11 @@ const UsersPage: React.FC = () => {
       key: 'position_name',
     },
     {
-      title: 'Группы',
-      dataIndex: 'groups',
-      key: 'groups',
+      title: 'Статус',
+      dataIndex: 'is_active',
+      key: 'is_active',
+      render: (is_active: boolean) => (is_active ? 
+        <CheckCircleOutlined style={{ color: '#52c41a' }} /> : <MinusCircleOutlined style={{ color: '#eb2f96' }}/>),
     }
   ];
 
@@ -100,7 +147,16 @@ const UsersPage: React.FC = () => {
     <>
       <PageTitle>Пользователи</PageTitle>
       <S.TablesWrapper>
-        <S.Card id="departments-table" title="Пользователи" padding="1.25rem 1.25rem 0">
+        <S.Card id="users-table" title="Пользователи" padding="1.25rem 1.25rem 0">
+        <S.ButtonsWrapper>
+          <Button type="primary" onClick={handleCreateDrawerOpen}>Зарегистрировать нового пользователя</Button>
+          <Button type="default" danger onClick={handleDeactivateSelected} disabled={!selectedRows.length}>
+            Деактивировать
+          </Button>
+          <Button type="default" onClick={handleActivateSelected} disabled={!selectedRows.length}>
+            Активировать
+          </Button>
+        </S.ButtonsWrapper>
         <BaseTable
           columns={columns}
           dataSource={tableData.data}
@@ -112,6 +168,12 @@ const UsersPage: React.FC = () => {
         />
         </S.Card>
       </S.TablesWrapper>
+
+      <CreateUserDrawer
+        open={createDrawerOpen}
+        onClose={handleCreateDrawerClose}
+        onCreate={handleCreate}
+      />
     </>
   );
 };
