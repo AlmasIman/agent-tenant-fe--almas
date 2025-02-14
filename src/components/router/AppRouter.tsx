@@ -75,7 +75,8 @@ export const AppRouter: React.FC = () => {
             <Route path="" element={<TrainingsPage />} />
           </Route>
           <Route path="kb">
-            <Route path="" element={<KbArticlesPage />} />
+            <Route index element={<KbArticlesPage />} />
+            <Route path="articles/:id" element={<KbArticlesPage />} />
           </Route>
           <Route path="setttings">
             

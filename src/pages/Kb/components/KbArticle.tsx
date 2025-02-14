@@ -3,11 +3,11 @@ import { Spin, Typography } from 'antd';
 import { httpApi } from '@app/api/http.api';
 import { ArticleData } from '../kbModels';
 
-interface KbArticleContentProps {
+interface KbArticleProps {
   articleId: number;
 }
 
-const KbArticleContent: React.FC<KbArticleContentProps> = ({ articleId }) => {
+const KbArticle: React.FC<KbArticleProps> = ({ articleId }) => {
   const [article, setArticle] = useState<ArticleData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -20,7 +20,11 @@ const KbArticleContent: React.FC<KbArticleContentProps> = ({ articleId }) => {
   }, [articleId]);
 
   if (loading) {
-    return <Spin />;
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <Spin />
+      </div>
+    );
   }
 
   if (!article) {
@@ -36,4 +40,4 @@ const KbArticleContent: React.FC<KbArticleContentProps> = ({ articleId }) => {
   );
 };
 
-export default KbArticleContent;
+export default KbArticle;
