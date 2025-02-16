@@ -33,7 +33,7 @@ const SelectParametersStep: React.FC<SelectParametersStepProps> = ({ trainingId,
 
   const handlePeriodicChange = (value: number, unit: string) => {
     const periodicEndDate = `${value} ${unit}`;
-    onChange({ due_date: periodicEndDate, period_number: value, period_type: unit });
+    onChange({ due_date: periodicEndDate, period_number: value, period_type: unit as ('days' | 'weeks' | 'months' | 'year') });
   };
 
   return (

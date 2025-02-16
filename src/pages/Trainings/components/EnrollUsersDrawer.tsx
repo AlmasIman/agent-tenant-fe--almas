@@ -22,7 +22,7 @@ const EnrollUsersDrawer: React.FC<EnrollUsersDrawerProps> = ({ open, onClose, tr
     start_date: '',
     due_date_type: 'none',
     period_number: null,
-    period_type: null,
+    period_type: 'days',
     due_date: '',
     notify_by_email: true,
   });
