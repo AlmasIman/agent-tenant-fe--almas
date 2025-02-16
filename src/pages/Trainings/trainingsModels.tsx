@@ -1,10 +1,21 @@
 interface TrainingData{
     id: number;
+    training: number; // training id
     training_name: string;
     training_description: string;
     training_publisher: string;
     training_tags: string[];
     category: number; // category id
     category_name: string;
-    
+}
+
+interface TrainingEnrollmentData{
+    training: number; // training id
+    user_ids: number[]; // user ids
+    start_date: string;
+    due_date_type: 'none' | 'periodic' | 'due_date'; // None, Period, Date
+    due_date: string;
+    period_number: number | null;
+    period_type: string | null; // day, week, month, year
+    notify_by_email: boolean;
 }

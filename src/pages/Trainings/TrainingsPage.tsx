@@ -13,6 +13,7 @@ import { Button } from 'antd';
 import { Link } from 'react-router-dom';
 import { BookOutlined, PlayCircleOutlined, UserAddOutlined } from '@ant-design/icons';
 import { RootState } from '@app/store/store';
+import EnrollUsersDrawer from './components/EnrollUsersDrawer';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -29,6 +30,8 @@ const TrainingsPage: React.FC = () => {
   const { t } = useTranslation();
   const { isMounted } = useMounted();
   const tenantId = useSelector((state: RootState) => state.user.user?.tenant_id);
+  const [enrollDrawerOpen, setEnrollDrawerOpen] = useState(false);
+  const [selectedTraining, setSelectedTraining] = useState<TrainingData | null>(null);
 
   const fetch = useCallback(
     (pagination: Pagination) => {
@@ -51,11 +54,16 @@ const TrainingsPage: React.FC = () => {
   };
 
   const handleEnroll = () => {
-    const selectedTraining = selectedRows[0];
-    if (selectedTraining) {
-      // Enroll logic here
-      console.log(`Enrolling in training: ${selectedTraining.training_name}`);
+    const training = selectedRows[0];
+    if (training) {
+      setSelectedTraining(training);
+      setEnrollDrawerOpen(true);
     }
+  };
+
+  const handleEnrollDrawerClose = () => {
+    setEnrollDrawerOpen(false);
+    setSelectedTraining(null);
   };
 
   const handlePreview = () => {
@@ -134,6 +142,14 @@ const TrainingsPage: React.FC = () => {
           />
         </S.Card>
       </S.TablesWrapper>
+
+      {selectedTraining && (
+        <EnrollUsersDrawer
+          open={enrollDrawerOpen}
+          onClose={handleEnrollDrawerClose}
+          training={selectedTraining}
+        />
+      )}
     </>
   );
 };
