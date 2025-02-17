@@ -7,6 +7,8 @@ interface TrainingData{
     training_tags: string[];
     category: number; // category id
     category_name: string;
+    enrolled_count: number;
+    completed_count: number;
 }
 
 interface TrainingEnrollmentData{

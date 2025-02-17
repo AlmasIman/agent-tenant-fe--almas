@@ -50,7 +50,7 @@ const EnrollUsersDrawer: React.FC<EnrollUsersDrawerProps> = ({ open, onClose, tr
       return;
     }
 
-    httpApi.post('my/enrollments', enrollmentData).then(() => {
+    httpApi.post('my/enrollments/', enrollmentData).then(() => {
       onClose();
     });
   };
