@@ -20,11 +20,13 @@ const EnrollUsersDrawer: React.FC<EnrollUsersDrawerProps> = ({ open, onClose, tr
     training: training.training,
     user_ids: [],
     start_date: '',
-    due_date_type: 'none',
+    periodic: false,
     period_number: null,
     period_type: 'days',
     due_date: '',
     notify_by_email: true,
+    skip_if_passed: true,
+    update_due_date_if_assigned: true,
   });
 
   const next = () => {
@@ -45,8 +47,8 @@ const EnrollUsersDrawer: React.FC<EnrollUsersDrawerProps> = ({ open, onClose, tr
   };
 
   const handleFinish = () => {
-    if (!enrollmentData.start_date || (enrollmentData.due_date_type === 'due_date' && !enrollmentData.due_date)) {
-      alert('Пожалуйста, заполните все поля');
+    if (!enrollmentData.start_date) {
+      alert('Пожалуйста, заполните дату начала');
       return;
     }
 

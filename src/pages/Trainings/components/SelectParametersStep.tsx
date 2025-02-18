@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Form, DatePicker, Radio, InputNumber, Select, Checkbox } from 'antd';
+import { Form, DatePicker, Checkbox, InputNumber, Select } from 'antd';
 import * as S from '@app/components/tables/Tables/Tables.styles';
-
-const { RangePicker } = DatePicker;
 
 interface SelectParametersStepProps {
   trainingId: number;
@@ -10,30 +8,35 @@ interface SelectParametersStepProps {
 }
 
 const SelectParametersStep: React.FC<SelectParametersStepProps> = ({ trainingId, onChange }) => {
-  const [endDateOption, setEndDateOption] = useState<'none' | 'periodic' | 'due_date'>('none');
-  
-  useEffect(() => {
-    onChange({ due_date_type: endDateOption });
-  }, [trainingId]);
+  const [periodic, setPeriodic] = useState<boolean>(false);
 
-  const handleEndDateChange = (e: any) => {
-    setEndDateOption(e.target.value);
-    if (e.target.value === 'none') {
-      onChange({ due_date: '' });
-    }
-  };
+  useEffect(() => {
+    onChange({ periodic });
+  }, [trainingId]);
 
   const handleStartDateChange = (date: any, dateString: string) => {
     onChange({ start_date: dateString });
   };
 
-  const handleEndDatePickerChange = (date: any, dateString: string) => {
+  const handleDueDateChange = (date: any, dateString: string) => {
     onChange({ due_date: dateString });
   };
 
-  const handlePeriodicChange = (value: number, unit: string) => {
-    const periodicEndDate = `${value} ${unit}`;
-    onChange({ due_date: periodicEndDate, period_number: value, period_type: unit as ('days' | 'weeks' | 'months' | 'year') });
+  const handlePeriodicChange = (e: any) => {
+    setPeriodic(e.target.checked);
+    onChange({ periodic: e.target.checked });
+  };
+
+  const handlePeriodicNumberChange = (value: number | null) => {
+    onChange({ period_number: value });
+  };
+
+  const handlePeriodicTypeChange = (value: string) => {
+    onChange({ period_type: value as 'days' | 'weeks' | 'months' | 'year' });
+  };
+
+  const handleCheckboxChange = (e: any, field: keyof TrainingEnrollmentData) => {
+    onChange({ [field]: e.target.checked });
   };
 
   return (
@@ -43,23 +46,45 @@ const SelectParametersStep: React.FC<SelectParametersStepProps> = ({ trainingId,
           <Form.Item label="Дата начала" required>
             <DatePicker onChange={handleStartDateChange} />
           </Form.Item>
-          <Form.Item label="Дата окончания">
-            <Radio.Group onChange={handleEndDateChange} value={endDateOption}>
-              <Radio value="none" style={{ display: 'block', marginBottom: 8 }}>Без срока</Radio>
-              <Radio value="due_date" style={{ display: 'block', marginBottom: 8 }}>
-                По сроку <DatePicker disabled={endDateOption !== 'due_date'} onChange={handleEndDatePickerChange} />
-              </Radio>
-              <Radio value="periodic" style={{ display: 'block', marginBottom: 8 }}>
-                Периодический
-                <InputNumber disabled={endDateOption !== 'periodic'} style={{ margin: '0 8px' }} onChange={(value) => handlePeriodicChange(value as number, 'days')} />
-                <Select disabled={endDateOption !== 'periodic'} defaultValue="days" style={{ width: 120 }} onChange={(value) => handlePeriodicChange(1, value)}>
-                  <Select.Option value="days">Дни</Select.Option>
-                  <Select.Option value="weeks">Недели</Select.Option>
-                  <Select.Option value="months">Месяцы</Select.Option>
-                  <Select.Option value="years">Годы</Select.Option>
-                </Select>
-              </Radio>
-            </Radio.Group>
+          <Form.Item label="Срок">
+            <DatePicker onChange={handleDueDateChange} />
+          </Form.Item>
+          <Form.Item>
+            <Checkbox checked={periodic} onChange={handlePeriodicChange}>
+              Периодический
+            </Checkbox>
+            <InputNumber
+              disabled={!periodic}
+              style={{ margin: '0 8px' }}
+              onChange={handlePeriodicNumberChange}
+            />
+            <Select
+              disabled={!periodic}
+              defaultValue="days"
+              style={{ width: 120 }}
+              onChange={handlePeriodicTypeChange}
+            >
+              <Select.Option value="days">Дни</Select.Option>
+              <Select.Option value="weeks">Недели</Select.Option>
+              <Select.Option value="months">Месяцы</Select.Option>
+              <Select.Option value="years">Годы</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Checkbox
+              defaultChecked={true}
+              onChange={(e) => handleCheckboxChange(e, 'skip_if_passed')}
+            >
+              Не записывать на тренинг, если пользователь уже прошел его 
+            </Checkbox>
+          </Form.Item>
+          <Form.Item>
+            <Checkbox
+              defaultChecked={true}
+              onChange={(e) => handleCheckboxChange(e, 'update_due_date_if_assigned')}
+            >
+              Обновить дату окончания, если пользователю ранее был назначен это тренинг
+            </Checkbox>
           </Form.Item>
           <Form.Item>
             <Checkbox checked disabled>

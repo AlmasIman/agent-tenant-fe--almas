@@ -111,10 +111,10 @@ const TrainingsPage: React.FC = () => {
       width: '10%',
     },
     {
-      title: 'Прошли обучение',
+      title: 'Прошли тренинг',
       dataIndex: 'completed_count',
       key: 'completed_count',
-      width: '10%',
+      width: '15%',
     },
   ];
 
