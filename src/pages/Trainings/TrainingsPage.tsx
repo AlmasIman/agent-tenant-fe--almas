@@ -86,7 +86,7 @@ const TrainingsPage: React.FC = () => {
       dataIndex: 'training_name',
       key: 'training_name',
       render: (text: string, record: any) => (
-        <Link to={`/trainings/${record.id}`}>
+        <Link to={`/trainings/${record.training}`}>
           <BookOutlined style={{ marginRight: 8 }} />
           {text}
         </Link>

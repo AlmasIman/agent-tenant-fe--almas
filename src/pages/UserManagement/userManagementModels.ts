@@ -37,3 +37,17 @@ export interface DepartmentData {
   parent: number; // parent department id
   children: DepartmentData[];
 }
+
+export interface EnrollmentData {
+  id: number;
+  training: number;
+  training_name: string; 
+  start_date: string;
+  due_date: string;
+  status: string;
+  status_display: string;
+  progress: number;
+  fact_start_date: string;
+  fact_end_date: string;
+  attempt_no: number;
+}

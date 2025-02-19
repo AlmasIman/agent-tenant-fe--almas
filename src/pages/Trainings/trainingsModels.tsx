@@ -23,3 +23,16 @@ interface TrainingEnrollmentData{
     update_due_date_if_assigned: boolean;
     notify_by_email: boolean;
 }
+
+
+interface UserTrainingEnrollmentData {
+    id: number;
+    user: number;
+    user_full_name: string;
+    status: string;
+    status_display: string;
+    progress: number;
+    fact_start_date: string;
+    fact_end_date: string;
+    attempt_no: number;
+}

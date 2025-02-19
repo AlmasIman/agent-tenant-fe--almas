@@ -8,6 +8,7 @@ import { Spin, Card, Descriptions, Tag, Button } from 'antd';
 import { RootState } from '@app/store/store';
 import EditUserDrawer from './components/EditUserDrawer';
 import { EditOutlined } from '@ant-design/icons';
+import UserEnrollments from './components/UserEnrollments';
 
 const UserItemPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -74,11 +75,12 @@ const UserItemPage: React.FC = () => {
       </Card>
 
       <Card style={{ marginTop: '20px' }}>
-        <Descriptions title="Тренинги"></Descriptions>
+        <Descriptions title="Тренинги" />
+        {user && <UserEnrollments userId={user.id} />}
       </Card>
 
       <Card style={{ marginTop: '20px' }}>
-        <Descriptions title="Доступ к базам знаний"></Descriptions>
+        <Descriptions title="Доступ к базам знаний" />
       </Card>
 
       <EditUserDrawer open={editDrawerOpen} onClose={handleEditDrawerClose} user={user} onUpdate={handleUpdate} />

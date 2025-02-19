@@ -22,6 +22,7 @@ import TrainingsPage from '@app/pages/Trainings/TrainingsPage';
 import KbArticlesPage from '@app/pages/Kb/KbArticlesPage';
 import GroupItemPage from '@app/pages/UserManagement/Groups/GroupItemPage';
 import UserItemPage from '@app/pages/UserManagement/Users/UserItemPage';
+import TrainingItemPage from '@app/pages/Trainings/TrainingItemPage';
 
 const ServerErrorPage = React.lazy(() => import('@app/pages/ServerErrorPage'));
 const Error404Page = React.lazy(() => import('@app/pages/Error404Page'));
@@ -72,7 +73,8 @@ export const AppRouter: React.FC = () => {
             </Route>
           </Route>
           <Route path="trainings">
-            <Route path="" element={<TrainingsPage />} />
+            <Route index element={<TrainingsPage />} />
+            <Route path=":id" element={<TrainingItemPage />} />
           </Route>
           <Route path="kb">
             <Route index element={<KbArticlesPage />} />
