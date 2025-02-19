@@ -5,7 +5,8 @@ import { EnrollmentData } from '../../userManagementModels';
 import { Pagination } from '@app/api/table.api';
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { Link } from 'react-router-dom';
-import { BookOutlined } from '@ant-design/icons';
+import { BookOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Button, Modal } from 'antd';
 
 interface UserEnrollmentsProps {
   userId: number;
@@ -22,6 +23,7 @@ const UserEnrollments: React.FC<UserEnrollmentsProps> = ({ userId }) => {
     pagination: initialPagination,
     loading: false,
   });
+  const [selectedRows, setSelectedRows] = useState<EnrollmentData[]>([]);
 
   useEffect(() => {
     setTableData((tableData) => ({ ...tableData, loading: true }));
@@ -35,6 +37,32 @@ const UserEnrollments: React.FC<UserEnrollmentsProps> = ({ userId }) => {
     httpApi.get<EnrollmentData[]>(`my/users/${userId}/enrollments/`, { params: { page: pagination.current, pageSize: pagination.pageSize } }).then(({ data }) => {
       setTableData({ data: data, pagination: pagination, loading: false });
     });
+  };
+
+  const handleRemoveSelected = () => {
+    Modal.confirm({
+      title: "Снять с тренингов?",
+      icon: <ExclamationCircleOutlined />,
+      content: `Вы действительно хотите снять пользователя из выбранных тренингов?`,
+      okText: "Да, снять",
+      okType: "danger",
+      cancelText: "Отмена",
+      centered: true,
+      onOk() {
+        selectedRows.forEach(enrollment => {
+          httpApi.delete(`my/users/${userId}/enrollments/${enrollment.id}/`).then(() => {
+            handleTableChange(tableData.pagination);
+          });
+        });
+      },
+      onCancel() {},
+    });
+  };
+
+  const rowSelection = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: EnrollmentData[]) => {
+      setSelectedRows(selectedRows);
+    },
   };
 
   const columns = [
@@ -72,12 +100,18 @@ const UserEnrollments: React.FC<UserEnrollmentsProps> = ({ userId }) => {
 
   return (
     <S.TablesWrapper>
+      <S.ButtonsWrapper>
+        <Button type="link" danger onClick={handleRemoveSelected} disabled={!selectedRows.length}>
+          <DeleteOutlined /> Снять с тренинга
+        </Button>
+      </S.ButtonsWrapper>
       <BaseTable
         columns={columns}
         dataSource={tableData.data}
         pagination={tableData.pagination}
         loading={tableData.loading}
         onChange={handleTableChange}
+        rowSelection={rowSelection}
         scroll={{ x: 800 }}
       />
     </S.TablesWrapper>

@@ -64,6 +64,7 @@ const TrainingsPage: React.FC = () => {
   const handleEnrollDrawerClose = () => {
     setEnrollDrawerOpen(false);
     setSelectedTraining(null);
+    fetch(initialPagination);
   };
 
   const handlePreview = () => {

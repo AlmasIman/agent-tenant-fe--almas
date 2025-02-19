@@ -4,7 +4,8 @@ import { httpApi } from '@app/api/http.api';
 import { Pagination } from '@app/api/table.api';
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { Link } from 'react-router-dom';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Button, Modal } from 'antd';
 
 interface TrainingEnrollmentsProps {
   trainingId: number;
@@ -21,6 +22,7 @@ const TrainingEnrollments: React.FC<TrainingEnrollmentsProps> = ({ trainingId })
     pagination: initialPagination,
     loading: false,
   });
+  const [selectedRows, setSelectedRows] = useState<UserTrainingEnrollmentData[]>([]);
 
   useEffect(() => {
     setTableData((tableData) => ({ ...tableData, loading: true }));
@@ -34,6 +36,32 @@ const TrainingEnrollments: React.FC<TrainingEnrollmentsProps> = ({ trainingId })
     httpApi.get<UserTrainingEnrollmentData[]>(`my/trainings/${trainingId}/enrollments/`, { params: { page: pagination.current, pageSize: pagination.pageSize } }).then(({ data }) => {
       setTableData({ data: data, pagination: pagination, loading: false });
     });
+  };
+
+  const handleRemoveSelected = () => {
+    Modal.confirm({
+      title: "Удалить выбранных пользователей из тренинга?",
+      icon: <ExclamationCircleOutlined />,
+      content: `Вы действительно хотите удалить выбранных пользователей из тренинга?`,
+      okText: "Да, удалить",
+      okType: "danger",
+      cancelText: "Отмена",
+      centered: true,
+      onOk() {
+        selectedRows.forEach(enrollment => {
+          httpApi.delete(`my/users/${enrollment.user}/enrollments/${enrollment.id}/`).then(() => {
+            handleTableChange(tableData.pagination);
+          });
+        });
+      },
+      onCancel() {},
+    });
+  };
+
+  const rowSelection = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: UserTrainingEnrollmentData[]) => {
+      setSelectedRows(selectedRows);
+    },
   };
 
   const columns = [
@@ -71,12 +99,18 @@ const TrainingEnrollments: React.FC<TrainingEnrollmentsProps> = ({ trainingId })
 
   return (
     <S.TablesWrapper>
+      <S.ButtonsWrapper>
+        <Button type="link" danger onClick={handleRemoveSelected} disabled={!selectedRows.length}>
+          <DeleteOutlined /> Снять с тренинга
+        </Button>
+      </S.ButtonsWrapper>
       <BaseTable
         columns={columns}
         dataSource={tableData.data}
         pagination={tableData.pagination}
         loading={tableData.loading}
         onChange={handleTableChange}
+        rowSelection={rowSelection}
         scroll={{ x: 800 }}
       />
     </S.TablesWrapper>
