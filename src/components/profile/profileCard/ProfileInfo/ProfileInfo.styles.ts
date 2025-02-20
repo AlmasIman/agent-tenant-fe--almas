@@ -14,7 +14,8 @@ export const Wrapper = styled.div`
 
 export const ImgWrapper = styled.div`
   width: 6.9375rem;
-  margin: 0 auto 1.25rem auto;
+  height: 6.9375rem;
+  margin: 0 auto 2.25rem auto;
   display: flex;
   justify-content: center;
   border-radius: 50%;

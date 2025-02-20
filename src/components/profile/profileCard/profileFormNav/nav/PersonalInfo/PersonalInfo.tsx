@@ -183,32 +183,7 @@ export const PersonalInfo: React.FC = () => {
           <BaseCol xs={24} md={12}>
             <CitiesItem />
           </BaseCol>
-
-          <BaseCol xs={24} md={12}>
-            <AddressItem number={1} />
-          </BaseCol>
-
-          <BaseCol xs={24} md={12}>
-            <AddressItem number={2} />
-          </BaseCol>
-
-          <BaseCol xs={24} md={12}>
-            <ZipcodeItem />
-          </BaseCol>
-
-          <BaseCol span={24}>
-            <BaseButtonsForm.Item>
-              <BaseButtonsForm.Title>{t('profile.nav.personalInfo.otherInfo')}</BaseButtonsForm.Title>
-            </BaseButtonsForm.Item>
-          </BaseCol>
-
-          <BaseCol xs={24} md={12}>
-            <WebsiteItem />
-          </BaseCol>
-
-          <BaseCol span={24}>
-            <SocialLinksItem />
-          </BaseCol>
+          
         </BaseRow>
       </BaseButtonsForm>
     </BaseCard>
