@@ -1,4 +1,4 @@
-export type CategoryType = 'apps' | 'forms' | 'charts' | 'auth' | 'data tables' | 'maps';
+export type CategoryType = 'kb' | 'trainings' | 'users';
 
 interface Category {
   name: CategoryType;
@@ -7,27 +7,15 @@ interface Category {
 
 export const categoriesList: Category[] = [
   {
-    name: 'apps',
-    title: 'common.apps',
+    name: 'kb',
+    title: 'база знаний',
   },
   {
-    name: 'auth',
-    title: 'common.auth',
+    name: 'trainings',
+    title: 'тренинги',
   },
   {
-    name: 'forms',
-    title: 'common.forms',
-  },
-  {
-    name: 'data tables',
-    title: 'common.dataTables',
-  },
-  {
-    name: 'charts',
-    title: 'common.charts',
-  },
-  {
-    name: 'maps',
-    title: 'common.maps',
-  },
+    name: 'users',
+    title: 'пользователи',
+  }
 ];

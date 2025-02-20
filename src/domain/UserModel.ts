@@ -2,6 +2,8 @@ export interface UserModel {
   id: number;
   tenant_name: string;
   tenant_id: number;
+  user_portal_url: string;
+  admin_portal_url: string;
   firstName: string;
   lastName: string;
   imgUrl: string;

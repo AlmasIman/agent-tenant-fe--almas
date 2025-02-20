@@ -7,6 +7,7 @@ import { HeaderFullscreen } from '../components/HeaderFullscreen/HeaderFullscree
 import * as S from '../Header.styles';
 import { BaseRow } from '@app/components/common/BaseRow/BaseRow';
 import { BaseCol } from '@app/components/common/BaseCol/BaseCol';
+import { ThemePicker } from '../components/settingsDropdown/settingsOverlay/ThemePicker/ThemePicker';
 
 interface DesktopHeaderProps {
   isTwoColumnsLayout: boolean;
@@ -44,15 +45,14 @@ export const DesktopHeader: React.FC<DesktopHeaderProps> = ({ isTwoColumnsLayout
           <BaseCol>
             <BaseRow gutter={[{ xxl: 5 }, { xxl: 5 }]}>
               <BaseCol>
-                
-              </BaseCol>
-
-              <BaseCol>
                 <NotificationsDropdown />
               </BaseCol>
 
               <BaseCol>
                 <SettingsDropdown />
+              </BaseCol>
+
+              <BaseCol>
               </BaseCol>
             </BaseRow>
           </BaseCol>
