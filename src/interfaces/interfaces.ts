@@ -6,7 +6,7 @@ export type ChartData = number[];
 
 export type xData = number[] | string[];
 
-export type LanguageType = 'de' | 'en';
+export type LanguageType = 'ru' | 'en';
 
 export type ThemeType = 'light' | 'dark';
 
