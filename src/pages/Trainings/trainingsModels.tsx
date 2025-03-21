@@ -1,4 +1,4 @@
-interface TrainingData{
+export interface TrainingData{
     id: number;
     training: number; // training id
     training_name: string;
@@ -11,7 +11,7 @@ interface TrainingData{
     completed_count: number;
 }
 
-interface TrainingEnrollmentData{
+export interface TrainingEnrollmentData{
     training: number; // training id
     user_ids: number[]; // user ids
     start_date: string;
@@ -25,7 +25,7 @@ interface TrainingEnrollmentData{
 }
 
 
-interface UserTrainingEnrollmentData {
+export interface UserTrainingEnrollmentData {
     id: number;
     user: number;
     user_full_name: string;

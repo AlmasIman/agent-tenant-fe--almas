@@ -5,6 +5,7 @@ import { httpApi } from '@app/api/http.api';
 import { Spin, Card, Descriptions, Tag, Button } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import TrainingEnrollments from './components/TrainingEnrollments';
+import { TrainingData } from './trainingsModels';
 
 const TrainingItemPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

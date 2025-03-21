@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { BookOutlined, PlayCircleOutlined, UserAddOutlined } from '@ant-design/icons';
 import { RootState } from '@app/store/store';
 import EnrollUsersDrawer from './components/EnrollUsersDrawer';
+import { TrainingData } from './trainingsModels';
 
 const initialPagination: Pagination = {
   current: 1,

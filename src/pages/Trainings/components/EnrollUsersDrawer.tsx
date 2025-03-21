@@ -4,6 +4,7 @@ import SelectUsersStep from './SelectUsersStep';
 import SelectTrainingStep from './SelectTrainingStep';
 import SelectParametersStep from './SelectParametersStep';
 import { httpApi } from '@app/api/http.api';
+import { TrainingData, TrainingEnrollmentData } from '../trainingsModels';
 
 interface EnrollUsersDrawerProps {
   open: boolean;

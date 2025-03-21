@@ -6,6 +6,7 @@ import * as S from '@app/components/tables/Tables/Tables.styles';
 import { Link } from 'react-router-dom';
 import { UserOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Button, Modal } from 'antd';
+import { UserTrainingEnrollmentData } from '../trainingsModels';
 
 interface TrainingEnrollmentsProps {
   trainingId: number;

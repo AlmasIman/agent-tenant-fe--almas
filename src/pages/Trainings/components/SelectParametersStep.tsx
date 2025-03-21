@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, DatePicker, Checkbox, InputNumber, Select } from 'antd';
 import * as S from '@app/components/tables/Tables/Tables.styles';
+import { TrainingEnrollmentData } from '../trainingsModels';
 
 interface SelectParametersStepProps {
   trainingId: number;

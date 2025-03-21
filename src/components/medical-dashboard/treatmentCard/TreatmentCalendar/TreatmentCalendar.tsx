@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import enUS from 'antd/lib/calendar/locale/en_US';
-import deDe from 'antd/es/calendar/locale/de_DE';
+import ruRU from 'antd/es/calendar/locale/ru_RU';
 import { CalendarSwitch } from '@app/components/common/CalendarSwitch/CalendarSwitch';
 import { useLanguage } from '@app/hooks/useLanguage';
 import { CalendarEvent } from '@app/api/calendar.api';
@@ -29,7 +29,7 @@ export const TreatmentCalendar: React.FC<TreatmentCalendarProps> = ({
   onToday,
 }) => {
   const { language } = useLanguage();
-  const locale = useMemo(() => (language === 'de' ? deDe : enUS), [language]);
+  const locale = useMemo(() => (language === 'ru' ? ruRU : enUS), [language]);
 
   const handleSelect = (value: AppDate) => {
     setDate(value);
