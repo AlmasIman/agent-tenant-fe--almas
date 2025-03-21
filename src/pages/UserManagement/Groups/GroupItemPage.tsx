@@ -21,49 +21,47 @@ const GroupItemPage: React.FC = () => {
   const [group, setGroup] = useState<GroupData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [tableData, setTableData] = useState<{ data: UserData[]; pagination: Pagination; loading: boolean }>({
-      data: [],
-      pagination: initialPagination,
-      loading: false,
-    });
+    data: [],
+    pagination: initialPagination,
+    loading: false,
+  });
   const [selectedRows, setSelectedRows] = useState<UserData[]>([]);
   const [addDrawerOpen, setAddDrawerOpen] = useState(false);
   const handleAddDrawerOpen = () => setAddDrawerOpen(true);
   const handleAddDrawerClose = () => setAddDrawerOpen(false);
-  
+
   const handleDeleteSelected = () => {
     Modal.confirm({
-      title: "Удалить выбранные записи?",
+      title: 'Удалить выбранные записи?',
       icon: <ExclamationCircleOutlined />,
       content: `Вы действительно хотите удалить выбранные записи?`,
-      okText: "Да, удалить",
-      okType: "danger",
-      cancelText: "Отмена",
+      okText: 'Да, удалить',
+      okType: 'danger',
+      cancelText: 'Отмена',
       centered: true,
       onOk() {
-        selectedRows.forEach(user => {
+        selectedRows.forEach((user) => {
           httpApi.delete(`my/user-groups/${id}/users/${user.id}/`).then(() => {
             fetchTableData(initialPagination);
           });
         });
       },
-      onCancel() {
-      },
     });
-  }
+  };
 
   const handleAddSelected = (users: UserData[]) => {
-    const existingUserIds = new Set(tableData.data.map(user => user.id));
-    const newUsers = users.filter(user => !existingUserIds.has(user.id));
+    const existingUserIds = new Set(tableData.data.map((user) => user.id));
+    const newUsers = users.filter((user) => !existingUserIds.has(user.id));
 
-    newUsers.forEach(user => {
+    newUsers.forEach((user) => {
       httpApi.post(`my/user-groups/${id}/users/`, { user_id: user.id }).then(() => {
         fetchTableData(initialPagination);
       });
     });
-  }
+  };
 
   const { isMounted } = useMounted();
-  
+
   const fetchTableData = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
@@ -87,9 +85,8 @@ const GroupItemPage: React.FC = () => {
     }
   }, [id]);
 
-
   const handleTableChange = (pagination: Pagination) => {
-      fetchTableData(pagination);
+    fetchTableData(pagination);
   };
 
   if (loading) {
@@ -100,7 +97,7 @@ const GroupItemPage: React.FC = () => {
     {
       title: 'ФИО',
       dataIndex: 'full_name',
-      key: 'full_name'
+      key: 'full_name',
     },
     {
       title: 'Должность',
@@ -111,7 +108,7 @@ const GroupItemPage: React.FC = () => {
       title: 'Департамент',
       dataIndex: 'department_name',
       key: 'department_name',
-    }
+    },
   ];
 
   const rowSelection = {
@@ -132,32 +129,27 @@ const GroupItemPage: React.FC = () => {
 
       <S.TablesWrapper>
         <S.Card title="Пользователи" padding="1.25rem 1.25rem 0">
-        <S.ButtonsWrapper>
-          <Button type="link" onClick={handleAddDrawerOpen}>
-            <UserAddOutlined /> Добавить пользователей
-          </Button>
-          <Button type="link" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
-            <UserDeleteOutlined /> Удалить
-          </Button>
-        </S.ButtonsWrapper>
-        <BaseTable
-          columns={columns}
-          dataSource={tableData.data}
-          pagination={tableData.pagination}
-          loading={tableData.loading}
-          onChange={handleTableChange}
-          rowSelection={rowSelection}
-          scroll={{ x: 800 }}
-        />
+          <S.ButtonsWrapper>
+            <Button type="link" onClick={handleAddDrawerOpen}>
+              <UserAddOutlined /> Добавить пользователей
+            </Button>
+            <Button type="link" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
+              <UserDeleteOutlined /> Удалить
+            </Button>
+          </S.ButtonsWrapper>
+          <BaseTable
+            columns={columns}
+            dataSource={tableData.data}
+            pagination={tableData.pagination}
+            loading={tableData.loading}
+            onChange={handleTableChange}
+            rowSelection={rowSelection}
+            scroll={{ x: 800 }}
+          />
         </S.Card>
       </S.TablesWrapper>
 
-      <AddUserDrawer
-        open={addDrawerOpen}
-        onClose={handleAddDrawerClose}
-        onAddSelected={handleAddSelected}
-      />
-      
+      <AddUserDrawer open={addDrawerOpen} onClose={handleAddDrawerClose} onAddSelected={handleAddSelected} />
     </>
   );
 };

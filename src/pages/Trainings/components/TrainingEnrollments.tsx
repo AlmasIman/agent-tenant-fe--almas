@@ -18,7 +18,11 @@ const initialPagination: Pagination = {
 };
 
 const TrainingEnrollments: React.FC<TrainingEnrollmentsProps> = ({ trainingId }) => {
-  const [tableData, setTableData] = useState<{ data: UserTrainingEnrollmentData[]; pagination: Pagination; loading: boolean }>({
+  const [tableData, setTableData] = useState<{
+    data: UserTrainingEnrollmentData[];
+    pagination: Pagination;
+    loading: boolean;
+  }>({
     data: [],
     pagination: initialPagination,
     loading: false,
@@ -34,28 +38,31 @@ const TrainingEnrollments: React.FC<TrainingEnrollmentsProps> = ({ trainingId })
 
   const handleTableChange = (pagination: Pagination) => {
     setTableData((tableData) => ({ ...tableData, loading: true }));
-    httpApi.get<UserTrainingEnrollmentData[]>(`my/trainings/${trainingId}/enrollments/`, { params: { page: pagination.current, pageSize: pagination.pageSize } }).then(({ data }) => {
-      setTableData({ data: data, pagination: pagination, loading: false });
-    });
+    httpApi
+      .get<UserTrainingEnrollmentData[]>(`my/trainings/${trainingId}/enrollments/`, {
+        params: { page: pagination.current, pageSize: pagination.pageSize },
+      })
+      .then(({ data }) => {
+        setTableData({ data: data, pagination: pagination, loading: false });
+      });
   };
 
   const handleRemoveSelected = () => {
     Modal.confirm({
-      title: "Удалить выбранных пользователей из тренинга?",
+      title: 'Удалить выбранных пользователей из тренинга?',
       icon: <ExclamationCircleOutlined />,
       content: `Вы действительно хотите удалить выбранных пользователей из тренинга?`,
-      okText: "Да, удалить",
-      okType: "danger",
-      cancelText: "Отмена",
+      okText: 'Да, удалить',
+      okType: 'danger',
+      cancelText: 'Отмена',
       centered: true,
       onOk() {
-        selectedRows.forEach(enrollment => {
+        selectedRows.forEach((enrollment) => {
           httpApi.delete(`my/users/${enrollment.user}/enrollments/${enrollment.id}/`).then(() => {
             handleTableChange(tableData.pagination);
           });
         });
       },
-      onCancel() {},
     });
   };
 

@@ -12,9 +12,7 @@ export const ProfileOverlay: React.FC = ({ ...props }) => {
   return (
     <div {...props}>
       <S.Text>
-        <Link to={userPortalUrl ?? '/'}>
-          User портал
-        </Link>
+        <Link to={userPortalUrl ?? '/'}>User портал</Link>
       </S.Text>
       <S.ItemsDivider />
       <S.Text>

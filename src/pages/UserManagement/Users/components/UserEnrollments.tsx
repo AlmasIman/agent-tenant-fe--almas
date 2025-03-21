@@ -34,28 +34,31 @@ const UserEnrollments: React.FC<UserEnrollmentsProps> = ({ userId }) => {
 
   const handleTableChange = (pagination: Pagination) => {
     setTableData((tableData) => ({ ...tableData, loading: true }));
-    httpApi.get<EnrollmentData[]>(`my/users/${userId}/enrollments/`, { params: { page: pagination.current, pageSize: pagination.pageSize } }).then(({ data }) => {
-      setTableData({ data: data, pagination: pagination, loading: false });
-    });
+    httpApi
+      .get<EnrollmentData[]>(`my/users/${userId}/enrollments/`, {
+        params: { page: pagination.current, pageSize: pagination.pageSize },
+      })
+      .then(({ data }) => {
+        setTableData({ data: data, pagination: pagination, loading: false });
+      });
   };
 
   const handleRemoveSelected = () => {
     Modal.confirm({
-      title: "Снять с тренингов?",
+      title: 'Снять с тренингов?',
       icon: <ExclamationCircleOutlined />,
       content: `Вы действительно хотите снять пользователя из выбранных тренингов?`,
-      okText: "Да, снять",
-      okType: "danger",
-      cancelText: "Отмена",
+      okText: 'Да, снять',
+      okType: 'danger',
+      cancelText: 'Отмена',
       centered: true,
       onOk() {
-        selectedRows.forEach(enrollment => {
+        selectedRows.forEach((enrollment) => {
           httpApi.delete(`my/users/${userId}/enrollments/${enrollment.id}/`).then(() => {
             handleTableChange(tableData.pagination);
           });
         });
       },
-      onCancel() {},
     });
   };
 

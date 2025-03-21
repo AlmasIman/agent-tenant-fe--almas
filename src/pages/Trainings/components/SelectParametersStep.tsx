@@ -54,17 +54,8 @@ const SelectParametersStep: React.FC<SelectParametersStepProps> = ({ trainingId,
             <Checkbox checked={periodic} onChange={handlePeriodicChange}>
               Периодический
             </Checkbox>
-            <InputNumber
-              disabled={!periodic}
-              style={{ margin: '0 8px' }}
-              onChange={handlePeriodicNumberChange}
-            />
-            <Select
-              disabled={!periodic}
-              defaultValue="days"
-              style={{ width: 120 }}
-              onChange={handlePeriodicTypeChange}
-            >
+            <InputNumber disabled={!periodic} style={{ margin: '0 8px' }} onChange={handlePeriodicNumberChange} />
+            <Select disabled={!periodic} defaultValue="days" style={{ width: 120 }} onChange={handlePeriodicTypeChange}>
               <Select.Option value="days">Дни</Select.Option>
               <Select.Option value="weeks">Недели</Select.Option>
               <Select.Option value="months">Месяцы</Select.Option>
@@ -72,18 +63,12 @@ const SelectParametersStep: React.FC<SelectParametersStepProps> = ({ trainingId,
             </Select>
           </Form.Item>
           <Form.Item>
-            <Checkbox
-              defaultChecked={true}
-              onChange={(e) => handleCheckboxChange(e, 'skip_if_passed')}
-            >
-              Не записывать на тренинг, если пользователь уже прошел его 
+            <Checkbox defaultChecked={true} onChange={(e) => handleCheckboxChange(e, 'skip_if_passed')}>
+              Не записывать на тренинг, если пользователь уже прошел его
             </Checkbox>
           </Form.Item>
           <Form.Item>
-            <Checkbox
-              defaultChecked={true}
-              onChange={(e) => handleCheckboxChange(e, 'update_due_date_if_assigned')}
-            >
+            <Checkbox defaultChecked={true} onChange={(e) => handleCheckboxChange(e, 'update_due_date_if_assigned')}>
               Обновить дату окончания, если пользователю ранее был назначен это тренинг
             </Checkbox>
           </Form.Item>

@@ -30,5 +30,5 @@ export const profileNavData: ProfileNavItem[] = [
     icon: <BellOutlined />,
     color: 'error',
     href: 'notifications',
-  }
+  },
 ];

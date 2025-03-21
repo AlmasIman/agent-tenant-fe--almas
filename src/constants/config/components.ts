@@ -12,6 +12,4 @@ export interface Component {
 // maybe we need to have enum with all routes like we had before?
 
 // TODO change urls according to new dashboard routes and add new NFT components
-export const components: Component[] = [
-  
-];
+export const components: Component[] = [];

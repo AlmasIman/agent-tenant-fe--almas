@@ -4,7 +4,6 @@ import * as S from './SettingsOverlay.styles';
 import { Link } from 'react-router-dom';
 
 export const SettingsOverlay: React.FC = ({ ...props }) => {
-
   return (
     <S.SettingsOverlayMenu {...props}>
       <S.Text>

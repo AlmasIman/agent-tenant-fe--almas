@@ -17,16 +17,12 @@ const initialPagination: Pagination = {
 const { useForm } = Form;
 
 export interface AddUserDrawerProps {
-    open: boolean;
-    onClose: () => void;
-    onAddSelected: (users: UserData[]) => void;
-  }
+  open: boolean;
+  onClose: () => void;
+  onAddSelected: (users: UserData[]) => void;
+}
 
-const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
-    open,
-    onClose,
-    onAddSelected,
-}) => {
+const AddUserDrawer: React.FC<AddUserDrawerProps> = ({ open, onClose, onAddSelected }) => {
   const [tableData, setTableData] = useState<{ data: UserData[]; pagination: Pagination; loading: boolean }>({
     data: [],
     pagination: initialPagination,
@@ -35,7 +31,7 @@ const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
   const [selectedRows, setSelectedRows] = useState<UserData[]>([]);
 
   const { isMounted } = useMounted();
-  
+
   const fetchTableData = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
@@ -56,34 +52,34 @@ const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
 
   const handleAdd = async () => {
     onAddSelected(selectedRows);
-    onClose();    
+    onClose();
   };
 
   const handleTableChange = (pagination: Pagination) => {
-      fetchTableData(pagination);
+    fetchTableData(pagination);
   };
 
   const rowSelection = {
     onChange: (selectedRowKeys: Key[], selectedRows: DefaultRecordType[]) => {
       setSelectedRows(selectedRows as UserData[]);
-    }
+    },
   };
 
   const columns = [
     {
       title: 'ФИО',
       dataIndex: 'full_name',
-      key: 'full_name'
+      key: 'full_name',
     },
     {
       title: 'Департамент',
       dataIndex: 'department_name',
       key: 'department_name',
-    }
+    },
   ];
-  
+
   return (
-    <>      
+    <>
       <Drawer
         title="Добавить пользователей"
         width={720}
@@ -101,15 +97,15 @@ const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
       >
         <S.TablesWrapper>
           <S.Card title="Пользователи" padding="1.25rem 1.25rem 0">
-          <BaseTable
-            columns={columns}
-            dataSource={tableData.data}
-            rowSelection={{ ...rowSelection }}
-            pagination={tableData.pagination}
-            loading={tableData.loading}
-            onChange={handleTableChange}
-            scroll={{ x: 400 }}
-          />
+            <BaseTable
+              columns={columns}
+              dataSource={tableData.data}
+              rowSelection={{ ...rowSelection }}
+              pagination={tableData.pagination}
+              loading={tableData.loading}
+              onChange={handleTableChange}
+              scroll={{ x: 400 }}
+            />
           </S.Card>
         </S.TablesWrapper>
       </Drawer>

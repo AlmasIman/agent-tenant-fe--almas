@@ -13,11 +13,7 @@ export interface CreateUserDrawerProps {
   onCreate: (newUser: UserDataDetailed) => void;
 }
 
-const CreateUserDrawer: React.FC<CreateUserDrawerProps> = ({
-  open,
-  onClose,
-  onCreate,
-}) => {
+const CreateUserDrawer: React.FC<CreateUserDrawerProps> = ({ open, onClose, onCreate }) => {
   const [form] = useForm();
   const [departments, setDepartments] = useState<DepartmentData[]>([]);
 
@@ -55,25 +51,19 @@ const CreateUserDrawer: React.FC<CreateUserDrawerProps> = ({
         }
       >
         <Descriptions>
-          <Descriptions.Item style={{ fontStyle: 'italic' }}>После регистрации пользователь получит по email инструкцию для входа в систему.</Descriptions.Item>
+          <Descriptions.Item style={{ fontStyle: 'italic' }}>
+            После регистрации пользователь получит по email инструкцию для входа в систему.
+          </Descriptions.Item>
         </Descriptions>
         <Form form={form} layout="vertical" hideRequiredMark>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
-                name="first_name"
-                label="Имя"
-                rules={[{ required: true, message: 'Имя обязательно' }]}
-              >
+              <Form.Item name="first_name" label="Имя" rules={[{ required: true, message: 'Имя обязательно' }]}>
                 <Input placeholder="Имя пользователя" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="last_name"
-                label="Фамилия"
-                rules={[{ required: true, message: 'Фамилия обязательно' }]}
-              >
+              <Form.Item name="last_name" label="Фамилия" rules={[{ required: true, message: 'Фамилия обязательно' }]}>
                 <Input placeholder="Фамилия пользователя" />
               </Form.Item>
             </Col>
@@ -89,11 +79,7 @@ const CreateUserDrawer: React.FC<CreateUserDrawerProps> = ({
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="username"
-                label="Логин"
-                rules={[{ required: false }]}
-              >
+              <Form.Item name="username" label="Логин" rules={[{ required: false }]}>
                 <Input placeholder="Логин создается системой" disabled={true} />
               </Form.Item>
             </Col>
@@ -106,7 +92,7 @@ const CreateUserDrawer: React.FC<CreateUserDrawerProps> = ({
                 rules={[{ required: true, message: 'Департамент обязателен' }]}
               >
                 <Select placeholder="Выберите департамент">
-                  {departments.map(department => (
+                  {departments.map((department) => (
                     <Select.Option key={department.id} value={department.id}>
                       {department.name}
                     </Select.Option>

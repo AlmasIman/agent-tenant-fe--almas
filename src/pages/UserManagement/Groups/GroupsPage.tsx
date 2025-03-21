@@ -55,40 +55,38 @@ const GroupsPage: React.FC = () => {
   const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
   const handleCreateDrawerOpen = () => setCreateDrawerOpen(true);
   const handleCreateNewClose = () => setCreateDrawerOpen(false);
-  
+
   const handleCreate = (name: string) => {
     if (tenantId) {
       httpApi.post<GroupData>('my/user-groups/', { name: name, tenant: tenantId }).then(() => {
         fetch(initialPagination);
       });
     }
-  }
+  };
 
   const handleDeleteSelected = () => {
     Modal.confirm({
-      title: "Удалить выбранные группы?",
+      title: 'Удалить выбранные группы?',
       icon: <ExclamationCircleOutlined />,
       content: `Вы действительно хотите удалить выбранные группы?`,
-      okText: "Да, удалить",
-      okType: "danger",
-      cancelText: "Отмена",
+      okText: 'Да, удалить',
+      okType: 'danger',
+      cancelText: 'Отмена',
       centered: true,
       onOk() {
-        selectedRows.forEach(group => {
+        selectedRows.forEach((group) => {
           httpApi.delete(`my/user-groups/${group.id}/`).then(() => {
             fetch(initialPagination);
           });
         });
       },
-      onCancel() {
-      },
     });
-  }
+  };
 
   const rowSelection = {
     onChange: (selectedRowKeys: Key[], selectedRows: DefaultRecordType[]) => {
       setSelectedRows(selectedRows as GroupData[]);
-    }
+    },
   };
 
   const columns = [
@@ -108,7 +106,7 @@ const GroupsPage: React.FC = () => {
       dataIndex: 'users_count',
       key: 'users_count',
       width: '20%',
-    }
+    },
   ];
 
   return (
@@ -116,31 +114,27 @@ const GroupsPage: React.FC = () => {
       <PageTitle>Группы</PageTitle>
       <S.TablesWrapper>
         <S.Card id="groups-table" title="Группы" padding="1.25rem 1.25rem 0">
-        <S.ButtonsWrapper>
-          <Button type="link" onClick={handleCreateDrawerOpen}>
-            <UsergroupAddOutlined /> Создать новую группу
-          </Button>
-          <Button type="link" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
-            <DeleteOutlined /> Удалить
-          </Button>
-        </S.ButtonsWrapper>
-        <BaseTable
-          columns={columns}
-          dataSource={tableData.data}
-          pagination={tableData.pagination}
-          loading={tableData.loading}
-          onChange={handleTableChange}
-          rowSelection={rowSelection}
-          scroll={{ x: 800 }}
-        />
+          <S.ButtonsWrapper>
+            <Button type="link" onClick={handleCreateDrawerOpen}>
+              <UsergroupAddOutlined /> Создать новую группу
+            </Button>
+            <Button type="link" danger onClick={handleDeleteSelected} disabled={!selectedRows.length}>
+              <DeleteOutlined /> Удалить
+            </Button>
+          </S.ButtonsWrapper>
+          <BaseTable
+            columns={columns}
+            dataSource={tableData.data}
+            pagination={tableData.pagination}
+            loading={tableData.loading}
+            onChange={handleTableChange}
+            rowSelection={rowSelection}
+            scroll={{ x: 800 }}
+          />
         </S.Card>
       </S.TablesWrapper>
 
-      <CreateGroupDrawer
-        open={createDrawerOpen}
-        onClose={handleCreateNewClose}
-        onCreate={handleCreate}
-      />
+      <CreateGroupDrawer open={createDrawerOpen} onClose={handleCreateNewClose} onCreate={handleCreate} />
     </>
   );
 };

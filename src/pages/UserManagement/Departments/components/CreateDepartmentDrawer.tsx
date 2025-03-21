@@ -10,17 +10,12 @@ export interface CreateDepartmentDrawerProps {
   departments: { id: number; name: string }[];
 }
 
-const CreateDepartmentDrawer: React.FC<CreateDepartmentDrawerProps> = ({
-  open,
-  onClose,
-  onCreate,
-  departments,
-}) => {
+const CreateDepartmentDrawer: React.FC<CreateDepartmentDrawerProps> = ({ open, onClose, onCreate, departments }) => {
   const [form] = useForm();
 
   const handleCreate = async () => {
     form.validateFields().then((values) => {
-        console.log(values);
+      console.log(values);
       onCreate(values.name, values.parent);
       form.resetFields();
     });
@@ -55,12 +50,9 @@ const CreateDepartmentDrawer: React.FC<CreateDepartmentDrawerProps> = ({
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item
-                name="parent"
-                label="Родительский департамент"
-              >
+              <Form.Item name="parent" label="Родительский департамент">
                 <Select placeholder="-">
-                  {departments.map(department => (
+                  {departments.map((department) => (
                     <Select.Option key={department.id} value={department.id}>
                       {department.name}
                     </Select.Option>

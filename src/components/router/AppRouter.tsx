@@ -62,7 +62,7 @@ export const AppRouter: React.FC = () => {
           <Route index element={<TenantDashboard />} />
           <Route path="overview" element={<TenantDashboard />} />
           <Route path="user-management">
-            <Route path="users" >
+            <Route path="users">
               <Route index element={<UsersPage />} />
               <Route path=":id" element={<UserItemPage />} />
             </Route>
@@ -80,9 +80,7 @@ export const AppRouter: React.FC = () => {
             <Route index element={<KbArticlesPage />} />
             <Route path="articles/:id" element={<KbArticlesPage />} />
           </Route>
-          <Route path="setttings">
-            
-          </Route>
+          <Route path="setttings"></Route>
           <Route path="server-error" element={<ServerError />} />
           <Route path="404" element={<Error404 />} />
           <Route path="profile" element={<ProfileLayout />}>

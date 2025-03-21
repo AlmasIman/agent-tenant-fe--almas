@@ -5,27 +5,23 @@ import React, { useState } from 'react';
 const { useForm } = Form;
 
 export interface CreateGroupDrawerProps {
-    open: boolean;
-    onClose: () => void;
-    onCreate: (name: string) => void;
-  }
+  open: boolean;
+  onClose: () => void;
+  onCreate: (name: string) => void;
+}
 
-const CreateGroupDrawer: React.FC<CreateGroupDrawerProps> = ({
-    open,
-    onClose,
-    onCreate,
-}) => {
-    const [form] = useForm();
+const CreateGroupDrawer: React.FC<CreateGroupDrawerProps> = ({ open, onClose, onCreate }) => {
+  const [form] = useForm();
 
-    const handleCreate = async () => {
-        form.validateFields().then((values) => {
-            onCreate(values.name);
-            form.resetFields();
-            onClose();    
-        });
-    };
+  const handleCreate = async () => {
+    form.validateFields().then((values) => {
+      onCreate(values.name);
+      form.resetFields();
+      onClose();
+    });
+  };
   return (
-    <>      
+    <>
       <Drawer
         title="Новая группа пользователей"
         width={720}

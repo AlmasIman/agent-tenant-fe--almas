@@ -20,9 +20,7 @@ export const DesktopHeader: React.FC<DesktopHeaderProps> = ({ isTwoColumnsLayout
         <BaseCol xl={15} xxl={12}>
           <HeaderSearch />
         </BaseCol>
-        <BaseCol>
-
-        </BaseCol>
+        <BaseCol></BaseCol>
       </BaseRow>
     </S.SearchColumn>
   ) : (
@@ -30,9 +28,7 @@ export const DesktopHeader: React.FC<DesktopHeaderProps> = ({ isTwoColumnsLayout
       <BaseCol lg={10} xxl={8}>
         <HeaderSearch />
       </BaseCol>
-      <BaseCol>
-
-      </BaseCol>
+      <BaseCol></BaseCol>
     </>
   );
 
@@ -52,8 +48,7 @@ export const DesktopHeader: React.FC<DesktopHeaderProps> = ({ isTwoColumnsLayout
                 <SettingsDropdown />
               </BaseCol>
 
-              <BaseCol>
-              </BaseCol>
+              <BaseCol></BaseCol>
             </BaseRow>
           </BaseCol>
 

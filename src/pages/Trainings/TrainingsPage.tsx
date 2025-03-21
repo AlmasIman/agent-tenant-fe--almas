@@ -146,11 +146,7 @@ const TrainingsPage: React.FC = () => {
       </S.TablesWrapper>
 
       {selectedTraining && (
-        <EnrollUsersDrawer
-          open={enrollDrawerOpen}
-          onClose={handleEnrollDrawerClose}
-          training={selectedTraining}
-        />
+        <EnrollUsersDrawer open={enrollDrawerOpen} onClose={handleEnrollDrawerClose} training={selectedTraining} />
       )}
     </>
   );

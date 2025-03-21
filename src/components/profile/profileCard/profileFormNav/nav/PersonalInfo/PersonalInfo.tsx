@@ -183,7 +183,6 @@ export const PersonalInfo: React.FC = () => {
           <BaseCol xs={24} md={12}>
             <CitiesItem />
           </BaseCol>
-          
         </BaseRow>
       </BaseButtonsForm>
     </BaseCard>

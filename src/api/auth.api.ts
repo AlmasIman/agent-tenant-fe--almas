@@ -37,7 +37,7 @@ export interface LoginResponse {
   refresh: string;
 }
 
-export const login = async (loginPayload: LoginRequest): Promise<LoginResponse> => 
+export const login = async (loginPayload: LoginRequest): Promise<LoginResponse> =>
   httpApi.post<LoginResponse>('token/', { ...loginPayload }).then(({ data }) => data);
 
 export const signUp = (signUpData: SignUpRequest): Promise<undefined> =>
@@ -52,5 +52,5 @@ export const verifySecurityCode = (securityCodePayload: SecurityCodePayload): Pr
 export const setNewPassword = (newPasswordData: NewPasswordData): Promise<undefined> =>
   httpApi.post<undefined>('setNewPassword', { ...newPasswordData }).then(({ data }) => data);
 
-export const currentUser = async (): Promise<UserModel> => 
+export const currentUser = async (): Promise<UserModel> =>
   httpApi.get<UserModel>('my/users/current').then(({ data }) => data);

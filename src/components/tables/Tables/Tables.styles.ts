@@ -11,7 +11,7 @@ export const Card = styled(CommonCard)`
 
 export const ButtonsWrapper = styled.div`
   display: flex;
-  margin-top: -4.0rem;
+  margin-top: -4rem;
   justify-content: flex-end;
   gap: 0.75rem;
   margin-bottom: 1rem;

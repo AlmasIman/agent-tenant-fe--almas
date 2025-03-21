@@ -16,17 +16,17 @@ export interface UserDataDetailed {
 }
 
 export interface UserData {
-    id: number;
-    full_name: string;
-    status_name: string;
-    department_name: string;
+  id: number;
+  full_name: string;
+  status_name: string;
+  department_name: string;
 }
 
 export interface GroupData {
-    id: number;
-    name: string;
-    tenant: number; // tenant id
-    users_count: number;
+  id: number;
+  name: string;
+  tenant: number; // tenant id
+  users_count: number;
 }
 
 export interface DepartmentData {
@@ -41,7 +41,7 @@ export interface DepartmentData {
 export interface EnrollmentData {
   id: number;
   training: number;
-  training_name: string; 
+  training_name: string;
   start_date: string;
   due_date: string;
   status: string;

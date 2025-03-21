@@ -12,7 +12,7 @@ const KbArticlesPage: React.FC = () => {
   return (
     <>
       <PageTitle>База знаний</PageTitle>
-      <Card id="departments-table" title="База знаний" >
+      <Card id="departments-table" title="База знаний">
         <Row gutter={16}>
           <Col span={6}>
             <div style={{ padding: '0 10px', borderRight: '1px solid #f0f0f0' }}>
@@ -20,9 +20,7 @@ const KbArticlesPage: React.FC = () => {
             </div>
           </Col>
           <Col span={18}>
-            <div style={{ padding: '0 10px' }}>
-              {selectedArticleId && <KbArticle articleId={selectedArticleId} />}
-            </div>
+            <div style={{ padding: '0 10px' }}>{selectedArticleId && <KbArticle articleId={selectedArticleId} />}</div>
           </Col>
         </Row>
       </Card>

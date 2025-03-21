@@ -29,9 +29,7 @@ const TrainingItemPage: React.FC = () => {
     <>
       <PageTitle>Информация о тренинге</PageTitle>
       <Card>
-        <Descriptions
-          title="Информация о тренинге"
-        >
+        <Descriptions title="Информация о тренинге">
           <Descriptions.Item label="Наименование">{training?.training_name}</Descriptions.Item>
           <Descriptions.Item label="Описание">{training?.training_description}</Descriptions.Item>
           <Descriptions.Item label="Издатель">{training?.training_publisher}</Descriptions.Item>

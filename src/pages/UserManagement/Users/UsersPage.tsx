@@ -10,7 +10,13 @@ import { useMounted } from '@app/hooks/useMounted';
 import * as S from '@app/components/tables/Tables/Tables.styles';
 import { httpApi } from '@app/api/http.api';
 import { Button, Modal } from 'antd';
-import { CheckCircleOutlined, ExclamationCircleOutlined, MinusCircleOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+  MinusCircleOutlined,
+  UserAddOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import CreateUserDrawer from './components/CreateUserDrawer';
 import { UserDataDetailed } from '../userManagementModels';
 import { RootState } from '@app/store/store';
@@ -65,41 +71,39 @@ const UsersPage: React.FC = () => {
 
   const handleDeactivateSelected = () => {
     Modal.confirm({
-      title: "Деактивировать выбранных пользователей?",
+      title: 'Деактивировать выбранных пользователей?',
       icon: <ExclamationCircleOutlined />,
       content: `Вы действительно хотите деактивировать выбранных пользователей?`,
-      okText: "Да, деактивировать",
-      okType: "danger",
-      cancelText: "Отмена",
+      okText: 'Да, деактивировать',
+      okType: 'danger',
+      cancelText: 'Отмена',
       centered: true,
       onOk() {
-        selectedRows.forEach(user => {
+        selectedRows.forEach((user) => {
           httpApi.patch(`my/users/${user.id}/`, { is_active: false }).then(() => {
             fetch(initialPagination);
           });
         });
       },
-      onCancel() {},
     });
   };
 
   const handleActivateSelected = () => {
     Modal.confirm({
-      title: "Активировать выбранных пользователей?",
+      title: 'Активировать выбранных пользователей?',
       icon: <ExclamationCircleOutlined />,
       content: `Вы действительно хотите активировать выбранных пользователей?`,
-      okText: "Да, активировать",
-      okType: "primary",
-      cancelText: "Отмена",
+      okText: 'Да, активировать',
+      okType: 'primary',
+      cancelText: 'Отмена',
       centered: true,
       onOk() {
-        selectedRows.forEach(user => {
+        selectedRows.forEach((user) => {
           httpApi.patch(`my/users/${user.id}/`, { is_active: true }).then(() => {
             fetch(initialPagination);
           });
         });
       },
-      onCancel() {},
     });
   };
 
@@ -145,9 +149,13 @@ const UsersPage: React.FC = () => {
       title: 'Статус',
       dataIndex: 'is_active',
       key: 'is_active',
-      render: (is_active: boolean) => (is_active ? 
-        <CheckCircleOutlined style={{ color: '#52c41a' }} /> : <MinusCircleOutlined style={{ color: '#eb2f96' }}/>),
-    }
+      render: (is_active: boolean) =>
+        is_active ? (
+          <CheckCircleOutlined style={{ color: '#52c41a' }} />
+        ) : (
+          <MinusCircleOutlined style={{ color: '#eb2f96' }} />
+        ),
+    },
   ];
 
   return (
@@ -155,34 +163,31 @@ const UsersPage: React.FC = () => {
       <PageTitle>Пользователи</PageTitle>
       <S.TablesWrapper>
         <S.Card id="users-table" title="Пользователи" padding="1.25rem 1.25rem 0">
-        <S.ButtonsWrapper>
-          <Button type="link" onClick={handleCreateDrawerOpen}>
-            <UserAddOutlined /> Зарегистрировать нового пользователя
-          </Button>
-          <Button type="link" danger onClick={handleDeactivateSelected} disabled={!selectedRows.length}>
-            <MinusCircleOutlined /> Деактивировать
-          </Button>
-          <Button type="link" onClick={handleActivateSelected} disabled={!selectedRows.length}>
-            <CheckCircleOutlined />Активировать
-          </Button>
-        </S.ButtonsWrapper>
-        <BaseTable
-          columns={columns}
-          dataSource={tableData.data}
-          rowSelection={{ ...rowSelection }}
-          pagination={tableData.pagination}
-          loading={tableData.loading}
-          onChange={handleTableChange}
-          scroll={{ x: 800 }}
-        />
+          <S.ButtonsWrapper>
+            <Button type="link" onClick={handleCreateDrawerOpen}>
+              <UserAddOutlined /> Зарегистрировать нового пользователя
+            </Button>
+            <Button type="link" danger onClick={handleDeactivateSelected} disabled={!selectedRows.length}>
+              <MinusCircleOutlined /> Деактивировать
+            </Button>
+            <Button type="link" onClick={handleActivateSelected} disabled={!selectedRows.length}>
+              <CheckCircleOutlined />
+              Активировать
+            </Button>
+          </S.ButtonsWrapper>
+          <BaseTable
+            columns={columns}
+            dataSource={tableData.data}
+            rowSelection={{ ...rowSelection }}
+            pagination={tableData.pagination}
+            loading={tableData.loading}
+            onChange={handleTableChange}
+            scroll={{ x: 800 }}
+          />
         </S.Card>
       </S.TablesWrapper>
 
-      <CreateUserDrawer
-        open={createDrawerOpen}
-        onClose={handleCreateDrawerClose}
-        onCreate={handleCreate}
-      />
+      <CreateUserDrawer open={createDrawerOpen} onClose={handleCreateDrawerClose} onCreate={handleCreate} />
     </>
   );
 };

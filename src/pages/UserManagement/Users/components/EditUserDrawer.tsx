@@ -12,12 +12,7 @@ export interface EditUserDrawerProps {
   onUpdate: (updatedUser: UserDataDetailed) => void;
 }
 
-const EditUserDrawer: React.FC<EditUserDrawerProps> = ({
-  open,
-  onClose,
-  user,
-  onUpdate,
-}) => {
+const EditUserDrawer: React.FC<EditUserDrawerProps> = ({ open, onClose, user, onUpdate }) => {
   const [form] = useForm();
   const [departments, setDepartments] = useState<DepartmentData[]>([]);
 
@@ -70,20 +65,12 @@ const EditUserDrawer: React.FC<EditUserDrawerProps> = ({
         <Form form={form} layout="vertical" hideRequiredMark>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
-                name="first_name"
-                label="Имя"
-                rules={[{ required: true, message: 'Имя обязательно' }]}
-              >
+              <Form.Item name="first_name" label="Имя" rules={[{ required: true, message: 'Имя обязательно' }]}>
                 <Input placeholder="Имя пользователя" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="last_name"
-                label="Фамилия"
-                rules={[{ required: true, message: 'Фамилия обязательно' }]}
-              >
+              <Form.Item name="last_name" label="Фамилия" rules={[{ required: true, message: 'Фамилия обязательно' }]}>
                 <Input placeholder="Фамилия пользователя" />
               </Form.Item>
             </Col>
@@ -105,7 +92,7 @@ const EditUserDrawer: React.FC<EditUserDrawerProps> = ({
                 rules={[{ required: true, message: 'Департамент обязателен' }]}
               >
                 <Select placeholder="Выберите департамент">
-                  {departments.map(department => (
+                  {departments.map((department) => (
                     <Select.Option key={department.id} value={department.id}>
                       {department.name}
                     </Select.Option>
