@@ -16,8 +16,8 @@ interface LoginFormData {
 }
 
 export const initValues: LoginFormData = {
-  username: 'hello@altence.com',
-  password: 'some-test-pass',
+  username: '',
+  password: '',
 };
 
 export const LoginForm: React.FC = () => {
@@ -81,9 +81,6 @@ export const LoginForm: React.FC = () => {
         <Auth.FooterWrapper>
           <Auth.Text>
             {t('login.noAccount')}{' '}
-            <Link to="/auth/sign-up">
-              <Auth.LinkText>{t('common.here')}</Auth.LinkText>
-            </Link>
           </Auth.Text>
         </Auth.FooterWrapper>
       </BaseForm>
