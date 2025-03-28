@@ -79,9 +79,7 @@ export const LoginForm: React.FC = () => {
           </Auth.SubmitButton>
         </BaseForm.Item>
         <Auth.FooterWrapper>
-          <Auth.Text>
-            {t('login.noAccount')}{' '}
-          </Auth.Text>
+          <Auth.Text>{t('login.noAccount')} </Auth.Text>
         </Auth.FooterWrapper>
       </BaseForm>
     </Auth.FormWrapper>
