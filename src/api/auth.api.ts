@@ -1,7 +1,6 @@
-import { httpApi, httpApi2 } from '@app/api/http.api';
+import { httpApi } from '@app/api/http.api';
 import './mocks/auth.api.mock';
 import { UserModel } from '@app/domain/UserModel';
-import axios from 'axios';
 
 export interface AuthData {
   email: string;

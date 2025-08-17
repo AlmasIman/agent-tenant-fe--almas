@@ -6,7 +6,6 @@ import { RootState } from '@app/store/store';
 import * as S from './ProfileOverlay.styles';
 
 export const ProfileOverlay: React.FC = ({ ...props }) => {
-  const { t } = useTranslation();
   const userPortalUrl = useSelector((state: RootState) => state.user.user?.user_portal_url);
 
   return (

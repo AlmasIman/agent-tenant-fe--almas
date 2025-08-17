@@ -10,7 +10,6 @@ import NewPasswordPage from '@app/pages/NewPasswordPage';
 import LockPage from '@app/pages/LockPage';
 
 import MainLayout from '@app/components/layouts/main/MainLayout/MainLayout';
-import ProfileLayout from '@app/components/profile/ProfileLayout';
 import RequireAuth from '@app/components/router/RequireAuth';
 import { withLoading } from '@app/hocs/withLoading.hoc';
 import TenantDashboardPage from '@app/pages/DashboardPages/TenantDashboardPage';

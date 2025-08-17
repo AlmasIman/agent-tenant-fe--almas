@@ -3,11 +3,9 @@ import { NotificationsDropdown } from '../components/notificationsDropdown/Notif
 import { ProfileDropdown } from '../components/profileDropdown/ProfileDropdown/ProfileDropdown';
 import { HeaderSearch } from '../components/HeaderSearch/HeaderSearch';
 import { SettingsDropdown } from '../components/settingsDropdown/SettingsDropdown';
-import { HeaderFullscreen } from '../components/HeaderFullscreen/HeaderFullscreen';
 import * as S from '../Header.styles';
 import { BaseRow } from '@app/components/common/BaseRow/BaseRow';
 import { BaseCol } from '@app/components/common/BaseCol/BaseCol';
-import { ThemePicker } from '../components/settingsDropdown/settingsOverlay/ThemePicker/ThemePicker';
 
 interface DesktopHeaderProps {
   isTwoColumnsLayout: boolean;
