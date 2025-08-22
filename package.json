@@ -105,6 +105,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "http-proxy-middleware": "^3.0.5",
     "husky": "^6.0.0",
     "less": "^4.1.2",
     "less-plugin-clean-css": "^1.5.1",

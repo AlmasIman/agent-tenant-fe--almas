@@ -1,5 +1,7 @@
 import { httpApi } from '@app/api/http.api';
-import './mocks/auth.api.mock';
+if (process.env.REACT_APP_ENABLE_MOCKS === 'true') {
+  require('./mocks/auth.api.mock');
+}
 import { UserModel } from '@app/domain/UserModel';
 
 export interface AuthData {
@@ -36,8 +38,14 @@ export interface LoginResponse {
   refresh: string;
 }
 
-export const login = async (loginPayload: LoginRequest): Promise<LoginResponse> =>
-  httpApi.post<LoginResponse>('token/', { ...loginPayload }).then(({ data }) => data);
+export const login = async (loginPayload: LoginRequest): Promise<LoginResponse> => {
+  try {
+    await httpApi.get('token/');
+  } catch (_) {
+    // ignore if backend doesn't require prefetch
+  }
+  return httpApi.post<LoginResponse>('token/', { ...loginPayload }).then(({ data }) => data);
+};
 
 export const signUp = (signUpData: SignUpRequest): Promise<undefined> =>
   httpApi.post<undefined>('signUp', { ...signUpData }).then(({ data }) => data);

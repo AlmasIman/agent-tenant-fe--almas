@@ -1,5 +1,5 @@
 import React from 'react';
-import { TeamOutlined, ReadOutlined, PieChartOutlined, FileDoneOutlined } from '@ant-design/icons';
+import { TeamOutlined, ReadOutlined, PieChartOutlined, FileDoneOutlined, PlusOutlined } from '@ant-design/icons';
 
 export interface SidebarNavigationItem {
   title: string;
@@ -43,6 +43,12 @@ export const sidebarNavigation: SidebarNavigationItem[] = [
     key: 'trainings',
     url: '/trainings',
     icon: <FileDoneOutlined />,
+  },
+  {
+    title: 'Создать курс',
+    key: 'create-course',
+    url: '/create-course',
+    icon: <PlusOutlined />,
   },
   {
     title: 'База знаний',
