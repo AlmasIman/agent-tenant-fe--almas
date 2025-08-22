@@ -51,6 +51,12 @@ export const sidebarNavigation: SidebarNavigationItem[] = [
     icon: <PlusOutlined />,
   },
   {
+    title: 'Хамза курсы план Б',
+    key: 'my-courses',
+    url: '/my-courses',
+    icon: <FileDoneOutlined />,
+  },
+  {
     title: 'База знаний',
     key: 'kb',
     url: '/kb',
