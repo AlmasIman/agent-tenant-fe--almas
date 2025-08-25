@@ -60,12 +60,13 @@ httpApiMock.onPut(/courses\/\d+/).reply((config) => {
   return [200, mockCourses[courseIndex]];
 });
 
-httpApiMock.onGet('spaces').reply(200, mockSpaces);
-httpApiMock.onPost('spaces').reply((config) => {
+httpApiMock.onGet('kb/spaces/').reply(200, mockSpaces);
+httpApiMock.onPost('kb/spaces/').reply((config) => {
   const payload = JSON.parse(config.data);
   const newSpace = {
     id: Date.now().toString(),
-    ...payload,
+    name: payload.name,
+    description: payload.description || '',
   };
   mockSpaces.push(newSpace);
   return [201, newSpace];
@@ -146,7 +147,7 @@ export class CourseApi {
 
   static async getSpaces() {
     try {
-      const response = await httpApi.get('spaces');
+      const response = await httpApi.get('kb/spaces/');
       return response.data;
     } catch (error) {
       console.error('Error fetching spaces:', error);
@@ -154,15 +155,18 @@ export class CourseApi {
     }
   }
 
-  static async createSpace(payload: { name: string; description: string }) {
+  static async createSpace(payload: { name: string; description?: string }) {
     try {
-      const response = await httpApi.post('spaces', payload);
+      // API ожидает только поле name согласно curl запросу
+      const apiPayload = { name: payload.name };
+      const response = await httpApi.post('kb/spaces/', apiPayload);
       return response.data;
     } catch (error) {
       console.error('Error creating space:', error);
       const newSpace = {
         id: Date.now().toString(),
-        ...payload,
+        name: payload.name,
+        description: payload.description || '',
       };
       mockSpaces.push(newSpace);
       return newSpace;

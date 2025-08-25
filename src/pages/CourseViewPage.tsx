@@ -428,7 +428,7 @@ const CourseViewPage: React.FC = () => {
                 Назад
               </Button>
               <Tooltip title="Редактировать статью">
-                <Button icon={<EditOutlined />} onClick={() => navigate(`/kb/articles/${article.id}/edit`)}>
+                <Button icon={<EditOutlined />} onClick={() => navigate(`/almas-course-create/${article.id}`)}>
                   Редактировать
                 </Button>
               </Tooltip>

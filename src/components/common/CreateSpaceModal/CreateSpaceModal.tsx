@@ -13,7 +13,7 @@ const CreateSpaceModal: React.FC<CreateSpaceModalProps> = ({ visible, onCancel, 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (values: { name: string; description: string }) => {
+  const handleSubmit = async (values: { name: string; description?: string }) => {
     setLoading(true);
     try {
       const newSpace = await CourseApi.createSpace(values);
@@ -47,9 +47,8 @@ const CreateSpaceModal: React.FC<CreateSpaceModalProps> = ({ visible, onCancel, 
         <Form.Item
           name="description"
           label="Описание"
-          rules={[{ required: true, message: 'Введите описание пространства' }]}
         >
-          <Input.TextArea rows={3} placeholder="Введите описание" />
+          <Input.TextArea rows={3} placeholder="Введите описание (необязательно)" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading} block>
