@@ -509,7 +509,7 @@ const CourseViewPage: React.FC = () => {
                 </Paragraph>
               )}
               <Space wrap style={{ marginTop: 8 }}>
-                <Button type="primary" onClick={() => navigate(`/training-player/${training.id}`)}>
+                <Button type="primary" onClick={() => navigate(`/training-player/${article.id}`)}>
                   Пройти викторину
                 </Button>
                 <Button onClick={() => navigate(`/course/${article.id}/quiz`)}>Редактировать вопросы</Button>
