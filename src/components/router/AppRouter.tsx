@@ -23,6 +23,11 @@ import UserItemPage from '@app/pages/UserManagement/Users/UserItemPage';
 import TrainingItemPage from '@app/pages/Trainings/TrainingItemPage';
 import CreateCoursePage from '@app/pages/CreateCoursePage';
 import H5PQuizPage from '@app/Khamza_planB/H5PQuizPage';
+import AlmasCourseCreatePage from '@app/pages/AlmasCourseCreatePage';
+import CourseQuizPage from '@app/pages/CourseQuizPage';
+import CourseViewPage from '@app/pages/CourseViewPage';
+import CoursesListPage from '@app/pages/CoursesListPage';
+import TrainingPlayerPage from '@app/pages/TrainingPlayerPage';
 
 const ServerErrorPage = React.lazy(() => import('@app/pages/ServerErrorPage'));
 const Error404Page = React.lazy(() => import('@app/pages/Error404Page'));
@@ -72,6 +77,12 @@ export const AppRouter: React.FC = () => {
           </Route>
           <Route path="create-course" element={<CreateCoursePage />} />
           <Route path="my-courses" element={<H5PQuizPage />} />
+          <Route path="almas-course-create" element={<AlmasCourseCreatePage />} />
+          <Route path="almas-course-create/:id" element={<AlmasCourseCreatePage />} />
+          <Route path="courses" element={<CoursesListPage />} />
+          <Route path="course/:courseId" element={<CourseViewPage />} />
+          <Route path="course/:courseId/quiz" element={<CourseQuizPage />} />
+          <Route path="/training-player/:trainingId" element={<TrainingPlayerPage />} />
           <Route path="server-error" element={<ServerError />} />
           <Route path="404" element={<Error404 />} />
         </Route>
