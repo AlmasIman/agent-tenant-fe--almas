@@ -169,6 +169,21 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
       return targets.every(target => dragAnswers[target.id] === target.correctWord);
     }
     
+    if (question.type === 'test') {
+      const answers = question.answers || [];
+      const correctAnswers = answers.filter(a => a.correct).map(a => a.text);
+      const selectedAnswers = Array.isArray(answer) ? answer : [answer];
+      
+      if (question.multiple) {
+        // Для множественного выбора все правильные ответы должны быть выбраны
+        return correctAnswers.length === selectedAnswers.length &&
+          correctAnswers.every(correct => selectedAnswers.includes(correct));
+      } else {
+        // Для одиночного выбора должен быть выбран один правильный ответ
+        return selectedAnswers.length === 1 && correctAnswers.includes(selectedAnswers[0]);
+      }
+    }
+    
     if (Array.isArray(question.correctAnswer)) {
       return Array.isArray(answer) && 
         answer.length === question.correctAnswer.length &&
@@ -488,6 +503,50 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
             <div style={{ fontSize: '14px', color: '#666' }}>
               {t('quiz.dragWordsToTargets')}
             </div>
+          </div>
+        );
+
+      case 'test':
+        const testAnswers = currentQuestion.answers || [];
+        const selectedTestAnswers = Array.isArray(currentAnswer) ? currentAnswer : [];
+        
+        return (
+          <div>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              {testAnswers.map((answer, index) => {
+                const isSelected = currentQuestion.multiple 
+                  ? selectedTestAnswers.includes(answer.text)
+                  : currentAnswer === answer.text;
+                
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      padding: '12px',
+                      border: `2px solid ${isSelected ? '#1890ff' : '#d9d9d9'}`,
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      backgroundColor: isSelected ? '#f0f8ff' : 'white',
+                      transition: 'all 0.2s',
+                    }}
+                    onClick={() => {
+                      if (currentQuestion.multiple) {
+                        const newSelection = isSelected
+                          ? selectedTestAnswers.filter(a => a !== answer.text)
+                          : [...selectedTestAnswers, answer.text];
+                        handleAnswerChange(newSelection);
+                      } else {
+                        handleAnswerChange(answer.text);
+                      }
+                    }}
+                  >
+                    <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                      {String.fromCharCode(65 + index)}. {answer.text}
+                    </div>
+                  </div>
+                );
+              })}
+            </Space>
           </div>
         );
 

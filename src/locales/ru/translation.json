@@ -119,6 +119,7 @@
     "markTheWords": "Отметить слова",
     "imageHotspot": "Горячие точки изображения",
     "dragTheWords": "Перетащить слова",
+    "test": "Тест",
     "dragAndDrop": "Перетаскивание",
     "addQuestion": "Добавить вопрос",
     "question": "Вопрос",
@@ -201,7 +202,17 @@
     "clickToRemove": "Нажмите, чтобы удалить",
     "availableWords": "Доступные слова",
     "dragWordsToTargets": "Перетащите слова в соответствующие места в тексте",
-    "of": "из"
+    "of": "из",
+    "testHint": "Создайте вопрос с вариантами ответов и обратной связью",
+    "answerText": "Текст ответа",
+    "isCorrect": "Правильный",
+    "answerFeedback": "Обратная связь для ответа",
+    "generalFeedback": "Общая обратная связь",
+    "correctFeedback": "Обратная связь при правильном ответе",
+    "incorrectFeedback": "Обратная связь при неправильном ответе",
+    "allowMultipleSelection": "Разрешить множественный выбор",
+    "addAnswer": "Добавить ответ",
+    "removeAnswer": "Удалить ответ"
   },
   "common": {
     "address": "Адрес",

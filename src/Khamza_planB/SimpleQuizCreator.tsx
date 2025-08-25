@@ -16,7 +16,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [questions, setQuestions] = useState<H5PQuizQuestion[]>(initialQuiz?.questions || []);
-  const [currentQuestionType, setCurrentQuestionType] = useState<'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'mark-the-words' | 'image-hotspot' | 'drag-the-words'>('multiple-choice');
+  const [currentQuestionType, setCurrentQuestionType] = useState<'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'mark-the-words' | 'image-hotspot' | 'drag-the-words' | 'test'>('multiple-choice');
 
   const questionTypes = [
     { value: 'multiple-choice', label: t('quiz.multipleChoice') },
@@ -25,6 +25,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
     { value: 'mark-the-words', label: t('quiz.markTheWords') },
     { value: 'image-hotspot', label: t('quiz.imageHotspot') },
     { value: 'drag-the-words', label: t('quiz.dragTheWords') },
+    { value: 'test', label: t('quiz.test') },
   ];
 
   const addQuestion = () => {
@@ -42,6 +43,17 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
       dragText: currentQuestionType === 'drag-the-words' ? '' : undefined,
       dragWords: currentQuestionType === 'drag-the-words' ? [] : undefined,
       dragTargets: currentQuestionType === 'drag-the-words' ? [] : undefined,
+      answers: currentQuestionType === 'test' ? [
+        { text: '', correct: false, feedback: '' },
+        { text: '', correct: false, feedback: '' },
+        { text: '', correct: false, feedback: '' },
+        { text: '', correct: false, feedback: '' }
+      ] : undefined,
+      multiple: currentQuestionType === 'test' ? false : undefined,
+      feedback: currentQuestionType === 'test' ? {
+        correct: '',
+        incorrect: ''
+      } : undefined,
     };
     setQuestions([...questions, newQuestion]);
   };
@@ -129,6 +141,35 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
     const updatedQuestions = [...questions];
     updatedQuestions[questionIndex].dragTargets![targetIndex] = {
       ...updatedQuestions[questionIndex].dragTargets![targetIndex],
+      [field]: value,
+    };
+    setQuestions(updatedQuestions);
+  };
+
+  // Функции для работы с ответами теста
+  const addTestAnswer = (questionIndex: number) => {
+    const updatedQuestions = [...questions];
+    if (!updatedQuestions[questionIndex].answers) {
+      updatedQuestions[questionIndex].answers = [];
+    }
+    updatedQuestions[questionIndex].answers!.push({
+      text: '',
+      correct: false,
+      feedback: ''
+    });
+    setQuestions(updatedQuestions);
+  };
+
+  const removeTestAnswer = (questionIndex: number, answerIndex: number) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].answers!.splice(answerIndex, 1);
+    setQuestions(updatedQuestions);
+  };
+
+  const updateTestAnswer = (questionIndex: number, answerIndex: number, field: 'text' | 'correct' | 'feedback', value: any) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].answers![answerIndex] = {
+      ...updatedQuestions[questionIndex].answers![answerIndex],
       [field]: value,
     };
     setQuestions(updatedQuestions);
@@ -379,6 +420,95 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
               </div>
               <div style={{ fontSize: '12px', color: '#666' }}>
                 {t('quiz.dragTheWordsHint')}
+              </div>
+            </div>
+          )}
+
+          {question.type === 'test' && (
+            <div>
+              <div style={{ marginBottom: 16 }}>
+                <Switch
+                  checked={question.multiple}
+                  onChange={(checked) => updateQuestion(index, 'multiple', checked)}
+                  style={{ marginRight: 8 }}
+                />
+                <span>{t('quiz.allowMultipleSelection')}</span>
+              </div>
+              
+              <div style={{ marginBottom: 16 }}>
+                <Button
+                  type="dashed"
+                  icon={<PlusOutlined />}
+                  onClick={() => addTestAnswer(index)}
+                  style={{ marginBottom: 8 }}
+                >
+                  {t('quiz.addAnswer')}
+                </Button>
+                {question.answers?.map((answer, answerIndex) => (
+                  <Card
+                    key={answerIndex}
+                    size="small"
+                    title={`${t('quiz.answerText')} ${answerIndex + 1}`}
+                    extra={
+                      <Button
+                        type="text"
+                        danger
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        onClick={() => removeTestAnswer(index, answerIndex)}
+                      />
+                    }
+                    style={{ marginBottom: 8 }}
+                  >
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                      <Input
+                        placeholder={t('quiz.answerText')}
+                        value={answer.text}
+                        onChange={(e) => updateTestAnswer(index, answerIndex, 'text', e.target.value)}
+                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Switch
+                          checked={answer.correct}
+                          onChange={(checked) => updateTestAnswer(index, answerIndex, 'correct', checked)}
+                        />
+                        <span>{t('quiz.isCorrect')}</span>
+                      </div>
+                      <TextArea
+                        placeholder={t('quiz.answerFeedback')}
+                        value={answer.feedback}
+                        onChange={(e) => updateTestAnswer(index, answerIndex, 'feedback', e.target.value)}
+                        rows={2}
+                      />
+                    </Space>
+                  </Card>
+                ))}
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <h4>{t('quiz.generalFeedback')}</h4>
+                <TextArea
+                  placeholder={t('quiz.correctFeedback')}
+                  value={question.feedback?.correct || ''}
+                  onChange={(e) => updateQuestion(index, 'feedback', {
+                    ...question.feedback,
+                    correct: e.target.value
+                  })}
+                  rows={2}
+                  style={{ marginBottom: 8 }}
+                />
+                <TextArea
+                  placeholder={t('quiz.incorrectFeedback')}
+                  value={question.feedback?.incorrect || ''}
+                  onChange={(e) => updateQuestion(index, 'feedback', {
+                    ...question.feedback,
+                    incorrect: e.target.value
+                  })}
+                  rows={2}
+                />
+              </div>
+              
+              <div style={{ fontSize: '12px', color: '#666' }}>
+                {t('quiz.testHint')}
               </div>
             </div>
           )}

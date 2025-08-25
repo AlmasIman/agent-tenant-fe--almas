@@ -1,6 +1,6 @@
 export interface H5PQuizQuestion {
   id: string;
-  type: 'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'drag-and-drop' | 'mark-the-words' | 'image-hotspot' | 'drag-the-words';
+  type: 'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'drag-and-drop' | 'mark-the-words' | 'image-hotspot' | 'drag-the-words' | 'test';
   question: string;
   options?: string[];
   correctAnswer: string | string[];
@@ -25,6 +25,17 @@ export interface H5PQuizQuestion {
     placeholder: string; // плейсхолдер в тексте (например, "___")
     correctWord: string; // правильное слово для этого места
   }>;
+  // для test - новый тип вопроса с множественным выбором и обратной связью
+  answers?: Array<{
+    text: string;
+    correct: boolean;
+    feedback: string;
+  }>;
+  multiple?: boolean; // разрешить множественный выбор
+  feedback?: {
+    correct: string;
+    incorrect: string;
+  };
 }
 
 export interface H5PQuiz {

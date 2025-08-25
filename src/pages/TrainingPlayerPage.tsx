@@ -280,7 +280,8 @@ const TrainingPlayerPage: React.FC = () => {
                 <Divider />
                 {current.answers.map((a, idx) => {
                   const chosen = (selections[step] || []).includes(idx);
-                  if (!chosen && !a.correct) return null;
+                  // Показываем обратную связь только для выбранных ответов
+                  if (!chosen) return null;
                   const ok = !!a.correct;
                   return (
                     <Alert

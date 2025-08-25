@@ -14,6 +14,7 @@ import {
   Input,
   Select,
   Popconfirm,
+  Switch,
 } from 'antd';
 import {
   PlusOutlined,
@@ -26,6 +27,8 @@ import {
 } from '@ant-design/icons';
 import { PageTitle } from '@app/components/common/PageTitle/PageTitle';
 import { httpApi } from '@app/api/http.api';
+import { TestQuestionCreator } from '@app/components/TestQuestionCreator';
+import { MultipleChoiceCreator } from '@app/components/MultipleChoiceCreator';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -44,11 +47,22 @@ type KBArticle = {
 
 type UIQuizItem = {
   id: string;
-  type: 'multiple_choice' | 'true_false';
+  type: 'multiple_choice' | 'true_false' | 'test';
   question: string;
   options?: string[]; // for multiple_choice
   answerKey: string[] | string | boolean; // array for multi, string for single, boolean for true/false
   explanation?: string;
+  // для нового типа 'test'
+  answers?: Array<{
+    text: string;
+    correct: boolean;
+    feedback: string;
+  }>;
+  multiple?: boolean;
+  feedback?: {
+    correct: string;
+    incorrect: string;
+  };
 };
 
 type CreateTrainingResponse = {
@@ -172,21 +186,41 @@ const CourseQuizPage: React.FC = () => {
       const values = await form.validateFields();
       const type = values.type as UIQuizItem['type'];
 
-      const newItem: UIQuizItem = {
-        id: editingItem ? editingItem.id : String(Date.now()),
-        type,
-        question: values.question,
-        options: type === 'multiple_choice' ? values.options || [] : undefined,
-        answerKey:
-          type === 'true_false'
-            ? Boolean(values.answerKey)
-            : Array.isArray(values.answerKey)
-            ? values.answerKey
-            : values.answerKey
-            ? [values.answerKey]
-            : [],
-        explanation: values.explanation || '',
-      };
+      let newItem: UIQuizItem;
+
+      if (type === 'multiple_choice') {
+        const multipleChoiceData = values.multipleChoiceData;
+        newItem = {
+          id: editingItem ? editingItem.id : String(Date.now()),
+          type,
+          question: values.question,
+          options: multipleChoiceData.options || [],
+          answerKey: multipleChoiceData.answerKey || [],
+          explanation: values.explanation || '',
+        };
+      } else if (type === 'test') {
+        const testData = values.testData;
+        const correctAnswers = testData.answers?.filter((a: any) => a.correct).map((a: any) => a.text) || [];
+        newItem = {
+          id: editingItem ? editingItem.id : String(Date.now()),
+          type,
+          question: values.question,
+          answers: testData.answers || [],
+          multiple: testData.multiple || false,
+          feedback: testData.feedback || { correct: '', incorrect: '' },
+          answerKey: correctAnswers,
+          explanation: values.explanation || '',
+        };
+      } else {
+        // true_false
+        newItem = {
+          id: editingItem ? editingItem.id : String(Date.now()),
+          type,
+          question: values.question,
+          answerKey: Boolean(values.answerKey),
+          explanation: values.explanation || '',
+        };
+      }
 
       setItems((prev) => (editingItem ? prev.map((x) => (x.id === editingItem.id ? newItem : x)) : [...prev, newItem]));
       setModalVisible(false);
@@ -212,6 +246,22 @@ const CourseQuizPage: React.FC = () => {
           type: 'true_false',
           question: q?.question || '',
           answerKey: correctTrue,
+          explanation: q?.feedback?.correct || q?.feedback?.incorrect || '',
+        };
+      }
+
+      // Проверяем, является ли это вопросом типа 'test' (с обратной связью для каждого ответа)
+      const hasIndividualFeedback = answers.some((a: any) => a?.feedback && a.feedback !== 'Правильно!' && a.feedback !== 'Неверно.');
+      
+      if (hasIndividualFeedback) {
+        return {
+          id: `${Date.now()}_${i}`,
+          type: 'test',
+          question: q?.question || '',
+          answers: answers,
+          multiple: q?.multiple || false,
+          feedback: q?.feedback || { correct: '', incorrect: '' },
+          answerKey: answers.filter((a: any) => a?.correct).map((a: any) => String(a?.text || '')),
           explanation: q?.feedback?.correct || q?.feedback?.incorrect || '',
         };
       }
@@ -242,6 +292,18 @@ const CourseQuizPage: React.FC = () => {
           ],
           multiple: false,
           feedback: {
+            correct: 'Отлично! Вы ответили правильно.',
+            incorrect: 'Есть ошибки, попробуйте еще раз.',
+          },
+        };
+      }
+
+      if (it.type === 'test') {
+        return {
+          question: it.question,
+          answers: it.answers || [],
+          multiple: it.multiple || false,
+          feedback: it.feedback || {
             correct: 'Отлично! Вы ответили правильно.',
             incorrect: 'Есть ошибки, попробуйте еще раз.',
           },
@@ -466,6 +528,27 @@ const CourseQuizPage: React.FC = () => {
                         <Text type="secondary">
                           Правильный ответ: <Text code>{String(Boolean(item.answerKey))}</Text>
                         </Text>
+                      ) : item.type === 'test' && item.answers?.length ? (
+                        <>
+                          <Text type="secondary">Варианты:</Text>
+                          <ul style={{ margin: '4px 0 0 20px' }}>
+                            {item.answers.map((answer, index) => (
+                              <li key={index}>
+                                {answer.text}{' '}
+                                {answer.correct ? (
+                                  <Tag color="green">✓</Tag>
+                                ) : (
+                                  <Tag color="red">✗</Tag>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                          {item.multiple && (
+                            <Text type="secondary" style={{ fontSize: '12px' }}>
+                              Множественный выбор
+                            </Text>
+                          )}
+                        </>
                       ) : null}
                       {item.explanation && (
                         <div style={{ marginTop: 8 }}>
@@ -503,6 +586,7 @@ const CourseQuizPage: React.FC = () => {
             <Select>
               <Option value="multiple_choice">Множественный выбор</Option>
               <Option value="true_false">Правда / Ложь</Option>
+              <Option value="test">Тест</Option>
             </Select>
           </Form.Item>
 
@@ -512,37 +596,46 @@ const CourseQuizPage: React.FC = () => {
 
           {/* Поля зависят от типа */}
           <Form.Item noStyle shouldUpdate={(p, c) => p.type !== c.type}>
-            {({ getFieldValue }) =>
-              getFieldValue('type') === 'multiple_choice' ? (
-                <>
+            {({ getFieldValue }) => {
+              const questionType = getFieldValue('type');
+              
+              if (questionType === 'multiple_choice') {
+                return (
                   <Form.Item
-                    name="options"
-                    label="Варианты ответов"
-                    rules={[{ required: true, message: 'Добавьте варианты ответов' }]}
+                    name="multipleChoiceData"
+                    label="Настройки множественного выбора"
+                    rules={[{ required: true, message: 'Настройте варианты ответов' }]}
                   >
-                    <Select mode="tags" placeholder="Добавьте варианты" />
+                    <MultipleChoiceCreator />
                   </Form.Item>
+                );
+              } else if (questionType === 'true_false') {
+                return (
                   <Form.Item
                     name="answerKey"
-                    label="Правильные ответы"
-                    rules={[{ required: true, message: 'Выберите правильные ответы' }]}
+                    label="Правильный ответ"
+                    rules={[{ required: true, message: 'Выберите правильный ответ' }]}
                   >
-                    <Select mode="tags" placeholder="Выберите правильные ответы (из вариантов выше)" />
+                    <Select>
+                      <Option value={true as any}>True</Option>
+                      <Option value={false as any}>False</Option>
+                    </Select>
                   </Form.Item>
-                </>
-              ) : (
-                <Form.Item
-                  name="answerKey"
-                  label="Правильный ответ"
-                  rules={[{ required: true, message: 'Выберите правильный ответ' }]}
-                >
-                  <Select>
-                    <Option value={true as any}>True</Option>
-                    <Option value={false as any}>False</Option>
-                  </Select>
-                </Form.Item>
-              )
-            }
+                );
+                             } else if (questionType === 'test') {
+                 return (
+                   <Form.Item
+                     name="testData"
+                     label="Настройки теста"
+                     rules={[{ required: true, message: 'Настройте варианты ответов' }]}
+                   >
+                     <TestQuestionCreator />
+                   </Form.Item>
+                 );
+              }
+              
+              return null;
+            }}
           </Form.Item>
 
           <Form.Item name="explanation" label="Объяснение">
