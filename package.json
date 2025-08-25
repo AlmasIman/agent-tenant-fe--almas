@@ -110,6 +110,7 @@
     "http-proxy-middleware": "^3.0.5",
     "husky": "^6.0.0",
     "less": "^4.4.1",
+    "less-loader": "^12.3.0",
     "less-plugin-clean-css": "^1.6.0",
     "lint-staged": "^11.0.0",
     "prettier": "^2.3.1",

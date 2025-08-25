@@ -298,28 +298,28 @@ const CourseViewPage: React.FC = () => {
       if (!courseId) return;
       try {
         setTrainingLoading(true);
-        // 1) ищем тренинги, связанные с этой статьёй
-        const { data } = await httpApi.get('/trainings/trainings/', {
-          params: { kb_article: courseId, page_size: 1 },
-        });
 
-        const list = Array.isArray(data)
-          ? data
-          : Array.isArray((data as any).results)
-          ? (data as any).results
-          : Array.isArray((data as any).items)
-          ? (data as any).items
-          : [];
+        // 1) находим викторину по KB-статье
+        // если ваш httpApi.baseURL уже содержит /api → путь ниже корректен
+        const { data } = await httpApi.get(`/trainings/by-kb-article/${courseId}/`);
 
-        const first = list[0];
-        if (!first?.id) {
+        // поддержка разных форм ответа
+        let found: any = data;
+        if (Array.isArray(data)) found = data[0];
+        else if (data && Array.isArray((data as any).results)) found = (data as any).results[0];
+
+        if (!found?.id) {
           setTraining(null);
           return;
         }
 
-        // 2) получаем детали (в т.ч. вопросы), чтобы показать счётчик
-        const { data: detail } = await httpApi.get<Training>(`/trainings/trainings/${first.id}/`);
-        setTraining(detail);
+        // 2) если контент не пришёл целиком — дотягиваем детали
+        if (!found.content || !found.content?.questions) {
+          const { data: detail } = await httpApi.get(`/trainings/trainings/${found.id}/`);
+          setTraining(detail as any);
+        } else {
+          setTraining(found as any);
+        }
       } catch (e) {
         console.error(e);
         setTraining(null);

@@ -66,15 +66,23 @@ const TrainingPlayerPage: React.FC = () => {
   // before: tried GET /trainings/create/?id=... (and a fallback)
   // after: use GET /trainings/trainings/{id}/
 
+  // ⬇️ замените существующий loadTraining на это
   const loadTraining = useCallback(async () => {
     if (!trainingId) return;
     try {
       setLoading(true);
-      const { data } = await httpApi.get(`/trainings/trainings/${trainingId}/`);
+      // основной эндпоинт
+      const { data } = await httpApi.get(`/api/trainings/${trainingId}/`);
       setTraining(data as Training);
-    } catch (e) {
-      console.error(e);
-      message.error('Не удалось загрузить викторину');
+    } catch (e1) {
+      // если baseURL httpApi уже содержит /api — попробуем без префикса
+      try {
+        const { data } = await httpApi.get(`/trainings/${trainingId}/`);
+        setTraining(data as Training);
+      } catch (e2) {
+        console.error(e2);
+        message.error('Не удалось загрузить викторину');
+      }
     } finally {
       setLoading(false);
     }

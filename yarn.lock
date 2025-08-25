@@ -3703,6 +3703,7 @@ __metadata:
     i18next: ^20.4.0
     leaflet: ^1.7.1
     less: ^4.4.1
+    less-loader: ^12.3.0
     less-plugin-clean-css: ^1.6.0
     lint-staged: ^11.0.0
     pigeon-maps: ^0.19.7
@@ -11109,6 +11110,22 @@ __metadata:
   version: 1.9.3
   resolution: "leaflet@npm:1.9.3"
   checksum: f8bc33215e6aed8488cb3d32511b943ff093c1747bcda8a39116e24fe714e12525f1a6843b6a79940ece4cf8d2a86e2cb1d7b80fc550344b3182659b19231a04
+  languageName: node
+  linkType: hard
+
+"less-loader@npm:^12.3.0":
+  version: 12.3.0
+  resolution: "less-loader@npm:12.3.0"
+  peerDependencies:
+    "@rspack/core": 0.x || 1.x
+    less: ^3.5.0 || ^4.0.0
+    webpack: ^5.0.0
+  peerDependenciesMeta:
+    "@rspack/core":
+      optional: true
+    webpack:
+      optional: true
+  checksum: 9a291f37a4514349ce4a187ddffd77bfd7d4f97077f71aa6dbfc81393a0cd3c00ab793c13f40a4d3acdbad423db9d2e75054ede4fb1900ba0e49882c9405a4f7
   languageName: node
   linkType: hard
 

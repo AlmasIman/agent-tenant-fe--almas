@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Card,
   Button,
@@ -54,7 +54,6 @@ type UIQuizItem = {
 type CreateTrainingResponse = {
   id: number;
   name: string;
-  // ...anything else your API returns
 };
 
 /** helpers */
@@ -83,6 +82,9 @@ const CourseQuizPage: React.FC = () => {
   const [overallOk, setOverallOk] = useState<string>('Хорошо, но есть ошибки.');
   const [overallBad, setOverallBad] = useState<string>('Нужно повторить материал.');
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const lsKey = (cid: string) => `trainingByCourse:${cid}`;
+
   useEffect(() => {
     (async () => {
       if (!courseId) return;
@@ -98,6 +100,40 @@ const CourseQuizPage: React.FC = () => {
         message.error('Не удалось загрузить курс');
       }
     })();
+  }, [courseId]);
+
+  useEffect(() => {
+    (async () => {
+      if (!courseId) return;
+
+      // 1) из query ?trainingId=...
+      const fromQuery = searchParams.get('trainingId');
+      if (fromQuery) {
+        await loadTrainingById(Number(fromQuery));
+        return;
+      }
+
+      // 2) из localStorage
+      const fromLS = localStorage.getItem(lsKey(courseId));
+      if (fromLS) {
+        await loadTrainingById(Number(fromLS));
+        return;
+      }
+
+      // 3) fallback: возьмём первую викторину, привязанную к статье
+      try {
+        const { data } = await httpApi.get('/trainings/trainings/', {
+          params: { kb_article: courseId, page_size: 1 },
+        });
+        const list = Array.isArray(data) ? data : Array.isArray(data?.results) ? data.results : [];
+        if (list[0]?.id) {
+          await loadTrainingById(Number(list[0].id));
+        }
+      } catch (err) {
+        // тишина — викторина может ещё не быть создана
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
   const openAddModal = () => {
@@ -159,6 +195,38 @@ const CourseQuizPage: React.FC = () => {
     } catch {
       /* validation errors shown by antd */
     }
+  };
+
+  const mapFromTrainingQuestions = (apiQs: any[]): UIQuizItem[] => {
+    return (apiQs || []).map((q: any, i: number) => {
+      const answers = Array.isArray(q?.answers) ? q.answers : [];
+      const isTF =
+        answers.length === 2 &&
+        /^(true|false)$/i.test(String(answers[0]?.text)) &&
+        /^(true|false)$/i.test(String(answers[1]?.text));
+
+      if (isTF) {
+        const correctTrue = !!answers.find((a: any) => String(a?.text).toLowerCase() === 'true' && a?.correct);
+        return {
+          id: `${Date.now()}_${i}`,
+          type: 'true_false',
+          question: q?.question || '',
+          answerKey: correctTrue,
+          explanation: q?.feedback?.correct || q?.feedback?.incorrect || '',
+        };
+      }
+
+      const options = answers.map((a: any) => String(a?.text || ''));
+      const keys = answers.filter((a: any) => a?.correct).map((a: any) => String(a?.text || ''));
+      return {
+        id: `${Date.now()}_${i}`,
+        type: 'multiple_choice',
+        question: q?.question || '',
+        options,
+        answerKey: keys,
+        explanation: q?.feedback?.correct || q?.feedback?.incorrect || '',
+      };
+    });
   };
 
   /** Map UI items -> API /trainings/create/ content.questions */
@@ -227,9 +295,13 @@ const CourseQuizPage: React.FC = () => {
     };
 
     try {
-      setLoading(true);
       const { data } = await httpApi.post<CreateTrainingResponse>('/trainings/create/', payload);
-      setTrainingId(data?.id ?? null);
+      const newId = data?.id ?? null;
+      setTrainingId(newId);
+      if (newId && courseId) {
+        localStorage.setItem(lsKey(courseId), String(newId));
+        setSearchParams({ trainingId: String(newId) }, { replace: true } as any);
+      }
       message.success('Викторина создана и связана с курсом');
     } catch (e: any) {
       console.error(e);
@@ -243,6 +315,42 @@ const CourseQuizPage: React.FC = () => {
     if (!trainingId) return;
     // если у тебя есть этот роут (см. твой Django views раньше), откроем его
     window.open(`/training-player/${trainingId}/`, '_blank');
+  };
+
+  const loadTrainingById = async (id: number) => {
+    try {
+      setLoading(true);
+      // основной эндпоинт показа тренинга (со слэшем!)
+      const { data } = await httpApi.get(`/trainings/${id}/`);
+
+      // сохраним id в состоянии
+      setTrainingId(data?.id ?? id);
+
+      // мета
+      setTrainingName(data?.name || 'Викторина');
+      setTrainingDesc(data?.description || '');
+
+      // восстановим вопросы в UI
+      const apiQs = data?.content?.questions || [];
+      setItems(mapFromTrainingQuestions(apiQs));
+
+      // общий фидбек (если есть)
+      const ofb = data?.content?.overallFeedback || {};
+      if (ofb.perfect) setOverallGood(ofb.perfect);
+      if (ofb.good) setOverallOk(ofb.good);
+      if (ofb.bad) setOverallBad(ofb.bad);
+
+      // запомним id — и в адресной строке, и локально, чтобы пережить перезагрузку
+      if (courseId) {
+        localStorage.setItem(lsKey(courseId), String(data?.id ?? id));
+        setSearchParams({ trainingId: String(data?.id ?? id) }, { replace: true } as any);
+      }
+    } catch (e) {
+      console.error('loadTrainingById error', e);
+      message.error('Не удалось загрузить существующую викторину');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -300,7 +408,7 @@ const CourseQuizPage: React.FC = () => {
             Добавить вопрос
           </Button>
           <Button icon={<SaveOutlined />} onClick={createTraining} loading={loading} type="primary">
-            Создать викторину (POST /trainings/create/)
+            Создать викторину
           </Button>
           <Button icon={<EyeOutlined />} onClick={gotoPlayer} disabled={!trainingId}>
             Открыть плеер
