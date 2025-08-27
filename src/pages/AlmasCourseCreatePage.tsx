@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Form, Input, Select, Button, Card, Space, message, Tag, Typography, Row, Col, Divider } from 'antd';
-import { PlusOutlined, SaveOutlined, SendOutlined, BookOutlined } from '@ant-design/icons';
+import { Form, Input, Select, Button, Card, Space, message, Tag, Typography, Row, Col, Divider, Tabs } from 'antd';
+import { PlusOutlined, SaveOutlined, SendOutlined, BookOutlined, FileTextOutlined } from '@ant-design/icons';
 import { PageTitle } from '@app/components/common/PageTitle/PageTitle';
 import CreateSpaceModal from '@app/components/common/CreateSpaceModal';
 import RichEditor from '@app/components/common/RichEditor';
+import { SlideBuilder, Slide, SlideType } from '@app/components/common/SlideBuilder';
 import { httpApi } from '@app/api/http.api';
 import { useAppSelector } from '@app/hooks/reduxHooks';
 
@@ -22,6 +23,7 @@ type KBArticle = {
   // В GET может прийти строка с названием, в POST/PATCH ожидается id (число)
   space: number | string | null;
   tags: string[] | string | null;
+  slides?: Slide[];
 };
 
 const toArray = (payload: any) => {
@@ -42,6 +44,8 @@ const AlmasCourseCreatePage: React.FC = () => {
   const [courseId, setCourseId] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [inputTag, setInputTag] = useState('');
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [activeTab, setActiveTab] = useState('basic');
   const user = useAppSelector((state) => state.user.user);
   const fullName = `${user?.firstName} ${user?.lastName}`;
   const [publisherName, setPublisherName] = useState<string>(fullName?.trim() || '');
@@ -89,6 +93,10 @@ const AlmasCourseCreatePage: React.FC = () => {
       setPublisherName(pub);
       setCourseId(data.id);
       setTags(toTagsArray(data.tags));
+      // Загружаем слайды если они есть
+      if (data.slides && Array.isArray(data.slides)) {
+        setSlides(data.slides);
+      }
       const spaceId = resolveSpaceId(data.space);
       form.setFieldsValue({
         title: data.name || '',
@@ -139,6 +147,7 @@ const AlmasCourseCreatePage: React.FC = () => {
     name: values.title as string,
     description: values.description as string,
     content: (values.content as string) || '',
+    slides: slides, // добавляем слайды
     publisher: fullName, // при необходимости возьми из профиля
     space: values.spaceId as number, // числовой id
     parent: null as number | null,
@@ -183,10 +192,10 @@ const AlmasCourseCreatePage: React.FC = () => {
       const article = isEdit ? await updateArticle() : await createArticle();
       setCourseId(article.id);
       message.success(isEdit ? 'Курс обновлён' : 'Курс создан и опубликован');
-      navigate(`/course/${article.id}`);
+     // navigate(`/course/${article.id}`);
     } catch (error: any) {
       console.error('publish error:', error);
-      message.error(error?.response?.data?.detail || 'Ошибка при публикации');
+     // message.error(error?.response?.data?.detail || 'Ошибка при публикации');
     } finally {
       setLoading(false);
     }
@@ -205,114 +214,126 @@ const AlmasCourseCreatePage: React.FC = () => {
       <PageTitle>{isEdit ? 'Редактирование курса' : 'Алмас Создание Курса'}</PageTitle>
 
       <Card loading={loading}>
-        <Form form={form} layout="vertical" initialValues={{ spaceId: undefined, content: '' }}>
-          <Row gutter={24}>
-            <Col span={16}>
-              <Form.Item
-                name="title"
-                label="Название курса"
-                rules={[{ required: true, message: 'Введите название курса' }]}
-              >
-                <Input placeholder="Введите название курса" size="large" />
-              </Form.Item>
-
-              <Form.Item
-                name="description"
-                label="Описание"
-                rules={[{ required: true, message: 'Введите описание курса' }]}
-              >
-                <TextArea rows={3} placeholder="Краткое описание курса" showCount maxLength={500} />
-              </Form.Item>
-
-              <Form.Item name="content" label="Контент курса">
-                <RichEditor
-                  value={form.getFieldValue('content') || ''}
-                  onChange={(html) => form.setFieldsValue({ content: html })}
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={8}>
-              <Card size="small" title="Настройки курса" style={{ marginBottom: 16 }}>
-                <Form.Item
-                  name="spaceId"
-                  label="Пространство"
-                  rules={[{ required: true, message: 'Выберите пространство' }]}
-                >
-                  <Select
-                    placeholder="Выберите пространство"
-                    showSearch
-                    optionFilterProp="children"
-                    dropdownRender={(menu) => (
-                      <>
-                        {menu}
-                        <Divider style={{ margin: '8px 0' }} />
-                        <Button
-                          type="text"
-                          icon={<PlusOutlined />}
-                          onClick={() => setCreateSpaceModalVisible(true)}
-                          block
-                        >
-                          Создать новое пространство
-                        </Button>
-                      </>
-                    )}
+        <Tabs activeKey={activeTab} onChange={setActiveTab}>
+          <Tabs.TabPane tab="Основная информация" key="basic">
+            <Form form={form} layout="vertical" initialValues={{ spaceId: undefined, content: '' }}>
+              <Row gutter={24}>
+                <Col span={16}>
+                  <Form.Item
+                    name="title"
+                    label="Название курса"
+                    rules={[{ required: true, message: 'Введите название курса' }]}
                   >
-                    {spaces.map((space) => (
-                      <Select.Option key={space.id} value={space.id}>
-                        {space.name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
+                    <Input placeholder="Введите название курса" size="large" />
+                  </Form.Item>
 
-                <Form.Item label="Теги">
-                  <Space direction="vertical" style={{ width: '100%' }}>
-                    <Space>
-                      <Input
-                        value={inputTag}
-                        onChange={(e) => setInputTag(e.target.value)}
-                        placeholder="Добавить тег"
-                        onPressEnter={handleAddTag}
-                        style={{ width: 160 }}
-                      />
-                      <Button type="dashed" onClick={handleAddTag} icon={<PlusOutlined />}>
-                        Добавить
+                  <Form.Item
+                    name="description"
+                    label="Описание"
+                    rules={[{ required: true, message: 'Введите описание курса' }]}
+                  >
+                    <TextArea rows={3} placeholder="Краткое описание курса" showCount maxLength={500} />
+                  </Form.Item>
+
+                  <Form.Item name="content" label="Контент курса">
+                    <RichEditor
+                      value={form.getFieldValue('content') || ''}
+                      onChange={(html) => form.setFieldsValue({ content: html })}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={8}>
+                  <Card size="small" title="Настройки курса" style={{ marginBottom: 16 }}>
+                    <Form.Item
+                      name="spaceId"
+                      label="Пространство"
+                      rules={[{ required: true, message: 'Выберите пространство' }]}
+                    >
+                      <Select
+                        placeholder="Выберите пространство"
+                        showSearch
+                        optionFilterProp="children"
+                        dropdownRender={(menu) => (
+                          <>
+                            {menu}
+                            <Divider style={{ margin: '8px 0' }} />
+                            <Button
+                              type="text"
+                              icon={<PlusOutlined />}
+                              onClick={() => setCreateSpaceModalVisible(true)}
+                              block
+                            >
+                              Создать новое пространство
+                            </Button>
+                          </>
+                        )}
+                      >
+                        {spaces.map((space) => (
+                          <Select.Option key={space.id} value={space.id}>
+                            {space.name}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item label="Теги">
+                      <Space direction="vertical" style={{ width: '100%' }}>
+                        <Space>
+                          <Input
+                            value={inputTag}
+                            onChange={(e) => setInputTag(e.target.value)}
+                            placeholder="Добавить тег"
+                            onPressEnter={handleAddTag}
+                            style={{ width: 160 }}
+                          />
+                          <Button type="dashed" onClick={handleAddTag} icon={<PlusOutlined />}>
+                            Добавить
+                          </Button>
+                        </Space>
+                        <div>
+                          {tags.map((tag) => (
+                            <Tag key={tag} closable onClose={() => handleRemoveTag(tag)} style={{ marginBottom: 8 }}>
+                              {tag}
+                            </Tag>
+                          ))}
+                        </div>
+                      </Space>
+                    </Form.Item>
+
+                    <Form.Item label="Создатель" name="publisher">
+                      <Input disabled />
+                    </Form.Item>
+                  </Card>
+
+                  <Card size="small" title={isEdit ? 'Действия (редактирование)' : 'Действия'}>
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                      <Button icon={<SaveOutlined />} onClick={handleSaveDraft} loading={loading} block>
+                        {isEdit ? 'Сохранить изменения' : 'Сохранить черновик'}
+                      </Button>
+
+                      <Button type="primary" icon={<SendOutlined />} onClick={handlePublish} loading={loading} block>
+                        {isEdit ? 'Обновить и открыть' : 'Опубликовать'}
+                      </Button>
+
+                      <Button type="default" icon={<BookOutlined />} onClick={handleGoToQuiz} disabled={!canGoToQuiz} block>
+                        Перейти к викторине
                       </Button>
                     </Space>
-                    <div>
-                      {tags.map((tag) => (
-                        <Tag key={tag} closable onClose={() => handleRemoveTag(tag)} style={{ marginBottom: 8 }}>
-                          {tag}
-                        </Tag>
-                      ))}
-                    </div>
-                  </Space>
-                </Form.Item>
+                  </Card>
+                </Col>
+              </Row>
+            </Form>
+          </Tabs.TabPane>
 
-                <Form.Item label="Создатель" name="publisher">
-                  <Input disabled />
-                </Form.Item>
-              </Card>
-
-              <Card size="small" title={isEdit ? 'Действия (редактирование)' : 'Действия'}>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <Button icon={<SaveOutlined />} onClick={handleSaveDraft} loading={loading} block>
-                    {isEdit ? 'Сохранить изменения' : 'Сохранить черновик'}
-                  </Button>
-
-                  <Button type="primary" icon={<SendOutlined />} onClick={handlePublish} loading={loading} block>
-                    {isEdit ? 'Обновить и открыть' : 'Опубликовать'}
-                  </Button>
-
-                  <Button type="default" icon={<BookOutlined />} onClick={handleGoToQuiz} disabled={!canGoToQuiz} block>
-                    Перейти к викторине
-                  </Button>
-                </Space>
-              </Card>
-            </Col>
-          </Row>
-        </Form>
+          <Tabs.TabPane tab="Слайды курса" key="slides">
+            <SlideBuilder
+              slides={slides}
+              onSlidesChange={setSlides}
+              readOnly={false}
+            />
+          </Tabs.TabPane>
+        </Tabs>
       </Card>
 
       <CreateSpaceModal
