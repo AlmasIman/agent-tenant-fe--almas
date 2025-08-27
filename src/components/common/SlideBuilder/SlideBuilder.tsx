@@ -115,36 +115,66 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
         <Col span={readOnly ? 24 : 16}>
           <Card 
             title={
-              <Space>
-                <Title level={4} style={{ margin: 0 }}>
-                  Слайды курса 
-                  <Text type="secondary" style={{ fontSize: '14px', marginLeft: '8px' }}>
-                    ({slides.length} слайдов)
-                  </Text>
-                </Title>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '24px' }}>📊</span>
+                  <div>
+                    <Title level={4} style={{ margin: 0, color: '#262626' }}>
+                      Слайды курса
+                    </Title>
+                    <Text type="secondary" style={{ fontSize: '14px' }}>
+                      {slides.length} слайдов
+                    </Text>
+                  </div>
+                </div>
                 {!readOnly && (
-                  <>
+                  <div style={{ display: 'flex', gap: '12px' }}>
                     <Button 
-                      type="primary" 
-                      icon={<PlusOutlined />} 
-                      onClick={handleAddSlide}
-                    >
-                      Добавить слайд
-                    </Button>
-                    <Button 
-                      type="default" 
-                      icon={<PlayCircleOutlined />} 
+                      icon={<PlayCircleOutlined />}
                       onClick={handleViewAllSlides}
                       disabled={slides.length === 0}
-                      style={{ marginLeft: '8px' }}
+                      style={{
+                        borderRadius: '8px',
+                        border: '2px solid #1890ff',
+                        color: '#1890ff',
+                        background: 'white',
+                        fontWeight: '500',
+                        height: '40px',
+                      }}
                       title="Просмотреть все слайды в режиме презентации"
                     >
                       Посмотреть все
                     </Button>
-                  </>
+                    <Button 
+                      type="primary" 
+                      icon={<PlusOutlined />} 
+                      onClick={handleAddSlide}
+                      style={{
+                        borderRadius: '8px',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        border: 'none',
+                        fontWeight: '500',
+                        boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)',
+                        height: '40px',
+                      }}
+                    >
+                      Добавить слайд
+                    </Button>
+                  </div>
                 )}
-              </Space>
+              </div>
             }
+            style={{
+              borderRadius: '12px',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
+            }}
+            headStyle={{
+              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+              borderBottom: '1px solid #f0f0f0',
+              borderRadius: '12px 12px 0 0',
+              padding: '16px 24px',
+            }}
           >
             {slides.length === 0 ? (
               <Empty 

@@ -10,6 +10,8 @@ export enum SlideType {
   INTERACTIVE = 'INTERACTIVE',
   ACHIEVEMENT = 'ACHIEVEMENT',
   PROGRESS = 'PROGRESS',
+  FLASHCARDS = 'FLASHCARDS',
+  FILL_WORDS = 'FILL_WORDS',
 }
 
 export interface SlideSettings {
@@ -99,6 +101,28 @@ export interface SlideContent {
     total: number;
     milestones: string[];
     rewards: any[];
+  };
+  flashcards?: {
+    cards: Array<{
+      id: string;
+      front: string;
+      back: string;
+      category?: string;
+      difficulty?: 'easy' | 'medium' | 'hard';
+    }>;
+    shuffle?: boolean;
+    showProgress?: boolean;
+  };
+  fillWords?: {
+    text: string;
+    blanks: Array<{
+      id: string;
+      word: string;
+      hint?: string;
+      position: number;
+    }>;
+    showHints?: boolean;
+    caseSensitive?: boolean;
   };
 }
 

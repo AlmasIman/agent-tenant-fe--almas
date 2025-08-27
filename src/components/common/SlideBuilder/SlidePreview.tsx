@@ -1,9 +1,12 @@
 import React from 'react';
 import { Modal, Typography, Space, Tag, Button } from 'antd';
-import { CloseOutlined, FileTextOutlined, PictureOutlined, PlayCircleOutlined, CodeOutlined, BarChartOutlined, QuestionCircleOutlined, GlobalOutlined, TrophyOutlined, StarOutlined, FireOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { CloseOutlined, FileTextOutlined, PictureOutlined, PlayCircleOutlined, CodeOutlined, BarChartOutlined, QuestionCircleOutlined, GlobalOutlined, TrophyOutlined, StarOutlined, FireOutlined, CheckCircleOutlined, BookOutlined, FormOutlined } from '@ant-design/icons';
 import { Slide, SlideType } from './types';
 import GameSlide from './GameSlide';
 import AchievementSlide from './AchievementSlide';
+import FlashcardsSlide from './FlashcardsSlide';
+import FillWordsSlide from './FillWordsSlide';
+import QuizSlide from './QuizSlide';
 
 const { Title, Paragraph } = Typography;
 
@@ -37,6 +40,10 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         return <FireOutlined />;
       case SlideType.PROGRESS:
         return <CheckCircleOutlined />;
+      case SlideType.FLASHCARDS:
+        return <BookOutlined />;
+      case SlideType.FILL_WORDS:
+        return <FormOutlined />;
       default:
         return <FileTextOutlined />;
     }
@@ -66,6 +73,10 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         return 'Достижение';
       case SlideType.PROGRESS:
         return 'Прогресс';
+      case SlideType.FLASHCARDS:
+        return 'Флеш-карточки';
+      case SlideType.FILL_WORDS:
+        return 'Заполнить пропуски';
       default:
         return 'Текст';
     }
@@ -95,6 +106,10 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         return 'volcano';
       case SlideType.PROGRESS:
         return 'geekblue';
+      case SlideType.FLASHCARDS:
+        return 'purple';
+      case SlideType.FILL_WORDS:
+        return 'cyan';
       default:
         return 'blue';
     }
@@ -229,20 +244,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                 {slide.title}
               </Title>
             )}
-            <div style={{ textAlign: slide.settings.alignment }}>
-              <Paragraph style={{ fontSize: '18px', marginBottom: '24px' }}>
-                Вопрос викторины
-              </Paragraph>
-              <div style={{ 
-                backgroundColor: '#f5f5f5', 
-                padding: '16px', 
-                borderRadius: '4px',
-                textAlign: 'center',
-                color: '#666',
-              }}>
-                Варианты ответов будут отображаться здесь
-              </div>
-            </div>
+            <QuizSlide slide={slide} />
           </div>
         );
 
@@ -333,6 +335,30 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                 Интерактивные элементы будут отображаться здесь
               </div>
             </div>
+          </div>
+        );
+
+      case SlideType.FLASHCARDS:
+        return (
+          <div style={slideStyle}>
+            {slide.settings.showTitle && (
+              <Title level={2} style={{ marginBottom: 16, textAlign: slide.settings.alignment }}>
+                {slide.title}
+              </Title>
+            )}
+            <FlashcardsSlide slide={slide} />
+          </div>
+        );
+
+      case SlideType.FILL_WORDS:
+        return (
+          <div style={slideStyle}>
+            {slide.settings.showTitle && (
+              <Title level={2} style={{ marginBottom: 16, textAlign: slide.settings.alignment }}>
+                {slide.title}
+              </Title>
+            )}
+            <FillWordsSlide slide={slide} />
           </div>
         );
 

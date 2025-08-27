@@ -100,6 +100,149 @@ const SlideBuilderDemoPage: React.FC = () => {
         updatedAt: new Date().toISOString(),
       },
     },
+    {
+      id: '5',
+      type: SlideType.FLASHCARDS,
+      title: 'Флеш-карточки по программированию',
+      content: JSON.stringify({
+        flashcards: {
+          cards: [
+            {
+              id: '1',
+              front: 'Что такое React?',
+              back: 'JavaScript библиотека для создания пользовательских интерфейсов',
+              category: 'Frontend',
+              difficulty: 'Легко'
+            },
+            {
+              id: '2',
+              front: 'Что такое API?',
+              back: 'Application Programming Interface - интерфейс для взаимодействия программ',
+              category: 'Backend',
+              difficulty: 'Средне'
+            },
+            {
+              id: '3',
+              front: 'Что такое Git?',
+              back: 'Система контроля версий для отслеживания изменений в коде',
+              category: 'Инструменты',
+              difficulty: 'Легко'
+            }
+          ],
+          shuffle: true,
+          showProgress: true
+        }
+      }),
+      order: 4,
+      settings: {
+        backgroundColor: '#f9f0ff',
+        showTitle: true,
+        showNumber: true,
+        alignment: 'center',
+      },
+      metadata: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    },
+    {
+      id: '6',
+      type: SlideType.QUIZ,
+      title: 'Викторина по программированию',
+      content: JSON.stringify({
+        quiz: {
+          questions: [
+            {
+              id: '1',
+              question: 'Что такое React?',
+              options: [
+                'JavaScript библиотека',
+                'Язык программирования',
+                'Операционная система',
+                'База данных'
+              ],
+              correctAnswer: 0,
+              explanation: 'React - это JavaScript библиотека для создания пользовательских интерфейсов'
+            },
+            {
+              id: '2',
+              question: 'Столица России?',
+              options: [
+                'Санкт-Петербург',
+                'Москва',
+                'Новосибирск',
+                'Екатеринбург'
+              ],
+              correctAnswer: 1,
+              explanation: 'Москва является столицей Российской Федерации'
+            },
+            {
+              id: '3',
+              question: '2 + 2 = ?',
+              options: ['3', '4', '5', '6'],
+              correctAnswer: 1,
+              explanation: '2 + 2 = 4'
+            }
+          ],
+          shuffle: true,
+          showExplanation: true
+        }
+      }),
+      order: 5,
+      settings: {
+        backgroundColor: '#fff2e8',
+        showTitle: true,
+        showNumber: true,
+        alignment: 'center',
+      },
+      metadata: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    },
+    {
+      id: '7',
+      type: SlideType.FILL_WORDS,
+      title: 'Заполните пропуски в тексте',
+      content: JSON.stringify({
+        fillWords: {
+          text: '___ - это ___ библиотека для создания пользовательских интерфейсов. Она была разработана компанией ___ и позволяет создавать интерактивные веб-приложения.',
+          blanks: [
+            {
+              id: '1',
+              word: 'React',
+              hint: 'Популярная библиотека',
+              position: 0
+            },
+            {
+              id: '2',
+              word: 'JavaScript',
+              hint: 'Язык программирования',
+              position: 25
+            },
+            {
+              id: '3',
+              word: 'Facebook',
+              hint: 'Социальная сеть',
+              position: 95
+            }
+          ],
+          showHints: true,
+          caseSensitive: false
+        }
+      }),
+      order: 5,
+      settings: {
+        backgroundColor: '#e6fffb',
+        showTitle: true,
+        showNumber: true,
+        alignment: 'center',
+      },
+      metadata: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    },
   ]);
 
   const [isPresentationVisible, setIsPresentationVisible] = useState(false);

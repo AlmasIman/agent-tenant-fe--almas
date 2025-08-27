@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Button, Space, Typography, Tag } from 'antd';
-import { DragOutlined, EditOutlined, DeleteOutlined, EyeOutlined, FileTextOutlined, PictureOutlined, PlayCircleOutlined, CodeOutlined, BarChartOutlined, QuestionCircleOutlined, GlobalOutlined, TrophyOutlined, StarOutlined, FireOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { DragOutlined, EditOutlined, DeleteOutlined, EyeOutlined, FileTextOutlined, PictureOutlined, PlayCircleOutlined, CodeOutlined, BarChartOutlined, QuestionCircleOutlined, GlobalOutlined, TrophyOutlined, StarOutlined, FireOutlined, CheckCircleOutlined, BookOutlined, FormOutlined } from '@ant-design/icons';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Slide, SlideType } from './types';
@@ -39,6 +39,10 @@ const getSlideIcon = (type: SlideType) => {
       return <FireOutlined />;
     case SlideType.PROGRESS:
       return <CheckCircleOutlined />;
+    case SlideType.FLASHCARDS:
+      return <BookOutlined />;
+    case SlideType.FILL_WORDS:
+      return <FormOutlined />;
     default:
       return <FileTextOutlined />;
   }
@@ -68,6 +72,10 @@ const getSlideTypeLabel = (type: SlideType) => {
       return 'Достижение';
     case SlideType.PROGRESS:
       return 'Прогресс';
+    case SlideType.FLASHCARDS:
+      return 'Флеш-карточки';
+    case SlideType.FILL_WORDS:
+      return 'Заполнить пропуски';
     default:
       return 'Текст';
   }
@@ -97,6 +105,10 @@ const getSlideTypeColor = (type: SlideType) => {
       return 'volcano';
     case SlideType.PROGRESS:
       return 'geekblue';
+    case SlideType.FLASHCARDS:
+      return 'purple';
+    case SlideType.FILL_WORDS:
+      return 'cyan';
     default:
       return 'blue';
   }
@@ -144,11 +156,26 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onEdit, onPreview, onDelet
         size="small"
         hoverable
         style={{ 
-          marginBottom: 8,
+          marginBottom: '12px',
           cursor: readOnly ? 'default' : 'grab',
-          border: isDragging ? '2px dashed #1890ff' : undefined,
+          border: isDragging ? '2px dashed #1890ff' : '1px solid #f0f0f0',
+          borderRadius: '12px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+          transition: 'all 0.3s ease',
         }}
-        bodyStyle={{ padding: '12px' }}
+        bodyStyle={{ padding: '16px' }}
+        onMouseEnter={(e) => {
+          if (!isDragging) {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.12)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isDragging) {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.06)';
+          }
+        }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
@@ -174,7 +201,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onEdit, onPreview, onDelet
                   <Text strong style={{ fontSize: '14px' }}>
                     {slide.title}
                   </Text>
-                  <Tag color={getSlideTypeColor(slide.type)} size="small">
+                  <Tag color={getSlideTypeColor(slide.type)}>
                     {getSlideTypeLabel(slide.type)}
                   </Tag>
                   <Text type="secondary" style={{ fontSize: '12px' }}>
