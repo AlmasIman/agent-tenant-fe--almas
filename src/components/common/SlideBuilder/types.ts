@@ -12,6 +12,7 @@ export enum SlideType {
   PROGRESS = 'PROGRESS',
   FLASHCARDS = 'FLASHCARDS',
   FILL_WORDS = 'FILL_WORDS',
+  IMAGE_DRAG_DROP = 'IMAGE_DRAG_DROP',
 }
 
 export interface SlideSettings {
@@ -123,6 +124,23 @@ export interface SlideContent {
     }>;
     showHints?: boolean;
     caseSensitive?: boolean;
+  };
+  imageDragDrop?: {
+    imageUrl: string;
+    dropZones: Array<{
+      id: string;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      label?: string;
+      correctItems: string[];
+    }>;
+    draggableItems: Array<{
+      id: string;
+      text: string;
+      correctZoneId: string;
+    }>;
   };
 }
 

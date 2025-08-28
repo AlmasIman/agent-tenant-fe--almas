@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Typography, Space, Tag, Button } from 'antd';
-import { CloseOutlined, FileTextOutlined, PictureOutlined, PlayCircleOutlined, CodeOutlined, BarChartOutlined, QuestionCircleOutlined, GlobalOutlined, TrophyOutlined, StarOutlined, FireOutlined, CheckCircleOutlined, BookOutlined, FormOutlined } from '@ant-design/icons';
+import { CloseOutlined, FileTextOutlined, PictureOutlined, PlayCircleOutlined, CodeOutlined, BarChartOutlined, QuestionCircleOutlined, GlobalOutlined, TrophyOutlined, StarOutlined, FireOutlined, CheckCircleOutlined, BookOutlined, FormOutlined, DragOutlined } from '@ant-design/icons';
 import { Slide, SlideType } from './types';
 import GameSlide from './GameSlide';
 import AchievementSlide from './AchievementSlide';
@@ -44,6 +44,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         return <BookOutlined />;
       case SlideType.FILL_WORDS:
         return <FormOutlined />;
+      case SlideType.IMAGE_DRAG_DROP:
+        return <DragOutlined />;
       default:
         return <FileTextOutlined />;
     }
@@ -77,6 +79,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         return 'Флеш-карточки';
       case SlideType.FILL_WORDS:
         return 'Заполнить пропуски';
+      case SlideType.IMAGE_DRAG_DROP:
+        return 'Drag & Drop на изображении';
       default:
         return 'Текст';
     }
@@ -110,6 +114,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         return 'purple';
       case SlideType.FILL_WORDS:
         return 'cyan';
+      case SlideType.IMAGE_DRAG_DROP:
+        return 'orange';
       default:
         return 'blue';
     }
@@ -153,19 +159,94 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                 {slide.title}
               </Title>
             )}
-            <img 
-              src={slide.content} 
-              alt={slide.title}
-              style={{ 
-                maxWidth: '100%', 
-                height: 'auto',
-                borderRadius: `${slide.settings.borderRadius || 0}px`,
-              }}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling!.style.display = 'block';
-              }}
-            />
+            
+            {/* Проверяем, есть ли данные из ImageTextEditor */}
+            {(() => {
+              try {
+                const parsed = JSON.parse(slide.content);
+                if (parsed.imageData && parsed.textElements) {
+                  // Отображаем изображение с текстом
+                  return (
+                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <img 
+                        src={parsed.imageData} 
+                        alt={slide.title}
+                        style={{ 
+                          maxWidth: '100%', 
+                          height: 'auto',
+                          borderRadius: `${slide.settings.borderRadius || 0}px`,
+                        }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (nextElement) {
+                            nextElement.style.display = 'block';
+                          }
+                        }}
+                      />
+                      <div style={{ display: 'none', textAlign: 'center', color: '#999' }}>
+                        Изображение не загружено
+                      </div>
+                      
+                      {/* Отображаем текстовые элементы поверх изображения */}
+                      {parsed.textElements.map((element: any) => (
+                        <div
+                          key={element.id}
+                          style={{
+                            position: 'absolute',
+                            left: element.x,
+                            top: element.y,
+                            fontSize: element.fontSize,
+                            color: element.color,
+                            fontFamily: element.fontFamily,
+                            transform: `rotate(${element.rotation}deg)`,
+                            opacity: element.opacity,
+                            textAlign: element.textAlign,
+                            fontWeight: element.fontWeight,
+                            fontStyle: element.fontStyle,
+                            textDecoration: element.textDecoration,
+                            textShadow: element.shadow?.enabled ? 
+                              `${element.shadow.offsetX}px ${element.shadow.offsetY}px ${element.shadow.blur}px ${element.shadow.color}` : 'none',
+                            WebkitTextStroke: element.stroke?.enabled ? 
+                              `${element.stroke.width}px ${element.stroke.color}` : 'none',
+                            backgroundColor: element.backgroundColor?.enabled ? 
+                              `${element.backgroundColor.color}${Math.round(element.backgroundColor.opacity * 255).toString(16).padStart(2, '0')}` : 'transparent',
+                            padding: '4px',
+                            borderRadius: '4px',
+                            pointerEvents: 'none', // Чтобы текст не мешал взаимодействию
+                          }}
+                        >
+                          {element.text}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+              } catch (error) {
+                // Если не JSON, значит просто URL изображения
+              }
+              
+              // Обычное изображение без текста
+              return (
+                <img 
+                  src={slide.content} 
+                  alt={slide.title}
+                  style={{ 
+                    maxWidth: '100%', 
+                    height: 'auto',
+                    borderRadius: `${slide.settings.borderRadius || 0}px`,
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (nextElement) {
+                      nextElement.style.display = 'block';
+                    }
+                  }}
+                />
+              );
+            })()}
+            
             <div style={{ display: 'none', textAlign: 'center', color: '#999' }}>
               Изображение не загружено
             </div>
@@ -359,6 +440,31 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
               </Title>
             )}
             <FillWordsSlide slide={slide} />
+          </div>
+        );
+
+      case SlideType.IMAGE_DRAG_DROP:
+        return (
+          <div style={slideStyle}>
+            {slide.settings.showTitle && (
+              <Title level={2} style={{ marginBottom: 16, textAlign: slide.settings.alignment }}>
+                {slide.title}
+              </Title>
+            )}
+            <div style={{ textAlign: slide.settings.alignment }}>
+              <Paragraph style={{ fontSize: '18px', marginBottom: '24px' }}>
+                Drag and Drop на изображении
+              </Paragraph>
+              <div style={{ 
+                backgroundColor: '#f5f5f5', 
+                padding: '32px', 
+                borderRadius: '8px',
+                textAlign: 'center',
+                color: '#666',
+              }}>
+                Интерактивные элементы drag and drop будут отображаться здесь
+              </div>
+            </div>
           </div>
         );
 

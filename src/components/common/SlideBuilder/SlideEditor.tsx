@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, Select, Button, Space, Tabs, Switch, Slider, Row, Col, Upload, message, Card, Typography } from 'antd';
-import { SaveOutlined, CloseOutlined, UploadOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { SaveOutlined, CloseOutlined, UploadOutlined, PlusOutlined, MinusCircleOutlined, EditOutlined } from '@ant-design/icons';
 import RichEditor from '@app/components/common/RichEditor';
 import FillWordsPreview from './FillWordsPreview';
 import FlashcardsPreview from './FlashcardsPreview';
 import QuizPreview from './QuizPreview';
+import ImageTextEditor from '@app/components/common/ImageTextEditor/ImageTextEditor';
+import ImageDragDropEditor from './ImageDragDropEditor';
 import { Slide, SlideType, SlideSettings } from './types';
 
 const { TextArea } = Input;
@@ -22,6 +24,10 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
   const [activeTab, setActiveTab] = useState('content');
   const [previewText, setPreviewText] = useState('');
   const [previewHints, setPreviewHints] = useState('');
+  const [imageEditorVisible, setImageEditorVisible] = useState(false);
+  const [imageEditorData, setImageEditorData] = useState<{ imageData: string; textElements: any[] } | null>(null);
+  const [imageDragDropEditorVisible, setImageDragDropEditorVisible] = useState(false);
+  const [imageDragDropData, setImageDragDropData] = useState<{ imageUrl: string; dropZones: any[]; draggableItems: any[] } | null>(null);
 
   useEffect(() => {
     let content = slide.content;
@@ -90,6 +96,44 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         }
       } catch (error) {
         console.error('Error parsing quiz content:', error);
+      }
+    }
+    
+    if (slide.type === SlideType.IMAGE && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        if (parsed.imageData && parsed.textElements) {
+          // Если есть данные из ImageTextEditor
+          content = parsed.imageUrl || '';
+          setImageEditorData({
+            imageData: parsed.imageData,
+            textElements: parsed.textElements
+          });
+        } else {
+          // Простое изображение
+          content = slide.content;
+        }
+      } catch (error) {
+        // Если не JSON, значит просто URL
+        content = slide.content;
+      }
+    }
+    
+    if (slide.type === SlideType.IMAGE_DRAG_DROP && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        if (parsed.imageDragDrop) {
+          content = parsed.imageDragDrop.imageUrl || '';
+          setImageDragDropData({
+            imageUrl: parsed.imageDragDrop.imageUrl,
+            dropZones: parsed.imageDragDrop.dropZones || [],
+            draggableItems: parsed.imageDragDrop.draggableItems || []
+          });
+        } else {
+          content = slide.content;
+        }
+      } catch (error) {
+        content = slide.content;
       }
     }
     
@@ -221,6 +265,36 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         });
       }
       
+      if (values.type === SlideType.IMAGE) {
+        // Если есть данные из ImageTextEditor, используем их
+        if (imageEditorData) {
+          processedContent = JSON.stringify({
+            imageUrl: values.content, // URL изображения
+            imageData: imageEditorData.imageData, // Данные изображения с текстом
+            textElements: imageEditorData.textElements // Текстовые элементы
+          });
+        } else {
+          // Простое изображение без текста
+          processedContent = values.content;
+        }
+      }
+      
+      if (values.type === SlideType.IMAGE_DRAG_DROP) {
+        // Если есть данные из ImageDragDropEditor, используем их
+        if (imageDragDropData) {
+          processedContent = JSON.stringify({
+            imageDragDrop: {
+              imageUrl: values.content, // URL изображения
+              dropZones: imageDragDropData.dropZones,
+              draggableItems: imageDragDropData.draggableItems
+            }
+          });
+        } else {
+          // Простое изображение без drag and drop
+          processedContent = values.content;
+        }
+      }
+      
       const updatedSlide: Slide = {
         ...currentSlide,
         title: values.title,
@@ -271,9 +345,44 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
 
       case SlideType.IMAGE:
         return (
-          <Form.Item name="content" label="URL изображения">
-            <Input placeholder="Введите URL изображения" />
-          </Form.Item>
+          <>
+            <Form.Item name="content" label="URL изображения">
+              <Input placeholder="Введите URL изображения" />
+            </Form.Item>
+            
+            <Form.Item label="Редактор изображений с текстом">
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <Button 
+                  type="primary" 
+                  icon={<EditOutlined />}
+                  onClick={() => setImageEditorVisible(true)}
+                  style={{ width: '100%' }}
+                >
+                  Открыть редактор изображений
+                </Button>
+                
+                {imageEditorData && (
+                  <Card size="small" style={{ marginTop: '8px' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <img 
+                        src={imageEditorData.imageData} 
+                        alt="Preview" 
+                        style={{ 
+                          maxWidth: '100%', 
+                          maxHeight: '200px', 
+                          borderRadius: '8px',
+                          border: '1px solid #d9d9d9'
+                        }} 
+                      />
+                      <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+                        Изображение с {imageEditorData.textElements.length} текстовыми элементами
+                      </div>
+                    </div>
+                  </Card>
+                )}
+              </Space>
+            </Form.Item>
+          </>
         );
 
       case SlideType.VIDEO:
@@ -858,6 +967,48 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           </>
         );
 
+      case SlideType.IMAGE_DRAG_DROP:
+        return (
+          <>
+            <Form.Item name="content" label="URL изображения">
+              <Input placeholder="Введите URL изображения для drag and drop" />
+            </Form.Item>
+            
+            <Form.Item label="Редактор Drag and Drop">
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <Button 
+                  type="primary" 
+                  icon={<EditOutlined />}
+                  onClick={() => setImageDragDropEditorVisible(true)}
+                  style={{ width: '100%' }}
+                >
+                  Открыть редактор Drag and Drop
+                </Button>
+                
+                {imageDragDropData && (
+                  <Card size="small" style={{ marginTop: '8px' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <img 
+                        src={imageDragDropData.imageUrl} 
+                        alt="Preview" 
+                        style={{ 
+                          maxWidth: '100%', 
+                          maxHeight: '200px', 
+                          borderRadius: '8px',
+                          border: '1px solid #d9d9d9'
+                        }} 
+                      />
+                      <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+                        {imageDragDropData.dropZones.length} зон, {imageDragDropData.draggableItems.length} элементов
+                      </div>
+                    </div>
+                  </Card>
+                )}
+              </Space>
+            </Form.Item>
+          </>
+        );
+
       default:
         return (
           <Form.Item name="content" label="Контент">
@@ -951,62 +1102,111 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
   );
 
   return (
-    <Modal
-      title={`Редактирование слайда: ${slide.title}`}
-      open={true}
-      onCancel={onCancel}
-      width={800}
-      footer={[
-        <Button key="cancel" onClick={onCancel} icon={<CloseOutlined />}>
-          Отмена
-        </Button>,
-        <Button key="save" type="primary" onClick={handleSave} icon={<SaveOutlined />}>
-          Сохранить
-        </Button>,
-      ]}
-    >
-      <Form form={form} layout="vertical">
-        <Tabs activeKey={activeTab} onChange={setActiveTab}>
-          <Tabs.TabPane tab="Основное" key="content">
-            <Form.Item
-              name="title"
-              label="Заголовок слайда"
-              rules={[{ required: true, message: 'Введите заголовок слайда' }]}
-            >
-              <Input placeholder="Введите заголовок слайда" />
-            </Form.Item>
+    <>
+      <Modal
+        title={`Редактирование слайда: ${slide.title}`}
+        open={true}
+        onCancel={onCancel}
+        width={800}
+        footer={[
+          <Button key="cancel" onClick={onCancel} icon={<CloseOutlined />}>
+            Отмена
+          </Button>,
+          <Button key="save" type="primary" onClick={handleSave} icon={<SaveOutlined />}>
+            Сохранить
+          </Button>,
+        ]}
+      >
+        <Form form={form} layout="vertical">
+          <Tabs activeKey={activeTab} onChange={setActiveTab}>
+            <Tabs.TabPane tab="Основное" key="content">
+              <Form.Item
+                name="title"
+                label="Заголовок слайда"
+                rules={[{ required: true, message: 'Введите заголовок слайда' }]}
+              >
+                <Input placeholder="Введите заголовок слайда" />
+              </Form.Item>
 
-            <Form.Item
-              name="type"
-              label="Тип слайда"
-              rules={[{ required: true, message: 'Выберите тип слайда' }]}
-            >
-              <Select onChange={(value) => setCurrentSlide({ ...currentSlide, type: value })}>
-                <Option value={SlideType.TEXT}>Текст</Option>
-                <Option value={SlideType.IMAGE}>Изображение</Option>
-                <Option value={SlideType.VIDEO}>Видео</Option>
-                <Option value={SlideType.CODE}>Код</Option>
-                <Option value={SlideType.CHART}>График</Option>
-                <Option value={SlideType.QUIZ}>Викторина</Option>
-                <Option value={SlideType.EMBED}>Встраивание</Option>
-                <Option value={SlideType.GAME}>Игра</Option>
-                <Option value={SlideType.INTERACTIVE}>Интерактивный</Option>
-                <Option value={SlideType.ACHIEVEMENT}>Достижение</Option>
-                <Option value={SlideType.PROGRESS}>Прогресс</Option>
-                <Option value={SlideType.FLASHCARDS}>Флеш-карточки</Option>
+              <Form.Item
+                name="type"
+                label="Тип слайда"
+                rules={[{ required: true, message: 'Выберите тип слайда' }]}
+              >
+                <Select onChange={(value) => setCurrentSlide({ ...currentSlide, type: value })}>
+                  <Option value={SlideType.TEXT}>Текст</Option>
+                  <Option value={SlideType.IMAGE}>Изображение</Option>
+                  <Option value={SlideType.VIDEO}>Видео</Option>
+                  <Option value={SlideType.CODE}>Код</Option>
+                  <Option value={SlideType.CHART}>График</Option>
+                  <Option value={SlideType.QUIZ}>Викторина</Option>
+                  <Option value={SlideType.EMBED}>Встраивание</Option>
+                  <Option value={SlideType.GAME}>Игра</Option>
+                  <Option value={SlideType.INTERACTIVE}>Интерактивный</Option>
+                  <Option value={SlideType.ACHIEVEMENT}>Достижение</Option>
+                  <Option value={SlideType.PROGRESS}>Прогресс</Option>
+                                  <Option value={SlideType.FLASHCARDS}>Флеш-карточки</Option>
                 <Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Option>
-              </Select>
-            </Form.Item>
+                <Option value={SlideType.IMAGE_DRAG_DROP}>Drag & Drop на изображении</Option>
+                </Select>
+              </Form.Item>
 
-            {renderContentEditor()}
-          </Tabs.TabPane>
+              {renderContentEditor()}
+            </Tabs.TabPane>
 
-          <Tabs.TabPane tab="Настройки" key="settings">
-            {renderSettingsEditor()}
-          </Tabs.TabPane>
-        </Tabs>
-      </Form>
-    </Modal>
+            <Tabs.TabPane tab="Настройки" key="settings">
+              {renderSettingsEditor()}
+            </Tabs.TabPane>
+          </Tabs>
+        </Form>
+      </Modal>
+      
+      {/* Модальное окно ImageTextEditor */}
+      <Modal
+        title="Редактор изображений с текстом"
+        open={imageEditorVisible}
+        onCancel={() => setImageEditorVisible(false)}
+        width={1200}
+        footer={null}
+        destroyOnClose
+      >
+        <ImageTextEditor
+          onSave={(imageData, textElements) => {
+            setImageEditorData({ imageData, textElements });
+            setImageEditorVisible(false);
+            message.success('Изображение с текстом сохранено!');
+          }}
+          initialImageUrl={form.getFieldValue('content')}
+          initialTextElements={imageEditorData?.textElements || []}
+        />
+      </Modal>
+      
+      {/* Модальное окно ImageDragDropEditor */}
+      <Modal
+        title="Редактор Drag and Drop на изображении"
+        open={imageDragDropEditorVisible}
+        onCancel={() => setImageDragDropEditorVisible(false)}
+        width={1200}
+        footer={null}
+        destroyOnClose
+      >
+        <ImageDragDropEditor
+          imageUrl={form.getFieldValue('content') || ''}
+          dropZones={imageDragDropData?.dropZones || []}
+          draggableItems={imageDragDropData?.draggableItems || []}
+          onSave={(dropZones, draggableItems) => {
+            setImageDragDropData({ 
+              imageUrl: form.getFieldValue('content'), 
+              dropZones, 
+              draggableItems 
+            });
+            setImageDragDropEditorVisible(false);
+            message.success('Конфигурация Drag and Drop сохранена!');
+          }}
+          onCancel={() => setImageDragDropEditorVisible(false)}
+        />
+      </Modal>
+    </>
   );
 };
 

@@ -77,6 +77,8 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
         return '❓';
       case SlideType.EMBED:
         return '🌐';
+      case SlideType.IMAGE_DRAG_DROP:
+        return '🎯';
       default:
         return '📄';
     }
@@ -249,6 +251,33 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
               }}
               title={currentSlide.title}
             />
+          </div>
+        );
+
+      case SlideType.IMAGE_DRAG_DROP:
+        return (
+          <div style={slideStyle}>
+            {currentSlide.settings.showTitle && (
+              <Title level={1} style={{ marginBottom: 32, textAlign: currentSlide.settings.alignment }}>
+                {currentSlide.title}
+              </Title>
+            )}
+            <div style={{ textAlign: 'center' }}>
+              <Paragraph style={{ fontSize: '20px', marginBottom: '24px' }}>
+                Drag and Drop на изображении
+              </Paragraph>
+              <div style={{ 
+                backgroundColor: '#f5f5f5', 
+                padding: '32px', 
+                borderRadius: '8px',
+                textAlign: 'center',
+                color: '#666',
+                maxWidth: '600px',
+                margin: '0 auto',
+              }}>
+                Интерактивные элементы drag and drop будут отображаться здесь
+              </div>
+            </div>
           </div>
         );
 
