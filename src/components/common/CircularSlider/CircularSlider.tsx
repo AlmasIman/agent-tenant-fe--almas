@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 interface CircularSliderProps {
@@ -6,213 +6,182 @@ interface CircularSliderProps {
   max: number;
   low: number;
   high: number;
-  onChange: (low: number, high: number) => void;
-  onValueChanged: (low: number, high: number) => void;
   step?: number;
-  size?: number;
-  thickness?: number;
+  handleSize?: number;
+  arcLength?: number;
+  startAngle?: number;
+  onChange?: (event: { detail: { low?: number; high?: number } }) => void;
+  onValueChanged?: (event: { detail: { low?: number; high?: number } }) => void;
 }
 
-interface Point {
-  x: number;
-  y: number;
-}
-
-const SliderContainer = styled.div<{ size: number }>`
+const SliderContainer = styled.div`
   position: relative;
-  width: ${props => props.size}px;
-  height: ${props => props.size}px;
+  width: 200px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
 `;
 
 const SVG = styled.svg`
-  position: absolute;
-  top: 0;
-  left: 0;
+  transform: rotate(-90deg);
 `;
 
 const Track = styled.circle`
   fill: none;
   stroke: #def0ff;
-  stroke-width: ${props => props.strokeWidth || 4};
+  stroke-width: 22;
 `;
 
 const Progress = styled.circle`
   fill: none;
-  stroke: var(--primary-color);
-  stroke-width: ${props => props.strokeWidth || 4};
+  stroke: var(--primary-color, #1890ff);
+  stroke-width: 22;
   stroke-linecap: round;
-  transition: stroke-dasharray 0.1s ease;
+  transition: stroke-dasharray 0.3s ease;
 `;
 
 const Handle = styled.circle<{ isDragging: boolean }>`
   fill: #fff;
-  stroke: var(--primary-color);
+  stroke: var(--primary-color, #1890ff);
   stroke-width: 2;
   cursor: ${props => props.isDragging ? 'grabbing' : 'grab'};
-  transition: r 0.1s ease;
+  transition: r 0.2s ease;
   
   &:hover {
-    r: 8px;
+    r: 8;
   }
 `;
 
-export const CircularSlider: React.FC<CircularSliderProps> = ({
-  min,
-  max,
+const CircularSlider: React.FC<CircularSliderProps> = ({
+  min = 0,
+  max = 23,
   low,
   high,
+  step = 1,
+  handleSize = 12,
+  arcLength = 360,
+  startAngle = -90,
   onChange,
   onValueChanged,
-  step = 1,
-  size = 200,
-  thickness = 4,
 }) => {
-  const [isDragging, setIsDragging] = useState<'low' | 'high' | null>(null);
-  const [dragStartAngle, setDragStartAngle] = useState(0);
-  const [dragStartValue, setDragStartValue] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragTarget, setDragTarget] = useState<'low' | 'high' | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const [currentLow, setCurrentLow] = useState(low);
+  const [currentHigh, setCurrentHigh] = useState(high);
 
-  const radius = (size - thickness) / 2;
-  const center = size / 2;
+  const radius = 80;
+  const centerX = 100;
+  const centerY = 100;
 
-  const valueToAngle = (value: number): number => {
-    const normalizedValue = (value - min) / (max - min);
-    return normalizedValue * 360 - 90; // Start from top (-90 degrees)
-  };
+  useEffect(() => {
+    setCurrentLow(low);
+    setCurrentHigh(high);
+  }, [low, high]);
 
   const angleToValue = (angle: number): number => {
-    const normalizedAngle = ((angle + 90) % 360 + 360) % 360;
-    const normalizedValue = normalizedAngle / 360;
-    const value = normalizedValue * (max - min) + min;
-    return Math.round(value / step) * step;
+    const normalizedAngle = (angle - startAngle + 360) % 360;
+    const percentage = normalizedAngle / arcLength;
+    return Math.round((min + (max - min) * percentage) / step) * step;
   };
 
-  const getPointFromAngle = (angle: number): Point => {
-    const radians = (angle * Math.PI) / 180;
+  const valueToAngle = (value: number): number => {
+    const percentage = (value - min) / (max - min);
+    return startAngle + (arcLength * percentage);
+  };
+
+  const getPointOnCircle = (angle: number) => {
+    const radian = (angle * Math.PI) / 180;
     return {
-      x: center + radius * Math.cos(radians),
-      y: center + radius * Math.sin(radians),
+      x: centerX + radius * Math.cos(radian),
+      y: centerY + radius * Math.sin(radian),
     };
   };
 
-  const getAngleFromPoint = (point: Point): number => {
-    const dx = point.x - center;
-    const dy = point.y - center;
-    let angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-    angle = (angle + 90) % 360;
-    return angle < 0 ? angle + 360 : angle;
-  };
-
-  const handleMouseDown = (e: React.MouseEvent, handle: 'low' | 'high') => {
-    e.preventDefault();
-    setIsDragging(handle);
-    const rect = svgRef.current?.getBoundingClientRect();
-    if (rect) {
-      const point = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-      const angle = getAngleFromPoint(point);
-      setDragStartAngle(angle);
-      setDragStartValue(handle === 'low' ? low : high);
-    }
+  const handleMouseDown = (e: React.MouseEvent, target: 'low' | 'high') => {
+    setIsDragging(true);
+    setDragTarget(target);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || !svgRef.current) return;
 
     const rect = svgRef.current.getBoundingClientRect();
-    const point = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    const angle = getAngleFromPoint(point);
-    const newValue = angleToValue(angle);
+    const x = e.clientX - rect.left - centerX;
+    const y = e.clientY - rect.top - centerY;
+    
+    let angle = (Math.atan2(y, x) * 180) / Math.PI;
+    if (angle < 0) angle += 360;
+    
+    const value = Math.max(min, Math.min(max, angleToValue(angle)));
 
-    if (isDragging === 'low') {
-      const clampedValue = Math.max(min, Math.min(high - step, newValue));
-      onChange(clampedValue, high);
-    } else {
-      const clampedValue = Math.max(low + step, Math.min(max, newValue));
-      onChange(low, clampedValue);
+    if (dragTarget === 'low') {
+      const newLow = Math.min(value, currentHigh - step);
+      setCurrentLow(newLow);
+      onChange?.({ detail: { low: newLow } });
+    } else if (dragTarget === 'high') {
+      const newHigh = Math.max(value, currentLow + step);
+      setCurrentHigh(newHigh);
+      onChange?.({ detail: { high: newHigh } });
     }
   };
 
   const handleMouseUp = () => {
-    if (isDragging) {
-      onValueChanged(low, high);
-      setIsDragging(null);
+    if (isDragging && dragTarget) {
+      onValueChanged?.({ 
+        detail: { 
+          [dragTarget]: dragTarget === 'low' ? currentLow : currentHigh 
+        } 
+      });
     }
+    setIsDragging(false);
+    setDragTarget(null);
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
   };
 
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, low, high]);
-
-  const lowAngle = valueToAngle(low);
-  const highAngle = valueToAngle(high);
-  const lowPoint = getPointFromAngle(lowAngle);
-  const highPoint = getPointFromAngle(highAngle);
-
-  // Calculate arc path for progress
-  const startAngle = Math.min(lowAngle, highAngle);
-  const endAngle = Math.max(lowAngle, highAngle);
-  const arcLength = endAngle - startAngle;
-
-  const startRadians = (startAngle * Math.PI) / 180;
-  const endRadians = (endAngle * Math.PI) / 180;
+  const lowAngle = valueToAngle(currentLow);
+  const highAngle = valueToAngle(currentHigh);
   
-  const startX = center + radius * Math.cos(startRadians);
-  const startY = center + radius * Math.sin(startRadians);
-  const endX = center + radius * Math.cos(endRadians);
-  const endY = center + radius * Math.sin(endRadians);
+  const lowPoint = getPointOnCircle(lowAngle);
+  const highPoint = getPointOnCircle(highAngle);
 
-  const largeArcFlag = arcLength > 180 ? 1 : 0;
-
-  const progressPath = `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}`;
+  const circumference = 2 * Math.PI * radius;
+  const progressLength = ((highAngle - lowAngle + 360) % 360) / 360;
+  const dashArray = `${circumference * progressLength} ${circumference}`;
 
   return (
-    <SliderContainer size={size}>
-      <SVG ref={svgRef} width={size} height={size}>
-        {/* Background track */}
-        <Track
-          cx={center}
-          cy={center}
+    <SliderContainer>
+      <SVG ref={svgRef} width="200" height="200">
+        <Track cx={centerX} cy={centerY} r={radius} />
+        <Progress 
+          cx={centerX} 
+          cy={centerY} 
           r={radius}
-          strokeWidth={thickness}
+          strokeDasharray={dashArray}
+          strokeDashoffset={-circumference * (lowAngle - startAngle) / 360}
         />
-        
-        {/* Progress arc */}
-        <path
-          d={progressPath}
-          fill="none"
-          stroke="var(--primary-color)"
-          strokeWidth={thickness}
-          strokeLinecap="round"
-        />
-        
-        {/* Low handle */}
         <Handle
           cx={lowPoint.x}
           cy={lowPoint.y}
-          r={6}
-          isDragging={isDragging === 'low'}
+          r={handleSize}
+          isDragging={isDragging && dragTarget === 'low'}
           onMouseDown={(e) => handleMouseDown(e, 'low')}
         />
-        
-        {/* High handle */}
         <Handle
           cx={highPoint.x}
           cy={highPoint.y}
-          r={6}
-          isDragging={isDragging === 'high'}
+          r={handleSize}
+          isDragging={isDragging && dragTarget === 'high'}
           onMouseDown={(e) => handleMouseDown(e, 'high')}
         />
       </SVG>
     </SliderContainer>
   );
 };
+
+export default CircularSlider;
+
