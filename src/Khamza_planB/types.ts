@@ -1,6 +1,6 @@
 export interface H5PQuizQuestion {
   id: string;
-  type: 'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'drag-and-drop' | 'mark-the-words' | 'image-hotspot' | 'drag-the-words' | 'test';
+  type: 'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'drag-and-drop' | 'mark-the-words' | 'image-hotspot' | 'drag-the-words' | 'test' | 'image-drag-drop';
   question: string;
   options?: string[];
   correctAnswer: string | string[];
@@ -36,6 +36,24 @@ export interface H5PQuizQuestion {
     correct: string;
     incorrect: string;
   };
+  // для image-drag-drop - перетаскивание элементов на изображение
+  imageDragDrop?: {
+    imageUrl: string; // URL изображения
+    dropZones: Array<{
+      id: string;
+      x: number; // процент от ширины изображения
+      y: number; // процент от высоты изображения
+      width: number; // ширина зоны в пикселях
+      height: number; // высота зоны в пикселях
+      label?: string; // подпись к зоне
+      correctItems: string[]; // правильные элементы для этой зоны
+    }>;
+    draggableItems: Array<{
+      id: string;
+      text: string;
+      correctZoneId: string; // ID правильной зоны
+    }>;
+  };
 }
 
 export interface H5PQuiz {
@@ -64,7 +82,7 @@ export interface H5PQuizResult {
 
 export interface H5PQuizState {
   currentQuestionIndex: number;
-  answers: Record<string, string | string[]>;
+  answers: Record<string, string | string[] | Record<string, string>>;
   timeSpent: number;
   isCompleted: boolean;
   score: number;

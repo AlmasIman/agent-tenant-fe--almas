@@ -28,6 +28,9 @@ import CourseQuizPage from '@app/pages/CourseQuizPage';
 import CourseViewPage from '@app/pages/CourseViewPage';
 import CoursesListPage from '@app/pages/CoursesListPage';
 import TrainingPlayerPage from '@app/pages/TrainingPlayerPage';
+import ImageTextEditorPage from '@app/pages/ImageTextEditorPage';
+import SlideBuilderDemoPage from '@app/pages/SlideBuilderDemoPage';
+import ImageDragDropDemoPage from '@app/pages/ImageDragDropDemoPage';
 
 const ServerErrorPage = React.lazy(() => import('@app/pages/ServerErrorPage'));
 const Error404Page = React.lazy(() => import('@app/pages/Error404Page'));
@@ -83,6 +86,9 @@ export const AppRouter: React.FC = () => {
           <Route path="course/:courseId" element={<CourseViewPage />} />
           <Route path="course/:courseId/quiz" element={<CourseQuizPage />} />
           <Route path="/training-player/:trainingId" element={<TrainingPlayerPage />} />
+          <Route path="image-text-editor" element={<ImageTextEditorPage />} />
+          <Route path="slide-builder-demo" element={<SlideBuilderDemoPage />} />
+          <Route path="image-drag-drop-demo" element={<ImageDragDropDemoPage />} />
           <Route path="server-error" element={<ServerError />} />
           <Route path="404" element={<Error404 />} />
         </Route>

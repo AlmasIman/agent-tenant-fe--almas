@@ -8,18 +8,6 @@ const pathWidth = 22;
 export const Wrapper = styled.div`
   position: relative;
   display: flex;
-
-  --round-slider-handle-cursor: grabbing;
-  --round-slider-path-width: ${pathWidth}px;
-
-  --round-slider-bar-color: var(--primary-color);
-  --round-slider-path-color: #def0ff;
-  --round-slider-handle-color: #fff;
-  --round-slider-handle-border-color: var(--primary-color);
-
-  round-slider {
-    z-index: 1; // To make it under InnerWrapper
-  }
 `;
 
 export const InnerWrapper = styled.div`

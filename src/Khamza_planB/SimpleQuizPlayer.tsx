@@ -3,6 +3,7 @@ import { Card, Button, Space, Progress, Radio, Input, Alert, Result, Modal, mess
 import { H5PQuiz, H5PQuizQuestion, H5PQuizState, H5PQuizResult } from './types';
 import { useTranslation } from 'react-i18next';
 import { ClockCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import ImageDragDropQuestion from './ImageDragDropQuestion';
 
 interface SimpleQuizPlayerProps {
   quiz: H5PQuiz;
@@ -60,7 +61,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const handleAnswerChange = (answer: string | string[]) => {
+  const handleAnswerChange = (answer: string | string[] | Record<string, string>) => {
     setState(prev => ({
       ...prev,
       answers: { ...prev.answers, [currentQuestion.id]: answer }
@@ -148,7 +149,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
     handleDragWord(targetId, word);
   };
 
-  const checkAnswer = (question: H5PQuizQuestion, answer: string | string[]): boolean => {
+  const checkAnswer = (question: H5PQuizQuestion, answer: string | string[] | Record<string, string>): boolean => {
     if (question.type === 'mark-the-words') {
       const correctWords = question.correctWords || [];
       const selectedWords = Array.isArray(answer) ? answer : [];
@@ -169,6 +170,12 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
       return targets.every(target => dragAnswers[target.id] === target.correctWord);
     }
     
+    if (question.type === 'image-drag-drop') {
+      const dragDropAnswers = typeof answer === 'object' && !Array.isArray(answer) ? answer : {};
+      const draggableItems = question.imageDragDrop?.draggableItems || [];
+      return draggableItems.every(item => dragDropAnswers[item.id] === item.correctZoneId);
+    }
+    
     if (question.type === 'test') {
       const answers = question.answers || [];
       const correctAnswers = answers.filter(a => a.correct).map(a => a.text);
@@ -180,16 +187,22 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
           correctAnswers.every(correct => selectedAnswers.includes(correct));
       } else {
         // Для одиночного выбора должен быть выбран один правильный ответ
-        return selectedAnswers.length === 1 && correctAnswers.includes(selectedAnswers[0]);
+        return selectedAnswers.length === 1 && correctAnswers.includes(selectedAnswers[0] as string);
       }
     }
     
     if (Array.isArray(question.correctAnswer)) {
       return Array.isArray(answer) && 
         answer.length === question.correctAnswer.length &&
-        answer.every(a => question.correctAnswer.includes(a));
+        answer.every(a => question.correctAnswer.includes(a as string));
     }
-    return answer === question.correctAnswer;
+    
+    // Для обычных вопросов answer должен быть строкой
+    if (typeof answer === 'string') {
+      return answer === question.correctAnswer;
+    }
+    
+    return false;
   };
 
   const calculateScore = (): number => {
@@ -227,9 +240,10 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
         quizId: quiz.id,
         score: finalScore,
         totalQuestions,
-        correctAnswers: questions.filter(q => 
-          checkAnswer(q, state.answers[q.id] || '')
-        ).length,
+        correctAnswers: questions.filter(q => {
+          const answer = state.answers[q.id];
+          return answer && checkAnswer(q, answer);
+        }).length,
         timeSpent: state.timeSpent,
         passed,
         attempts: state.attempts + 1,
@@ -428,50 +442,67 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
           <div>
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontSize: '16px', lineHeight: '1.6', marginBottom: '16px' }}>
-                {dragTargets.reduce((text, target) => {
-                  const placeholder = target.placeholder;
-                  const answer = currentDragAnswers[target.id];
-                  return text.replace(
-                    placeholder,
-                    answer ? (
-                      <span
-                        key={target.id}
-                        style={{
-                          display: 'inline-block',
-                          padding: '4px 8px',
-                          margin: '0 4px',
-                          backgroundColor: '#52c41a',
-                          color: 'white',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => handleDragWord(target.id, '')}
-                        title={t('quiz.clickToRemove')}
-                      >
-                        {answer}
-                      </span>
-                    ) : (
-                      <span
-                        key={target.id}
-                        style={{
-                          display: 'inline-block',
-                          padding: '4px 8px',
-                          margin: '0 4px',
-                          backgroundColor: '#f0f0f0',
-                          border: '2px dashed #d9d9d9',
-                          borderRadius: '4px',
-                          minWidth: '60px',
-                          textAlign: 'center',
-                          color: '#999',
-                        }}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(e, target.id)}
-                      >
-                        {placeholder}
-                      </span>
-                    )
-                  );
-                }, dragText)}
+                {(() => {
+                  let result = dragText;
+                  const elements: React.ReactNode[] = [];
+                  
+                  dragTargets.forEach((target, index) => {
+                    const placeholder = target.placeholder;
+                    const answer = currentDragAnswers[target.id];
+                    const parts = result.split(placeholder);
+                    
+                    if (parts.length > 1) {
+                      result = parts.join(`__TARGET_${index}__`);
+                      elements.push(
+                        answer ? (
+                          <span
+                            key={target.id}
+                            style={{
+                              display: 'inline-block',
+                              padding: '4px 8px',
+                              margin: '0 4px',
+                              backgroundColor: '#52c41a',
+                              color: 'white',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => handleDragWord(target.id, '')}
+                            title={t('quiz.clickToRemove')}
+                          >
+                            {answer}
+                          </span>
+                        ) : (
+                          <span
+                            key={target.id}
+                            style={{
+                              display: 'inline-block',
+                              padding: '4px 8px',
+                              margin: '0 4px',
+                              backgroundColor: '#f0f0f0',
+                              border: '2px dashed #d9d9d9',
+                              borderRadius: '4px',
+                              minWidth: '60px',
+                              textAlign: 'center',
+                              color: '#999',
+                            }}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, target.id)}
+                          >
+                            {placeholder}
+                          </span>
+                        )
+                      );
+                    }
+                  });
+                  
+                  const finalParts = result.split(/__TARGET_\d+__/);
+                  return finalParts.map((part, index) => (
+                    <React.Fragment key={index}>
+                      {part}
+                      {elements[index]}
+                    </React.Fragment>
+                  ));
+                })()}
               </div>
             </div>
             
@@ -548,6 +579,26 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
               })}
             </Space>
           </div>
+        );
+
+      case 'image-drag-drop':
+        const imageDragDropData = currentQuestion.imageDragDrop;
+        if (!imageDragDropData) return null;
+        
+        const currentImageDragDropAnswer = typeof currentAnswer === 'object' && !Array.isArray(currentAnswer) 
+          ? currentAnswer as Record<string, string> 
+          : {};
+        
+        return (
+          <ImageDragDropQuestion
+            imageUrl={imageDragDropData.imageUrl}
+            dropZones={imageDragDropData.dropZones}
+            draggableItems={imageDragDropData.draggableItems}
+            onAnswerChange={handleAnswerChange}
+            currentAnswer={currentImageDragDropAnswer}
+            isAnswered={false}
+            showFeedback={false}
+          />
         );
 
       default:
