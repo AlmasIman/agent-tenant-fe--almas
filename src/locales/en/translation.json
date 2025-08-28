@@ -119,6 +119,7 @@
     "markTheWords": "Mark the Words",
     "imageHotspot": "Image Hotspot",
     "dragTheWords": "Drag the Words",
+    "test": "Test",
     "dragAndDrop": "Drag and Drop",
     "addQuestion": "Add Question",
     "question": "Question",
@@ -201,7 +202,17 @@
     "clickToRemove": "Click to remove",
     "availableWords": "Available words",
     "dragWordsToTargets": "Drag words to the correct places in the text",
-    "of": "of"
+    "of": "of",
+    "testHint": "Create a question with answer options and feedback",
+    "answerText": "Answer text",
+    "isCorrect": "Correct",
+    "answerFeedback": "Answer feedback",
+    "generalFeedback": "General feedback",
+    "correctFeedback": "Correct answer feedback",
+    "incorrectFeedback": "Incorrect answer feedback",
+    "allowMultipleSelection": "Allow multiple selection",
+    "addAnswer": "Add answer",
+    "removeAnswer": "Remove answer"
   },
   "common": {
     "address": "Address",

@@ -44,12 +44,12 @@ export const sidebarNavigation: SidebarNavigationItem[] = [
     url: '/trainings',
     icon: <FileDoneOutlined />,
   },
-  {
-    title: 'Создать курс',
-    key: 'create-course',
-    url: '/create-course',
-    icon: <PlusOutlined />,
-  },
+  // {
+  //   title: 'Создать курс',
+  //   key: 'create-course',
+  //   url: '/create-course',
+  //   icon: <PlusOutlined />,
+  // },
   {
     title: 'Курсы',
     key: 'courses',
