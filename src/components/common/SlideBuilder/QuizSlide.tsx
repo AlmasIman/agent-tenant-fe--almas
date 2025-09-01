@@ -29,11 +29,16 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
     if (slide.content) {
       try {
         const content = JSON.parse(slide.content);
-        const quiz = content.quiz;
         
-        if (quiz && quiz.questions) {
-          setQuestions(quiz.questions);
-          setShowExplanation(quiz.showExplanation || false);
+        // Handle both formats: wrapped in quiz object or direct data
+        let quizData = content.quiz || content;
+        
+        if (quizData && quizData.questions) {
+          setQuestions(quizData.questions);
+          setShowExplanation(quizData.showExplanation || false);
+        } else {
+          console.warn('No questions found in quiz data:', content);
+          setQuestions([]);
         }
       } catch (error) {
         console.error('Error parsing quiz:', error);
@@ -43,9 +48,9 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
   }, [slide.content]);
 
   const handleAnswerSelect = (questionId: string, answerIndex: number) => {
-    setUserAnswers(prev => ({
+    setUserAnswers((prev) => ({
       ...prev,
-      [questionId]: answerIndex
+      [questionId]: answerIndex,
     }));
   };
 
@@ -60,14 +65,14 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
   const handleComplete = () => {
     const answeredQuestions = Object.keys(userAnswers).length;
     const totalQuestions = questions.length;
-    
+
     if (answeredQuestions < totalQuestions) {
       message.warning(`Ответьте на все вопросы! Осталось: ${totalQuestions - answeredQuestions}`);
       return;
     }
 
     let correctAnswers = 0;
-    questions.forEach(question => {
+    questions.forEach((question) => {
       if (userAnswers[question.id] === question.correctAnswer) {
         correctAnswers++;
       }
@@ -109,19 +114,19 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
 
   if (questions.length === 0) {
     return (
-      <div style={{ 
-        textAlign: 'center', 
-        padding: '60px 20px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        borderRadius: '16px',
-        color: 'white',
-      }}>
+      <div
+        style={{
+          textAlign: 'center',
+          padding: '60px 20px',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          borderRadius: '16px',
+          color: 'white',
+        }}
+      >
         <Title level={2} style={{ color: 'white', marginBottom: '16px' }}>
           Викторина
         </Title>
-        <Text style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '16px' }}>
-          Нет вопросов для отображения
-        </Text>
+        <Text style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '16px' }}>Нет вопросов для отображения</Text>
       </div>
     );
   }
@@ -131,24 +136,28 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
   const isCorrect = userAnswer === currentQuestion.correctAnswer;
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      height: '100%',
-      padding: '24px',
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-      borderRadius: '16px',
-    }}>
-      {/* Заголовок */}
-      <div style={{ 
-        marginBottom: '24px',
-        textAlign: 'center',
-        padding: '20px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        padding: '24px',
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
         borderRadius: '16px',
-        color: 'white',
-        boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
-      }}>
+      }}
+    >
+      {/* Заголовок */}
+      <div
+        style={{
+          marginBottom: '24px',
+          textAlign: 'center',
+          padding: '20px',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          borderRadius: '16px',
+          color: 'white',
+          boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
+        }}
+      >
         <Title level={2} style={{ color: 'white', marginBottom: '8px' }}>
           Викторина
         </Title>
@@ -158,15 +167,17 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
       </div>
 
       {/* Прогресс */}
-      <div style={{ 
-        marginBottom: '24px',
-        padding: '16px',
-        background: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-      }}>
-        <Progress 
-          percent={Math.round(((currentQuestionIndex + 1) / questions.length) * 100)} 
+      <div
+        style={{
+          marginBottom: '24px',
+          padding: '16px',
+          background: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Progress
+          percent={Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}
           showInfo={false}
           strokeColor={{
             '0%': '#667eea',
@@ -175,12 +186,14 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
           strokeWidth={8}
           trailColor="#f0f0f0"
         />
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginTop: '8px',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '8px',
+          }}
+        >
           <Text style={{ fontSize: '14px', color: '#666' }}>
             Прогресс: {currentQuestionIndex + 1} из {questions.length}
           </Text>
@@ -191,81 +204,94 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
       </div>
 
       {/* Вопрос */}
-      <Card style={{ 
-        flex: 1, 
-        marginBottom: '24px',
-        background: 'white',
-        borderRadius: '16px',
-        border: 'none',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        overflow: 'hidden',
-      }}>
-        <div style={{ 
-          padding: '24px',
-          background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-          minHeight: '200px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-        }}>
-          <Title level={3} style={{ 
-            marginBottom: '24px',
-            color: '#2c3e50',
-            textAlign: 'center',
-          }}>
+      <Card
+        style={{
+          flex: 1,
+          marginBottom: '24px',
+          background: 'white',
+          borderRadius: '16px',
+          border: 'none',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            padding: '24px',
+            background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+            minHeight: '200px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <Title
+            level={3}
+            style={{
+              marginBottom: '24px',
+              color: '#2c3e50',
+              textAlign: 'center',
+            }}
+          >
             {currentQuestion.question}
           </Title>
 
           {/* Варианты ответов */}
-          <Radio.Group 
+          <Radio.Group
             value={userAnswer}
             onChange={(e) => handleAnswerSelect(currentQuestion.id, e.target.value)}
             style={{ width: '100%' }}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {currentQuestion.options.map((option, index) => (
-                <div key={index} style={{
-                  padding: '12px 16px',
-                  background: userAnswer === index 
-                    ? (isCorrect ? 'rgba(82, 196, 26, 0.1)' : 'rgba(255, 77, 79, 0.1)')
-                    : '#ffffff',
-                  border: userAnswer === index 
-                    ? (isCorrect ? '2px solid #52c41a' : '2px solid #ff4d4f')
-                    : '2px solid #f0f0f0',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                }}
-                onMouseEnter={(e) => {
-                  if (userAnswer === undefined) {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (userAnswer === undefined) {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }
-                }}
+                <div
+                  key={index}
+                  style={{
+                    padding: '12px 16px',
+                    background:
+                      userAnswer === index
+                        ? isCorrect
+                          ? 'rgba(82, 196, 26, 0.1)'
+                          : 'rgba(255, 77, 79, 0.1)'
+                        : '#ffffff',
+                    border:
+                      userAnswer === index
+                        ? isCorrect
+                          ? '2px solid #52c41a'
+                          : '2px solid #ff4d4f'
+                        : '2px solid #f0f0f0',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (userAnswer === undefined) {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (userAnswer === undefined) {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }
+                  }}
                 >
-                  <Radio 
+                  <Radio
                     value={index}
                     style={{
                       width: '100%',
-                      color: userAnswer === index 
-                        ? (isCorrect ? '#52c41a' : '#ff4d4f')
-                        : '#666',
+                      color: userAnswer === index ? (isCorrect ? '#52c41a' : '#ff4d4f') : '#666',
                       fontWeight: userAnswer === index ? '600' : 'normal',
                     }}
                   >
-                    <span style={{ 
-                      color: userAnswer === index 
-                        ? (isCorrect ? '#52c41a' : '#ff4d4f')
-                        : '#666',
-                      fontWeight: userAnswer === index ? '600' : 'normal',
-                      fontSize: '16px',
-                    }}>
+                    <span
+                      style={{
+                        color: userAnswer === index ? (isCorrect ? '#52c41a' : '#ff4d4f') : '#666',
+                        fontWeight: userAnswer === index ? '600' : 'normal',
+                        fontSize: '16px',
+                      }}
+                    >
                       {String.fromCharCode(65 + index)}) {option}
                     </span>
                   </Radio>
@@ -276,18 +302,22 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
 
           {/* Объяснение */}
           {showExplanation && userAnswer !== undefined && currentQuestion.explanation && (
-            <div style={{
-              marginTop: '16px',
-              padding: '12px 16px',
-              background: 'rgba(82, 196, 26, 0.1)',
-              borderRadius: '8px',
-              border: '1px solid rgba(82, 196, 26, 0.2)',
-            }}>
-              <Text style={{ 
-                fontSize: '14px', 
-                color: '#52c41a',
-                fontStyle: 'italic',
-              }}>
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '12px 16px',
+                background: 'rgba(82, 196, 26, 0.1)',
+                borderRadius: '8px',
+                border: '1px solid rgba(82, 196, 26, 0.2)',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: '14px',
+                  color: '#52c41a',
+                  fontStyle: 'italic',
+                }}
+              >
                 💡 {currentQuestion.explanation}
               </Text>
             </div>
@@ -297,20 +327,24 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
 
       {/* Результат */}
       {isCompleted && (
-        <Card style={{ 
-          marginBottom: '24px',
-          background: 'white',
-          borderRadius: '16px',
-          border: 'none',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden',
-        }}>
-          <div style={{
-            padding: '24px',
-            background: getScoreGradient(score),
-            textAlign: 'center',
-            color: 'white',
-          }}>
+        <Card
+          style={{
+            marginBottom: '24px',
+            background: 'white',
+            borderRadius: '16px',
+            border: 'none',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              padding: '24px',
+              background: getScoreGradient(score),
+              textAlign: 'center',
+              color: 'white',
+            }}
+          >
             <div style={{ marginBottom: '16px' }}>
               <TrophyOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
             </div>
@@ -327,15 +361,17 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
       )}
 
       {/* Кнопки управления */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        gap: '16px',
-        flexWrap: 'wrap',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '16px',
+          flexWrap: 'wrap',
+        }}
+      >
         {!isCompleted ? (
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<CheckOutlined />}
             onClick={handleNextQuestion}
             disabled={userAnswer === undefined}
@@ -366,7 +402,7 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
             {currentQuestionIndex === questions.length - 1 ? 'Завершить' : 'Следующий вопрос'}
           </Button>
         ) : (
-          <Button 
+          <Button
             icon={<ReloadOutlined />}
             onClick={handleReset}
             size="large"

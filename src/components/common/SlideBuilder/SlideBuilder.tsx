@@ -1,8 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { Card, Button, Space, Typography, Row, Col, Empty, message } from 'antd';
-import { PlusOutlined, DragOutlined, EditOutlined, DeleteOutlined, EyeOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import SlideItem from './SlideItem';
 import SlideEditor from './SlideEditor';
@@ -16,9 +21,17 @@ interface SlideBuilderProps {
   slides: Slide[];
   onSlidesChange: (slides: Slide[]) => void;
   readOnly?: boolean;
+  onPersistSlide?: (slide: Slide) => Promise<void> | void;
+  onDeleteSlide?: (slideId: string) => Promise<void> | void;
 }
 
-const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, readOnly = false }) => {
+const SlideBuilder: React.FC<SlideBuilderProps> = ({
+  slides,
+  onSlidesChange,
+  readOnly = false,
+  onPersistSlide,
+  onDeleteSlide,
+}) => {
   const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
   const [previewSlide, setPreviewSlide] = useState<Slide | null>(null);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
@@ -28,15 +41,50 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
+
+  const getDefaultContentForType = (type: SlideType): string => {
+    switch (type) {
+      case SlideType.TEXT:
+        return 'Введите текст слайда здесь...';
+      case SlideType.IMAGE:
+        return 'https://via.placeholder.com/800x600?text=Вставьте+URL+изображения';
+      case SlideType.VIDEO:
+        return 'https://www.youtube.com/watch?v=';
+      case SlideType.QUIZ:
+        return '';
+      case SlideType.FLASHCARDS:
+        return '';
+      case SlideType.FILL_WORDS:
+        return '';
+      case SlideType.IMAGE_DRAG_DROP:
+        return '';
+      case SlideType.CODE:
+        return '// Введите ваш код здесь\nconsole.log("Hello, World!");';
+      case SlideType.CHART:
+        return '';
+      case SlideType.EMBED:
+        return 'https://example.com';
+      case SlideType.GAME:
+        return '';
+      case SlideType.INTERACTIVE:
+        return '';
+      case SlideType.ACHIEVEMENT:
+        return '';
+      case SlideType.PROGRESS:
+        return '';
+      default:
+        return 'Введите текст слайда здесь...';
+    }
+  };
 
   const handleAddSlide = useCallback(() => {
     const newSlide: Slide = {
       id: Date.now().toString(),
       type: SlideType.TEXT,
       title: 'Новый слайд',
-      content: '',
+      content: getDefaultContentForType(SlideType.TEXT),
       order: slides.length,
       settings: {},
     };
@@ -52,41 +100,54 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
     setIsPreviewVisible(true);
   }, []);
 
-  const handleDeleteSlide = useCallback((slideId: string) => {
-    const updatedSlides = slides.filter(slide => slide.id !== slideId);
-    // Обновляем порядок
-    const reorderedSlides = updatedSlides.map((slide, index) => ({
-      ...slide,
-      order: index,
-    }));
-    onSlidesChange(reorderedSlides);
-    message.success('Слайд удален');
-  }, [slides, onSlidesChange]);
+  const handleDeleteSlide = useCallback(
+    async (slideId: string) => {
+      try {
+        await onDeleteSlide?.(slideId);
+      } catch {}
+    },
+    [onDeleteSlide],
+  );
 
-  const handleSaveSlide = useCallback((updatedSlide: Slide) => {
-    const updatedSlides = slides.map(slide => 
-      slide.id === updatedSlide.id ? updatedSlide : slide
-    );
-    onSlidesChange(updatedSlides);
-    setEditingSlide(null);
-    message.success('Слайд сохранен');
-  }, [slides, onSlidesChange]);
+  const handleSaveSlide = useCallback(
+    async (updatedSlide: Slide) => {
+      const updatedSlides = slides.map((slide) => (slide.id === updatedSlide.id ? updatedSlide : slide));
+      onSlidesChange(updatedSlides);
+      setEditingSlide(null);
+      message.success('Слайд сохранён');
+      try {
+        await onPersistSlide?.(updatedSlide);
+      } catch {
+        // message already shown by parent; no-op here
+      }
+    },
+    [slides, onSlidesChange, onPersistSlide],
+  );
 
-  const handleDragEnd = useCallback((event: any) => {
-    const { active, over } = event;
+  const handleDragEnd = useCallback(
+    async (event: any) => {
+      const { active, over } = event;
 
-    if (active.id !== over.id) {
-      const oldIndex = slides.findIndex(slide => slide.id === active.id);
-      const newIndex = slides.findIndex(slide => slide.id === over.id);
-      
-      const reorderedSlides = arrayMove(slides, oldIndex, newIndex).map((slide, index) => ({
-        ...slide,
-        order: index,
-      }));
-      
-      onSlidesChange(reorderedSlides);
-    }
-  }, [slides, onSlidesChange]);
+      if (!over) return;
+      if (active.id !== over.id) {
+        const oldIndex = slides.findIndex((slide) => slide.id === active.id);
+        const newIndex = slides.findIndex((slide) => slide.id === over.id);
+
+        const reorderedSlides = arrayMove(slides, oldIndex, newIndex).map((slide, index) => ({
+          ...slide,
+          order: index,
+        }));
+
+        onSlidesChange(reorderedSlides);
+        try {
+          await Promise.allSettled(reorderedSlides.map((s) => onPersistSlide?.(s)));
+        } catch {
+          /* parent handles errors */
+        }
+      }
+    },
+    [slides, onSlidesChange, onPersistSlide],
+  );
 
   const handleCloseEditor = useCallback(() => {
     setEditingSlide(null);
@@ -113,7 +174,7 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
     <div className="slide-builder">
       <Row gutter={[16, 16]}>
         <Col span={readOnly ? 24 : 16}>
-          <Card 
+          <Card
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -129,7 +190,7 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
                 </div>
                 {!readOnly && (
                   <div style={{ display: 'flex', gap: '12px' }}>
-                    <Button 
+                    <Button
                       icon={<PlayCircleOutlined />}
                       onClick={handleViewAllSlides}
                       disabled={slides.length === 0}
@@ -145,9 +206,9 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
                     >
                       Посмотреть все
                     </Button>
-                    <Button 
-                      type="primary" 
-                      icon={<PlusOutlined />} 
+                    <Button
+                      type="primary"
+                      icon={<PlusOutlined />}
                       onClick={handleAddSlide}
                       style={{
                         borderRadius: '8px',
@@ -177,10 +238,7 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
             }}
           >
             {slides.length === 0 ? (
-              <Empty 
-                description="Нет слайдов" 
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              >
+              <Empty description="Нет слайдов" image={Empty.PRESENTED_IMAGE_SIMPLE}>
                 {!readOnly && (
                   <Button type="primary" icon={<PlusOutlined />} onClick={handleAddSlide}>
                     Создать первый слайд
@@ -194,7 +252,7 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
                 onDragEnd={handleDragEnd}
                 modifiers={[restrictToVerticalAxis]}
               >
-                <SortableContext items={slides.map(slide => slide.id)} strategy={verticalListSortingStrategy}>
+                <SortableContext items={slides.map((slide) => slide.id)} strategy={verticalListSortingStrategy}>
                   <Space direction="vertical" style={{ width: '100%' }}>
                     {slides.map((slide) => (
                       <SlideItem
@@ -223,8 +281,8 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
                 <div>
                   <strong>Типы слайдов:</strong>
                   <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-                    {Object.values(SlideType).map(type => {
-                      const count = slides.filter(slide => slide.type === type).length;
+                    {Object.values(SlideType).map((type) => {
+                      const count = slides.filter((slide) => slide.type === type).length;
                       return count > 0 ? (
                         <li key={type}>
                           {type}: {count}
@@ -240,29 +298,14 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({ slides, onSlidesChange, rea
       </Row>
 
       {/* Редактор слайда */}
-      {editingSlide && (
-        <SlideEditor
-          slide={editingSlide}
-          onSave={handleSaveSlide}
-          onCancel={handleCloseEditor}
-        />
-      )}
+      {editingSlide && <SlideEditor slide={editingSlide} onSave={handleSaveSlide} onCancel={handleCloseEditor} />}
 
       {/* Предварительный просмотр */}
-      {isPreviewVisible && previewSlide && (
-        <SlidePreview
-          slide={previewSlide}
-          onClose={handleClosePreview}
-        />
-      )}
+      {isPreviewVisible && previewSlide && <SlidePreview slide={previewSlide} onClose={handleClosePreview} />}
 
       {/* Просмотр всех слайдов */}
       {isAllSlidesPreviewVisible && (
-        <SlidePresentation
-          slides={slides}
-          visible={isAllSlidesPreviewVisible}
-          onClose={handleCloseAllSlidesPreview}
-        />
+        <SlidePresentation slides={slides} visible={isAllSlidesPreviewVisible} onClose={handleCloseAllSlidesPreview} />
       )}
     </div>
   );

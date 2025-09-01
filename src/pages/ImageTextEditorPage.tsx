@@ -27,19 +27,16 @@ const ImageTextEditorPage: React.FC = () => {
   return (
     <>
       <PageTitle>Редактор изображений с текстом</PageTitle>
-      
+
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <ImageTextEditor 
-          onSave={handleSave}
-          initialImageUrl="https://picsum.photos/800/600"
-        />
-        
+        <ImageTextEditor onSave={handleSave} initialImageUrl="https://picsum.photos/800/600" />
+
         {savedImageData && (
           <Card title="Сохраненное изображение">
             <Space direction="vertical" style={{ width: '100%' }}>
-              <img 
-                src={savedImageData} 
-                alt="Saved" 
+              <img
+                src={savedImageData}
+                alt="Saved"
                 style={{ maxWidth: '100%', border: '1px solid #d9d9d9', borderRadius: '8px' }}
               />
               <div>

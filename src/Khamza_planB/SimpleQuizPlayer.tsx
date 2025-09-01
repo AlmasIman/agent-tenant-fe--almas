@@ -29,9 +29,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
   const [dragAnswers, setDragAnswers] = useState<Record<string, string>>({});
   const imageRef = useRef<HTMLDivElement>(null);
 
-  const questions = quiz.shuffleQuestions 
-    ? [...quiz.questions].sort(() => Math.random() - 0.5)
-    : quiz.questions;
+  const questions = quiz.shuffleQuestions ? [...quiz.questions].sort(() => Math.random() - 0.5) : quiz.questions;
 
   const currentQuestion = questions[state.currentQuestionIndex];
   const totalQuestions = questions.length;
@@ -41,7 +39,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
   useEffect(() => {
     if (!state.isCompleted && quiz.timeLimit) {
       const timer = setInterval(() => {
-        setState(prev => {
+        setState((prev) => {
           const newTimeSpent = prev.timeSpent + 1;
           if (newTimeSpent >= quiz.timeLimit! * 60) {
             clearInterval(timer);
@@ -62,75 +60,69 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
   };
 
   const handleAnswerChange = (answer: string | string[] | Record<string, string>) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      answers: { ...prev.answers, [currentQuestion.id]: answer }
+      answers: { ...prev.answers, [currentQuestion.id]: answer },
     }));
   };
 
   const handleWordToggle = (word: string) => {
-    setSelectedWords(prev => {
-      const newSelection = prev.includes(word) 
-        ? prev.filter(w => w !== word)
-        : [...prev, word];
-      
+    setSelectedWords((prev) => {
+      const newSelection = prev.includes(word) ? prev.filter((w) => w !== word) : [...prev, word];
+
       // Обновляем ответ для mark-the-words
-      setState(prevState => ({
+      setState((prevState) => ({
         ...prevState,
-        answers: { ...prevState.answers, [currentQuestion.id]: newSelection }
+        answers: { ...prevState.answers, [currentQuestion.id]: newSelection },
       }));
-      
+
       return newSelection;
     });
   };
 
   const handleHotspotClick = (hotspotId: string) => {
-    setClickedHotspots(prev => {
-      const newSelection = prev.includes(hotspotId) 
-        ? prev.filter(id => id !== hotspotId)
-        : [...prev, hotspotId];
-      
+    setClickedHotspots((prev) => {
+      const newSelection = prev.includes(hotspotId) ? prev.filter((id) => id !== hotspotId) : [...prev, hotspotId];
+
       // Обновляем ответ для image-hotspot
-      setState(prevState => ({
+      setState((prevState) => ({
         ...prevState,
-        answers: { ...prevState.answers, [currentQuestion.id]: newSelection }
+        answers: { ...prevState.answers, [currentQuestion.id]: newSelection },
       }));
-      
+
       return newSelection;
     });
   };
 
   const handleImageClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (currentQuestion.type !== 'image-hotspot' || !imageRef.current) return;
-    
+
     const rect = imageRef.current.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 100;
     const y = ((event.clientY - rect.top) / rect.height) * 100;
-    
+
     // Находим ближайший hotspot
     const hotspots = currentQuestion.hotspots || [];
-    const clickedHotspot = hotspots.find(hotspot => {
-      const distance = Math.sqrt(
-        Math.pow(x - hotspot.x, 2) + Math.pow(y - hotspot.y, 2)
-      );
+    const clickedHotspot = hotspots.find((hotspot) => {
+      const distance = Math.sqrt(Math.pow(x - hotspot.x, 2) + Math.pow(y - hotspot.y, 2));
       return distance <= (hotspot.radius / rect.width) * 100;
     });
-    
+
     if (clickedHotspot) {
       handleHotspotClick(clickedHotspot.id);
     }
   };
 
   const handleDragWord = (targetId: string, word: string) => {
-    setDragAnswers(prev => {
+    setDragAnswers((prev) => {
       const newAnswers = { ...prev, [targetId]: word };
-      
+
       // Обновляем ответ для drag-the-words
-      setState(prevState => ({
+      setState((prevState) => ({
         ...prevState,
-        answers: { ...prevState.answers, [currentQuestion.id]: newAnswers }
+        answers: { ...prevState.answers, [currentQuestion.id]: newAnswers },
       }));
-      
+
       return newAnswers;
     });
   };
@@ -153,55 +145,60 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
     if (question.type === 'mark-the-words') {
       const correctWords = question.correctWords || [];
       const selectedWords = Array.isArray(answer) ? answer : [];
-      return correctWords.length === selectedWords.length &&
-        correctWords.every(word => selectedWords.includes(word));
+      return correctWords.length === selectedWords.length && correctWords.every((word) => selectedWords.includes(word));
     }
-    
+
     if (question.type === 'image-hotspot') {
-      const correctHotspots = question.hotspots?.filter(h => h.label) || [];
+      const correctHotspots = question.hotspots?.filter((h) => h.label) || [];
       const clickedHotspots = Array.isArray(answer) ? answer : [];
-      return correctHotspots.length === clickedHotspots.length &&
-        correctHotspots.every(hotspot => clickedHotspots.includes(hotspot.id));
+      return (
+        correctHotspots.length === clickedHotspots.length &&
+        correctHotspots.every((hotspot) => clickedHotspots.includes(hotspot.id))
+      );
     }
-    
+
     if (question.type === 'drag-the-words') {
       const dragAnswers = typeof answer === 'object' && !Array.isArray(answer) ? answer : {};
       const targets = question.dragTargets || [];
-      return targets.every(target => dragAnswers[target.id] === target.correctWord);
+      return targets.every((target) => dragAnswers[target.id] === target.correctWord);
     }
-    
+
     if (question.type === 'image-drag-drop') {
       const dragDropAnswers = typeof answer === 'object' && !Array.isArray(answer) ? answer : {};
       const draggableItems = question.imageDragDrop?.draggableItems || [];
-      return draggableItems.every(item => dragDropAnswers[item.id] === item.correctZoneId);
+      return draggableItems.every((item) => dragDropAnswers[item.id] === item.correctZoneId);
     }
-    
+
     if (question.type === 'test') {
       const answers = question.answers || [];
-      const correctAnswers = answers.filter(a => a.correct).map(a => a.text);
+      const correctAnswers = answers.filter((a) => a.correct).map((a) => a.text);
       const selectedAnswers = Array.isArray(answer) ? answer : [answer];
-      
+
       if (question.multiple) {
         // Для множественного выбора все правильные ответы должны быть выбраны
-        return correctAnswers.length === selectedAnswers.length &&
-          correctAnswers.every(correct => selectedAnswers.includes(correct));
+        return (
+          correctAnswers.length === selectedAnswers.length &&
+          correctAnswers.every((correct) => selectedAnswers.includes(correct))
+        );
       } else {
         // Для одиночного выбора должен быть выбран один правильный ответ
         return selectedAnswers.length === 1 && correctAnswers.includes(selectedAnswers[0] as string);
       }
     }
-    
+
     if (Array.isArray(question.correctAnswer)) {
-      return Array.isArray(answer) && 
+      return (
+        Array.isArray(answer) &&
         answer.length === question.correctAnswer.length &&
-        answer.every(a => question.correctAnswer.includes(a as string));
+        answer.every((a) => question.correctAnswer.includes(a as string))
+      );
     }
-    
+
     // Для обычных вопросов answer должен быть строкой
     if (typeof answer === 'string') {
       return answer === question.correctAnswer;
     }
-    
+
     return false;
   };
 
@@ -209,7 +206,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
     let totalScore = 0;
     let earnedScore = 0;
 
-    questions.forEach(question => {
+    questions.forEach((question) => {
       totalScore += question.points;
       const answer = state.answers[question.id];
       if (answer && checkAnswer(question, answer)) {
@@ -222,25 +219,25 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
 
   const handleNext = () => {
     if (state.currentQuestionIndex < totalQuestions - 1) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        currentQuestionIndex: prev.currentQuestionIndex + 1
+        currentQuestionIndex: prev.currentQuestionIndex + 1,
       }));
     } else {
       const finalScore = calculateScore();
       const passed = finalScore >= quiz.passingScore;
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         isCompleted: true,
-        score: finalScore
+        score: finalScore,
       }));
 
       const result: H5PQuizResult = {
         quizId: quiz.id,
         score: finalScore,
         totalQuestions,
-        correctAnswers: questions.filter(q => {
+        correctAnswers: questions.filter((q) => {
           const answer = state.answers[q.id];
           return answer && checkAnswer(q, answer);
         }).length,
@@ -251,7 +248,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
       };
 
       onComplete(result);
-      
+
       if (quiz.showResults) {
         setShowResults(true);
       }
@@ -260,9 +257,9 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
 
   const handlePrevious = () => {
     if (state.currentQuestionIndex > 0) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        currentQuestionIndex: prev.currentQuestionIndex - 1
+        currentQuestionIndex: prev.currentQuestionIndex - 1,
       }));
     }
   };
@@ -287,10 +284,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
     switch (currentQuestion.type) {
       case 'multiple-choice':
         return (
-          <Radio.Group
-            value={currentAnswer as string}
-            onChange={(e) => handleAnswerChange(e.target.value)}
-          >
+          <Radio.Group value={currentAnswer as string} onChange={(e) => handleAnswerChange(e.target.value)}>
             <Space direction="vertical" style={{ width: '100%' }}>
               {currentQuestion.options?.map((option, index) => (
                 <Radio key={index} value={option}>
@@ -303,10 +297,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
 
       case 'true-false':
         return (
-          <Radio.Group
-            value={currentAnswer as string}
-            onChange={(e) => handleAnswerChange(e.target.value)}
-          >
+          <Radio.Group value={currentAnswer as string} onChange={(e) => handleAnswerChange(e.target.value)}>
             <Space direction="vertical">
               <Radio value="true">{t('quiz.true')}</Radio>
               <Radio value="false">{t('quiz.false')}</Radio>
@@ -327,7 +318,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
       case 'mark-the-words':
         const words = currentQuestion.text?.split(/\s+/) || [];
         const selectedWords = Array.isArray(currentAnswer) ? currentAnswer : [];
-        
+
         return (
           <div style={{ lineHeight: '2', fontSize: '16px' }}>
             {words.map((word, index) => {
@@ -351,16 +342,14 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
                 </span>
               );
             })}
-            <div style={{ marginTop: '16px', fontSize: '14px', color: '#666' }}>
-              {t('quiz.clickWordsToSelect')}
-            </div>
+            <div style={{ marginTop: '16px', fontSize: '14px', color: '#666' }}>{t('quiz.clickWordsToSelect')}</div>
           </div>
         );
 
       case 'image-hotspot':
         const hotspots = currentQuestion.hotspots || [];
         const clickedHotspots = Array.isArray(currentAnswer) ? currentAnswer : [];
-        
+
         return (
           <div>
             <div
@@ -400,9 +389,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
                 );
               })}
             </div>
-            <div style={{ marginTop: '16px', fontSize: '14px', color: '#666' }}>
-              {t('quiz.clickHotspotsToSelect')}
-            </div>
+            <div style={{ marginTop: '16px', fontSize: '14px', color: '#666' }}>{t('quiz.clickHotspotsToSelect')}</div>
             {hotspots.length > 0 && (
               <div style={{ marginTop: '8px' }}>
                 <strong>{t('quiz.hotspots')}:</strong>
@@ -432,12 +419,13 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
         const dragText = currentQuestion.dragText || '';
         const dragWords = currentQuestion.dragWords || [];
         const dragTargets = currentQuestion.dragTargets || [];
-        const currentDragAnswers = typeof currentAnswer === 'object' && !Array.isArray(currentAnswer) ? currentAnswer : {};
-        
+        const currentDragAnswers =
+          typeof currentAnswer === 'object' && !Array.isArray(currentAnswer) ? currentAnswer : {};
+
         // Создаем массив слов для отображения (исключаем уже использованные)
         const usedWords = Object.values(currentDragAnswers);
-        const availableWords = dragWords.filter(word => !usedWords.includes(word));
-        
+        const availableWords = dragWords.filter((word) => !usedWords.includes(word));
+
         return (
           <div>
             <div style={{ marginBottom: '16px' }}>
@@ -445,12 +433,12 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
                 {(() => {
                   let result = dragText;
                   const elements: React.ReactNode[] = [];
-                  
+
                   dragTargets.forEach((target, index) => {
                     const placeholder = target.placeholder;
                     const answer = currentDragAnswers[target.id];
                     const parts = result.split(placeholder);
-                    
+
                     if (parts.length > 1) {
                       result = parts.join(`__TARGET_${index}__`);
                       elements.push(
@@ -490,11 +478,11 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
                           >
                             {placeholder}
                           </span>
-                        )
+                        ),
                       );
                     }
                   });
-                  
+
                   const finalParts = result.split(/__TARGET_\d+__/);
                   return finalParts.map((part, index) => (
                     <React.Fragment key={index}>
@@ -505,7 +493,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
                 })()}
               </div>
             </div>
-            
+
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>
                 {t('quiz.availableWords')}:
@@ -530,25 +518,23 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
                 ))}
               </div>
             </div>
-            
-            <div style={{ fontSize: '14px', color: '#666' }}>
-              {t('quiz.dragWordsToTargets')}
-            </div>
+
+            <div style={{ fontSize: '14px', color: '#666' }}>{t('quiz.dragWordsToTargets')}</div>
           </div>
         );
 
       case 'test':
         const testAnswers = currentQuestion.answers || [];
         const selectedTestAnswers = Array.isArray(currentAnswer) ? currentAnswer : [];
-        
+
         return (
           <div>
             <Space direction="vertical" style={{ width: '100%' }}>
               {testAnswers.map((answer, index) => {
-                const isSelected = currentQuestion.multiple 
+                const isSelected = currentQuestion.multiple
                   ? selectedTestAnswers.includes(answer.text)
                   : currentAnswer === answer.text;
-                
+
                 return (
                   <div
                     key={index}
@@ -563,7 +549,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
                     onClick={() => {
                       if (currentQuestion.multiple) {
                         const newSelection = isSelected
-                          ? selectedTestAnswers.filter(a => a !== answer.text)
+                          ? selectedTestAnswers.filter((a) => a !== answer.text)
                           : [...selectedTestAnswers, answer.text];
                         handleAnswerChange(newSelection);
                       } else {
@@ -584,11 +570,12 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
       case 'image-drag-drop':
         const imageDragDropData = currentQuestion.imageDragDrop;
         if (!imageDragDropData) return null;
-        
-        const currentImageDragDropAnswer = typeof currentAnswer === 'object' && !Array.isArray(currentAnswer) 
-          ? currentAnswer as Record<string, string> 
-          : {};
-        
+
+        const currentImageDragDropAnswer =
+          typeof currentAnswer === 'object' && !Array.isArray(currentAnswer)
+            ? (currentAnswer as Record<string, string>)
+            : {};
+
         return (
           <ImageDragDropQuestion
             imageUrl={imageDragDropData.imageUrl}
@@ -607,9 +594,7 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
   };
 
   const renderResults = () => {
-    const correctAnswers = questions.filter(q => 
-      checkAnswer(q, state.answers[q.id] || '')
-    ).length;
+    const correctAnswers = questions.filter((q) => checkAnswer(q, state.answers[q.id] || '')).length;
 
     return (
       <Result
@@ -660,27 +645,15 @@ export const SimpleQuizPlayer: React.FC<SimpleQuizPlayerProps> = ({ quiz, onComp
           </div>
         </div>
 
-        <Card title={currentQuestion.question}>
-          {renderQuestion()}
-        </Card>
+        <Card title={currentQuestion.question}>{renderQuestion()}</Card>
 
         <Space style={{ justifyContent: 'space-between', width: '100%' }}>
-          <Button
-            onClick={handlePrevious}
-            disabled={state.currentQuestionIndex === 0}
-          >
+          <Button onClick={handlePrevious} disabled={state.currentQuestionIndex === 0}>
             {t('quiz.previous')}
           </Button>
 
-          <Button
-            type="primary"
-            onClick={handleNext}
-            disabled={!state.answers[currentQuestion.id]}
-          >
-            {state.currentQuestionIndex === totalQuestions - 1 
-              ? t('quiz.finish') 
-              : t('quiz.next')
-            }
+          <Button type="primary" onClick={handleNext} disabled={!state.answers[currentQuestion.id]}>
+            {state.currentQuestionIndex === totalQuestions - 1 ? t('quiz.finish') : t('quiz.next')}
           </Button>
         </Space>
       </Space>

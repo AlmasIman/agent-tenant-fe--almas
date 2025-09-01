@@ -45,9 +45,9 @@ const Handle = styled.circle<{ isDragging: boolean }>`
   fill: #fff;
   stroke: var(--primary-color, #1890ff);
   stroke-width: 2;
-  cursor: ${props => props.isDragging ? 'grabbing' : 'grab'};
+  cursor: ${(props) => (props.isDragging ? 'grabbing' : 'grab')};
   transition: r 0.2s ease;
-  
+
   &:hover {
     r: 8;
   }
@@ -88,7 +88,7 @@ const CircularSlider: React.FC<CircularSliderProps> = ({
 
   const valueToAngle = (value: number): number => {
     const percentage = (value - min) / (max - min);
-    return startAngle + (arcLength * percentage);
+    return startAngle + arcLength * percentage;
   };
 
   const getPointOnCircle = (angle: number) => {
@@ -112,10 +112,10 @@ const CircularSlider: React.FC<CircularSliderProps> = ({
     const rect = svgRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left - centerX;
     const y = e.clientY - rect.top - centerY;
-    
+
     let angle = (Math.atan2(y, x) * 180) / Math.PI;
     if (angle < 0) angle += 360;
-    
+
     const value = Math.max(min, Math.min(max, angleToValue(angle)));
 
     if (dragTarget === 'low') {
@@ -131,10 +131,10 @@ const CircularSlider: React.FC<CircularSliderProps> = ({
 
   const handleMouseUp = () => {
     if (isDragging && dragTarget) {
-      onValueChanged?.({ 
-        detail: { 
-          [dragTarget]: dragTarget === 'low' ? currentLow : currentHigh 
-        } 
+      onValueChanged?.({
+        detail: {
+          [dragTarget]: dragTarget === 'low' ? currentLow : currentHigh,
+        },
       });
     }
     setIsDragging(false);
@@ -145,7 +145,7 @@ const CircularSlider: React.FC<CircularSliderProps> = ({
 
   const lowAngle = valueToAngle(currentLow);
   const highAngle = valueToAngle(currentHigh);
-  
+
   const lowPoint = getPointOnCircle(lowAngle);
   const highPoint = getPointOnCircle(highAngle);
 
@@ -157,12 +157,12 @@ const CircularSlider: React.FC<CircularSliderProps> = ({
     <SliderContainer>
       <SVG ref={svgRef} width="200" height="200">
         <Track cx={centerX} cy={centerY} r={radius} />
-        <Progress 
-          cx={centerX} 
-          cy={centerY} 
+        <Progress
+          cx={centerX}
+          cy={centerY}
           r={radius}
           strokeDasharray={dashArray}
-          strokeDashoffset={-circumference * (lowAngle - startAngle) / 360}
+          strokeDashoffset={(-circumference * (lowAngle - startAngle)) / 360}
         />
         <Handle
           cx={lowPoint.x}
@@ -184,4 +184,3 @@ const CircularSlider: React.FC<CircularSliderProps> = ({
 };
 
 export default CircularSlider;
-

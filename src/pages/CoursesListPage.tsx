@@ -13,7 +13,6 @@ import {
   Input,
   Select,
   Divider,
-  Tooltip,
   Pagination,
 } from 'antd';
 import { PlusOutlined, SearchOutlined, BookOutlined, UserOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons';
@@ -25,21 +24,16 @@ const { Search } = Input;
 const { Option } = Select;
 
 /** Raw shape coming from https://aigent.kz/api/kb/articles (DRF pagination) */
-interface RawArticle {
+interface RawTraining {
   id?: number | string | null;
   slug?: string | null;
   uuid?: string | null;
   pk?: number | string | null;
-  article_id?: number | string | null;
   name: string | null;
-  description: string | null;
-  content: string | null;
   publisher: string | number | { name?: string; title?: string; label?: string; id?: number; slug?: string } | null;
-  space: string | number | { name?: string; title?: string; label?: string; id?: number; slug?: string } | null;
-  tags:
-    | Array<string | number | { name?: string; title?: string; label?: string; id?: number; slug?: string }>
-    | string
-    | null;
+  description: string | null;
+  category: string | number | { name?: string; title?: string; label?: string; id?: number; slug?: string } | null;
+  tags: Array<string> | string | null;
 }
 
 type Paginated<T> = {
@@ -49,32 +43,30 @@ type Paginated<T> = {
   results: T[];
 };
 
-interface ArticleItem {
+interface TrainingItem {
   id: string | null; // теперь строка или null (если вовсе нет идентификатора)
   title: string;
   description: string;
-  contentHtml: string;
   publisher: string;
-  space: string;
+  category: string;
   tags: string[];
 }
 
-const resolveRouteId = (a: RawArticle): string | null => {
-  const v = a.id ?? a.slug ?? a.uuid ?? a.pk ?? a.article_id ?? null;
+const resolveRouteId = (a: RawTraining): string | null => {
+  const v = a.id ?? a.slug ?? a.uuid ?? a.pk ?? null;
   return v == null ? null : String(v);
 };
 
-const normalizeTags = (t: RawArticle['tags']): string[] => {
+const normalizeTags = (t: RawTraining['tags']): string[] => {
   if (Array.isArray(t)) return t.filter(Boolean).map(String);
   if (typeof t === 'string' && t.trim()) return [t.trim()];
   return [];
 };
 
-const normalizeArticle = (a: RawArticle): ArticleItem => ({
+const normalizeTraining = (a: RawTraining): TrainingItem => ({
   id: resolveRouteId(a),
   title: a.name?.trim() || 'Без названия',
   description: a.description?.trim() || '',
-  contentHtml: a.content || '',
   publisher:
     typeof a.publisher === 'string'
       ? a.publisher.trim()
@@ -88,23 +80,23 @@ const normalizeArticle = (a: RawArticle): ArticleItem => ({
         a.publisher.slug?.toString().trim() ||
         '—'
       : '—',
-  space:
-    typeof a.space === 'string'
-      ? a.space.trim()
-      : typeof a.space === 'number'
-      ? String(a.space)
-      : a.space && typeof a.space === 'object'
-      ? a.space.name?.trim() ||
-        a.space.title?.trim() ||
-        a.space.label?.trim() ||
-        (typeof a.space.id === 'number' ? String(a.space.id) : '') ||
-        a.space.slug?.toString().trim() ||
-        'Без пространства'
-      : 'Без пространства',
+  category:
+    typeof a.category === 'string'
+      ? a.category.trim()
+      : typeof a.category === 'number'
+      ? String(a.category)
+      : a.category && typeof a.category === 'object'
+      ? a.category.name?.trim() ||
+        a.category.title?.trim() ||
+        a.category.label?.trim() ||
+        (typeof a.category.id === 'number' ? String(a.category.id) : '') ||
+        a.category.slug?.toString().trim() ||
+        'Без категории'
+      : 'Без категории',
   tags: normalizeTags(a.tags),
 });
 
-const toArray = (payload: any): RawArticle[] => {
+const toArray = (payload: any): RawTraining[] => {
   if (Array.isArray(payload)) return payload;
   if (payload && Array.isArray(payload.results)) return payload.results;
   if (payload && Array.isArray(payload.items)) return payload.items;
@@ -121,12 +113,12 @@ const CoursesListPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // data
-  const [articles, setArticles] = useState<ArticleItem[]>([]);
+  const [trainings, setTrainings] = useState<TrainingItem[]>([]);
   const [total, setTotal] = useState<number>(0);
 
   // filters (по-прежнему клиентские — на текущей странице)
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSpace, setSelectedSpace] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   // pagination (server-side)
   const [page, setPage] = useState<number>(1);
@@ -138,18 +130,18 @@ const CoursesListPage: React.FC = () => {
       setError(null);
 
       // DRF-style pagination
-      const { data } = await httpApi.get('/kb/articles/', {
+      const { data } = await httpApi.get('/trainings/', {
         params: { page, page_size: pageSize },
       });
 
       const arr = toArray(data);
-      const items = arr.map(normalizeArticle);
-      setArticles(items);
+      const items = arr.map(normalizeTraining);
+      setTrainings(items);
       setTotal(getTotal(data));
     } catch (e: any) {
-      console.error('Ошибка при загрузке статей:', e);
-      setError('Не удалось загрузить список статей');
-      message.error('Ошибка при загрузке статей');
+      console.error('Ошибка при загрузке тренингов:', e);
+      setError('Не удалось загрузить список тренингов');
+      message.error('Ошибка при загрузке тренингов');
     } finally {
       setLoading(false);
     }
@@ -159,23 +151,23 @@ const CoursesListPage: React.FC = () => {
     load();
   }, [load]);
 
-  const spaces = useMemo(() => {
+  const categories = useMemo(() => {
     const set = new Set<string>();
-    articles.forEach((a) => a.space && set.add(a.space));
+    trainings.forEach((t) => t.category && set.add(t.category));
     return Array.from(set).sort((a, b) => a.localeCompare(b, 'ru'));
-  }, [articles]);
+  }, [trainings]);
 
   // Фильтрация по текущей странице (серверная фильтрация не включена умышленно —
   // если на бэке появятся параметры search/space — добавим их в httpApi.get params)
   const filtered = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
-    return articles.filter((a) => {
-      const matchesSpace = selectedSpace === 'all' || a.space === selectedSpace;
-      if (!q) return matchesSpace;
-      const hay = [a.title, a.description, a.space, a.publisher, a.tags.join(' ')].join(' ').toLowerCase();
-      return matchesSpace && hay.includes(q);
+    return trainings.filter((t) => {
+      const matchesCat = selectedCategory === 'all' || t.category === selectedCategory;
+      if (!q) return matchesCat;
+      const hay = [t.title, t.description, t.category, t.publisher, t.tags.join(' ')].join(' ').toLowerCase();
+      return matchesCat && hay.includes(q);
     });
-  }, [articles, searchTerm, selectedSpace]);
+  }, [trainings, searchTerm, selectedCategory]);
 
   const handleCreate = () => navigate('/almas-course-create');
   const handleView = (id: string | null) => {
@@ -205,7 +197,7 @@ const CoursesListPage: React.FC = () => {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '40px 0' }}>
-        <div>Загрузка статей…</div>
+        <div>Загрузка тренингов…</div>{' '}
       </div>
     );
   }
@@ -220,14 +212,14 @@ const CoursesListPage: React.FC = () => {
 
   return (
     <>
-      <PageTitle>База знаний</PageTitle>
+      <PageTitle>Тренинги</PageTitle>
 
       {/* Header with actions and filters */}
       <Card style={{ marginBottom: 24 }}>
         <Row gutter={24} align="middle">
           <Col span={12}>
             <Title level={3} style={{ margin: 0 }}>
-              Статьи: {total}
+              Тренинги: {total}
             </Title>
           </Col>
           <Col span={12} style={{ textAlign: 'right' }}>
@@ -251,17 +243,17 @@ const CoursesListPage: React.FC = () => {
           </Col>
           <Col xs={24} sm={12} md={8} lg={6}>
             <Select
-              placeholder="Все пространства"
-              value={selectedSpace}
+              placeholder="Все категории"
+              value={selectedCategory}
               onChange={(v) => {
-                setSelectedSpace(v);
+                setSelectedCategory(v);
               }}
               style={{ width: '100%' }}
             >
-              <Option value="all">Все пространства</Option>
-              {spaces.map((s) => (
-                <Option key={s} value={s}>
-                  {s}
+              <Option value="all">Все категории</Option>
+              {categories.map((c) => (
+                <Option key={c} value={c}>
+                  {c}
                 </Option>
               ))}
             </Select>
@@ -273,15 +265,16 @@ const CoursesListPage: React.FC = () => {
       {filtered.length > 0 ? (
         <>
           <Row gutter={[24, 24]}>
-            {filtered.map((a) => (
-              <Col xs={24} sm={12} lg={8} xl={6} key={a.id}>
+            {filtered.map((t) => (
+              <Col xs={24} sm={12} lg={8} xl={6} key={t.id}>
+                {' '}
                 <Card
                   hoverable
                   actions={[
-                    <Button key="view" type="text" icon={<EyeOutlined />} onClick={() => handleView(a.id)}>
+                    <Button key="view" type="text" icon={<EyeOutlined />} onClick={() => handleView(t.id)}>
                       Просмотр
                     </Button>,
-                    <Button key="edit" type="text" icon={<EditOutlined />} onClick={() => handleEdit(a.id)}>
+                    <Button key="edit" type="text" icon={<EditOutlined />} onClick={() => handleEdit(t.id)}>
                       Редактировать
                     </Button>,
                   ]}
@@ -305,13 +298,13 @@ const CoursesListPage: React.FC = () => {
                     title={
                       <div style={{ marginBottom: 8 }}>
                         <Title level={4} style={{ margin: 0, marginBottom: 8 }}>
-                          {a.title}
+                          {t.title}
                         </Title>
                         <Space wrap>
-                          <Tag color="green">{a.space}</Tag>
-                          {a.publisher && a.publisher !== '—' && (
+                          <Tag color="green">{t.category}</Tag>
+                          {t.publisher && t.publisher !== '—' && (
                             <Tag>
-                              <UserOutlined style={{ marginRight: 6 }} /> {a.publisher}
+                              <UserOutlined style={{ marginRight: 6 }} /> {t.publisher}
                             </Tag>
                           )}
                         </Space>
@@ -320,18 +313,18 @@ const CoursesListPage: React.FC = () => {
                     description={
                       <div>
                         <Paragraph ellipsis={{ rows: 2 }} style={{ marginBottom: 16, color: '#adb5bd' }}>
-                          {a.description || '—'}
+                          {t.description || '—'}
                         </Paragraph>
 
                         <Space wrap style={{ marginBottom: 16 }}>
-                          {a.tags.slice(0, 3).map((tag) => (
+                          {t.tags.slice(0, 3).map((tag) => (
                             <Tag key={tag} color="blue" style={{ fontSize: 11 }}>
                               {tag}
                             </Tag>
                           ))}
-                          {a.tags.length > 3 && (
+                          {t.tags.length > 3 && (
                             <Tag color="default" style={{ fontSize: 11 }}>
-                              +{a.tags.length - 3}
+                              +{t.tags.length - 3}{' '}
                             </Tag>
                           )}
                         </Space>
@@ -360,15 +353,15 @@ const CoursesListPage: React.FC = () => {
         <Card>
           <Empty
             description={
-              searchTerm || selectedSpace !== 'all'
-                ? 'Статьи не найдены по заданным критериям'
+              searchTerm || selectedCategory !== 'all'
+                ? 'Тренинги не найдены по заданным критериям'
                 : 'На этой странице пока пусто'
             }
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           >
-            {!searchTerm && selectedSpace === 'all' && (
+            {!searchTerm && selectedCategory === 'all' && (
               <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-                Создать первый курс
+                Создать первый тренинг{' '}
               </Button>
             )}
           </Empty>

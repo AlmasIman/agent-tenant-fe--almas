@@ -29,8 +29,8 @@ export const TestQuestionCreator: React.FC<TestQuestionCreatorProps> = ({ value,
       { text: '', correct: false, feedback: '' },
       { text: '', correct: false, feedback: '' },
       { text: '', correct: false, feedback: '' },
-      { text: '', correct: false, feedback: '' }
-    ]
+      { text: '', correct: false, feedback: '' },
+    ],
   );
   const [multiple, setMultiple] = useState(value?.multiple || false);
   const [feedback, setFeedback] = useState(value?.feedback || { correct: '', incorrect: '' });
@@ -71,10 +71,7 @@ export const TestQuestionCreator: React.FC<TestQuestionCreatorProps> = ({ value,
     <div>
       <div style={{ marginBottom: 16 }}>
         <Space>
-          <Switch
-            checked={multiple}
-            onChange={handleMultipleChange}
-          />
+          <Switch checked={multiple} onChange={handleMultipleChange} />
           <Text>Разрешить множественный выбор</Text>
         </Space>
       </div>
@@ -88,13 +85,7 @@ export const TestQuestionCreator: React.FC<TestQuestionCreatorProps> = ({ value,
             style={{ marginTop: 8 }}
             extra={
               answers.length > 2 ? (
-                <Button
-                  type="text"
-                  danger
-                  size="small"
-                  icon={<DeleteOutlined />}
-                  onClick={() => removeAnswer(index)}
-                />
+                <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => removeAnswer(index)} />
               ) : null
             }
           >
@@ -122,13 +113,8 @@ export const TestQuestionCreator: React.FC<TestQuestionCreatorProps> = ({ value,
             </Space>
           </Card>
         ))}
-        
-        <Button
-          type="dashed"
-          icon={<PlusOutlined />}
-          onClick={addAnswer}
-          style={{ marginTop: 8, width: '100%' }}
-        >
+
+        <Button type="dashed" icon={<PlusOutlined />} onClick={addAnswer} style={{ marginTop: 8, width: '100%' }}>
           Добавить вариант
         </Button>
       </div>

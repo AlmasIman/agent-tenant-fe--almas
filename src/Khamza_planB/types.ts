@@ -1,6 +1,15 @@
 export interface H5PQuizQuestion {
   id: string;
-  type: 'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'drag-and-drop' | 'mark-the-words' | 'image-hotspot' | 'drag-the-words' | 'test' | 'image-drag-drop';
+  type:
+    | 'multiple-choice'
+    | 'true-false'
+    | 'fill-in-the-blank'
+    | 'drag-and-drop'
+    | 'mark-the-words'
+    | 'image-hotspot'
+    | 'drag-the-words'
+    | 'test'
+    | 'image-drag-drop';
   question: string;
   options?: string[];
   correctAnswer: string | string[];

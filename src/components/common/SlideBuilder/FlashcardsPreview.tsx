@@ -11,24 +11,25 @@ interface FlashcardsPreviewProps {
 const FlashcardsPreview: React.FC<FlashcardsPreviewProps> = ({ content }) => {
   const parseCards = () => {
     if (!content) return [];
-    
-    return content.split('\n')
-      .filter(line => line.trim() && line.includes('|'))
+
+    return content
+      .split('\n')
+      .filter((line) => line.trim() && line.includes('|'))
       .map((line, index) => {
-        const parts = line.split('|').map(part => part.trim());
+        const parts = line.split('|').map((part) => part.trim());
         return {
           id: (index + 1).toString(),
           front: parts[0] || '',
           back: parts[1] || '',
           category: parts[2] || 'Общее',
-          difficulty: parts[3] || 'Легко'
+          difficulty: parts[3] || 'Легко',
         };
       });
   };
 
   const cards = parseCards();
-  const categories = [...new Set(cards.map(card => card.category))];
-  const difficulties = [...new Set(cards.map(card => card.difficulty))];
+  const categories = [...new Set(cards.map((card) => card.category))];
+  const difficulties = [...new Set(cards.map((card) => card.difficulty))];
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
@@ -49,11 +50,13 @@ const FlashcardsPreview: React.FC<FlashcardsPreviewProps> = ({ content }) => {
   const renderPreview = () => {
     if (!content) {
       return (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '40px 20px',
-          color: '#8c8c8c',
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+            color: '#8c8c8c',
+          }}
+        >
           <BookOutlined style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }} />
           <Text style={{ fontSize: '16px', color: '#8c8c8c' }}>
             Введите карточки в формате: Вопрос | Ответ | Категория | Сложность
@@ -64,11 +67,13 @@ const FlashcardsPreview: React.FC<FlashcardsPreviewProps> = ({ content }) => {
 
     if (cards.length === 0) {
       return (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '20px',
-          color: '#faad14',
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '20px',
+            color: '#faad14',
+          }}
+        >
           <Text style={{ fontSize: '14px', color: '#faad14' }}>
             Неверный формат. Используйте разделитель "|" между полями
           </Text>
@@ -79,59 +84,67 @@ const FlashcardsPreview: React.FC<FlashcardsPreviewProps> = ({ content }) => {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {cards.slice(0, 3).map((card, index) => (
-          <div key={card.id} style={{
-            display: 'flex',
-            gap: '12px',
-            padding: '12px',
-            background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-            borderRadius: '8px',
-            border: '1px solid #dee2e6',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.02)';
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-          >
-            <div style={{
-              width: '40px',
-              height: '40px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '8px',
+          <div
+            key={card.id}
+            style={{
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: '16px',
-            }}>
+              gap: '12px',
+              padding: '12px',
+              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+              borderRadius: '8px',
+              border: '1px solid #dee2e6',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '16px',
+              }}
+            >
               {index + 1}
             </div>
-            
+
             <div style={{ flex: 1 }}>
-              <div style={{ 
-                fontWeight: '600', 
-                marginBottom: '4px',
-                color: '#262626',
-                fontSize: '14px',
-              }}>
+              <div
+                style={{
+                  fontWeight: '600',
+                  marginBottom: '4px',
+                  color: '#262626',
+                  fontSize: '14px',
+                }}
+              >
                 {card.front}
               </div>
-              <div style={{ 
-                color: '#666',
-                fontSize: '12px',
-                fontStyle: 'italic',
-              }}>
+              <div
+                style={{
+                  color: '#666',
+                  fontSize: '12px',
+                  fontStyle: 'italic',
+                }}
+              >
                 {card.back}
               </div>
             </div>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
-              <Tag 
+              <Tag
                 style={{
                   borderRadius: '12px',
                   fontSize: '10px',
@@ -141,7 +154,7 @@ const FlashcardsPreview: React.FC<FlashcardsPreviewProps> = ({ content }) => {
               >
                 {card.category}
               </Tag>
-              <Tag 
+              <Tag
                 style={{
                   borderRadius: '12px',
                   fontSize: '10px',
@@ -157,16 +170,18 @@ const FlashcardsPreview: React.FC<FlashcardsPreviewProps> = ({ content }) => {
             </div>
           </div>
         ))}
-        
+
         {cards.length > 3 && (
-          <div style={{
-            textAlign: 'center',
-            padding: '8px',
-            background: '#f0f0f0',
-            borderRadius: '8px',
-            color: '#666',
-            fontSize: '12px',
-          }}>
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '8px',
+              background: '#f0f0f0',
+              borderRadius: '8px',
+              color: '#666',
+              fontSize: '12px',
+            }}
+          >
             ... и еще {cards.length - 3} карточек
           </div>
         )}
@@ -175,15 +190,15 @@ const FlashcardsPreview: React.FC<FlashcardsPreviewProps> = ({ content }) => {
   };
 
   return (
-    <Card 
-      size="small" 
+    <Card
+      size="small"
       title={
         <Space>
           <EyeOutlined style={{ color: '#1890ff' }} />
           <span style={{ fontWeight: '600', color: '#262626' }}>Предварительный просмотр</span>
         </Space>
       }
-      style={{ 
+      style={{
         marginTop: '16px',
         borderRadius: '12px',
         border: '1px solid #f0f0f0',
@@ -200,72 +215,82 @@ const FlashcardsPreview: React.FC<FlashcardsPreviewProps> = ({ content }) => {
         background: 'white',
       }}
     >
-      <div style={{
-        background: 'linear-gradient(135deg, #fafbfc 0%, #f5f7fa 100%)',
-        borderRadius: '8px',
-        padding: '20px',
-        border: '1px solid #f0f0f0',
-        minHeight: '120px',
-      }}>
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #fafbfc 0%, #f5f7fa 100%)',
+          borderRadius: '8px',
+          padding: '20px',
+          border: '1px solid #f0f0f0',
+          minHeight: '120px',
+        }}
+      >
         {renderPreview()}
       </div>
-      
+
       {cards.length > 0 && (
-        <div style={{ 
-          marginTop: '16px', 
-          paddingTop: '16px', 
-          borderTop: '1px solid #f0f0f0',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
+        <div
+          style={{
+            marginTop: '16px',
+            paddingTop: '16px',
+            borderTop: '1px solid #f0f0f0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <div style={{ display: 'flex', gap: '16px' }}>
-            <Badge 
-              count={cards.length} 
-              showZero 
-              style={{ 
+            <Badge
+              count={cards.length}
+              showZero
+              style={{
                 backgroundColor: cards.length > 0 ? '#52c41a' : '#d9d9d9',
               }}
             >
-              <span style={{ 
-                fontSize: '12px', 
-                color: '#666',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}>
+              <span
+                style={{
+                  fontSize: '12px',
+                  color: '#666',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
                 📚 Карточек
               </span>
             </Badge>
-            
-            <Badge 
-              count={categories.length} 
-              showZero 
-              style={{ 
+
+            <Badge
+              count={categories.length}
+              showZero
+              style={{
                 backgroundColor: categories.length > 0 ? '#faad14' : '#d9d9d9',
               }}
             >
-              <span style={{ 
-                fontSize: '12px', 
-                color: '#666',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}>
+              <span
+                style={{
+                  fontSize: '12px',
+                  color: '#666',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
                 🏷️ Категорий
               </span>
             </Badge>
           </div>
-          
+
           {cards.length > 0 && (
-            <div style={{
-              padding: '4px 12px',
-              background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
-              borderRadius: '12px',
-              color: 'white',
-              fontSize: '12px',
-              fontWeight: '500',
-            }}>
+            <div
+              style={{
+                padding: '4px 12px',
+                background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
+                borderRadius: '12px',
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: '500',
+              }}
+            >
               ✅ Готово к использованию
             </div>
           )}

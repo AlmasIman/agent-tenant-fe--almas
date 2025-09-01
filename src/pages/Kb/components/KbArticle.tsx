@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Spin, Typography } from 'antd';
 import { httpApi } from '@app/api/http.api';
+import { useApiCall } from '@app/hooks/useApiCall';
 import { ArticleData } from '../kbModels';
 
 interface KbArticleProps {
@@ -11,13 +12,16 @@ const KbArticle: React.FC<KbArticleProps> = ({ articleId }) => {
   const [article, setArticle] = useState<ArticleData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Create deduplicated API function
+  const getArticle = useApiCall(httpApi.get, { deduplicate: true, deduplicateTime: 2000 });
+
   useEffect(() => {
     setLoading(true);
-    httpApi.get<ArticleData>(`kb/articles/${articleId}/`).then(({ data }) => {
+    getArticle<ArticleData>(`kb/articles/${articleId}/`).then(({ data }) => {
       setArticle(data);
       setLoading(false);
     });
-  }, [articleId]);
+  }, [articleId, getArticle]);
 
   if (loading) {
     return (

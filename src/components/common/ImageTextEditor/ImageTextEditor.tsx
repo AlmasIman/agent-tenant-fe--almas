@@ -1,6 +1,29 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Card, Button, Input, Upload, Modal, Space, Typography, Slider, Select, Row, Col, Switch, InputNumber } from 'antd';
-import { UploadOutlined, PlusOutlined, DeleteOutlined, DownloadOutlined, RotateLeftOutlined, RotateRightOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import {
+  Card,
+  Button,
+  Input,
+  Upload,
+  Modal,
+  Space,
+  Typography,
+  Slider,
+  Select,
+  Row,
+  Col,
+  Switch,
+  InputNumber,
+} from 'antd';
+import {
+  UploadOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+  RotateLeftOutlined,
+  RotateRightOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
+} from '@ant-design/icons';
 import styled from 'styled-components';
 
 const { TextArea } = Input;
@@ -98,54 +121,55 @@ const TextElement = styled.div<{
   backgroundColor: any;
 }>`
   position: absolute;
-  left: ${props => props.x}px;
-  top: ${props => props.y}px;
-  font-size: ${props => props.fontSize}px;
-  color: ${props => props.color};
-  font-family: ${props => props.fontFamily};
+  left: ${(props) => props.x}px;
+  top: ${(props) => props.y}px;
+  font-size: ${(props) => props.fontSize}px;
+  color: ${(props) => props.color};
+  font-family: ${(props) => props.fontFamily};
   cursor: move;
   user-select: none;
   padding: 4px;
-  border: ${props => props.isDragging ? '2px solid #1890ff' : '2px solid transparent'};
+  border: ${(props) => (props.isDragging ? '2px solid #1890ff' : '2px solid transparent')};
   border-radius: 4px;
-  background: ${props => props.isDragging ? 'rgba(24, 144, 255, 0.1)' : 'transparent'};
+  background: ${(props) => (props.isDragging ? 'rgba(24, 144, 255, 0.1)' : 'transparent')};
   z-index: 10;
-  transform: rotate(${props => props.rotation}deg);
-  opacity: ${props => props.opacity};
-  text-align: ${props => props.textAlign};
-  font-weight: ${props => props.fontWeight};
-  font-style: ${props => props.fontStyle};
-  text-decoration: ${props => props.textDecoration};
-  text-shadow: ${props => props.shadow.enabled ? 
-    `${props.shadow.offsetX}px ${props.shadow.offsetY}px ${props.shadow.blur}px ${props.shadow.color}` : 'none'};
-  -webkit-text-stroke: ${props => props.stroke.enabled ? 
-    `${props.stroke.width}px ${props.stroke.color}` : 'none'};
-  background-color: ${props => props.backgroundColor.enabled ? 
-    `${props.backgroundColor.color}${Math.round(props.backgroundColor.opacity * 255).toString(16).padStart(2, '0')}` : 'transparent'};
-  
+  transform: rotate(${(props) => props.rotation}deg);
+  opacity: ${(props) => props.opacity};
+  text-align: ${(props) => props.textAlign};
+  font-weight: ${(props) => props.fontWeight};
+  font-style: ${(props) => props.fontStyle};
+  text-decoration: ${(props) => props.textDecoration};
+  text-shadow: ${(props) =>
+    props.shadow.enabled
+      ? `${props.shadow.offsetX}px ${props.shadow.offsetY}px ${props.shadow.blur}px ${props.shadow.color}`
+      : 'none'};
+  -webkit-text-stroke: ${(props) => (props.stroke.enabled ? `${props.stroke.width}px ${props.stroke.color}` : 'none')};
+  background-color: ${(props) =>
+    props.backgroundColor.enabled
+      ? `${props.backgroundColor.color}${Math.round(props.backgroundColor.opacity * 255)
+          .toString(16)
+          .padStart(2, '0')}`
+      : 'transparent'};
+
   &:hover {
     border: 2px solid #1890ff;
     background: rgba(24, 144, 255, 0.1);
   }
 `;
 
-const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
-  onSave,
-  initialImageUrl,
-  initialTextElements = []
-}) => {
+const ImageTextEditor: React.FC<ImageTextEditorProps> = ({ onSave, initialImageUrl, initialTextElements = [] }) => {
   const [imageUrl, setImageUrl] = useState<string>(initialImageUrl || '');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [textElements, setTextElements] = useState<TextElement[]>(initialTextElements);
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const selectedText = textElements.find(el => el.id === selectedTextId);
+  const selectedText = textElements.find((el) => el.id === selectedTextId);
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -200,38 +224,36 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
         color: '#000000',
         blur: 2,
         offsetX: 1,
-        offsetY: 1
+        offsetY: 1,
       },
       stroke: {
         enabled: false,
         color: '#ffffff',
-        width: 1
+        width: 1,
       },
       backgroundColor: {
         enabled: false,
         color: '#ffffff',
-        opacity: 0.5
-      }
+        opacity: 0.5,
+      },
     };
-    setTextElements(prev => [...prev, newTextElement]);
+    setTextElements((prev) => [...prev, newTextElement]);
     setSelectedTextId(newTextElement.id);
   };
 
   const updateTextElement = (id: string, updates: Partial<TextElement>) => {
-    setTextElements(prev => 
-      prev.map(el => el.id === id ? { ...el, ...updates } : el)
-    );
+    setTextElements((prev) => prev.map((el) => (el.id === id ? { ...el, ...updates } : el)));
   };
 
   const deleteTextElement = (id: string) => {
-    setTextElements(prev => prev.filter(el => el.id !== id));
+    setTextElements((prev) => prev.filter((el) => el.id !== id));
     if (selectedTextId === id) {
       setSelectedTextId(null);
     }
   };
 
   const handleMouseDown = (e: React.MouseEvent, textId: string) => {
-    const element = textElements.find(el => el.id === textId);
+    const element = textElements.find((el) => el.id === textId);
     if (element) {
       setIsDragging(true);
       setSelectedTextId(textId);
@@ -243,15 +265,18 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
     }
   };
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (isDragging && selectedTextId && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left - dragOffset.x;
-      const y = e.clientY - rect.top - dragOffset.y;
-      
-      updateTextElement(selectedTextId, { x, y });
-    }
-  }, [isDragging, selectedTextId, dragOffset]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (isDragging && selectedTextId && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left - dragOffset.x;
+        const y = e.clientY - rect.top - dragOffset.y;
+
+        updateTextElement(selectedTextId, { x, y });
+      }
+    },
+    [isDragging, selectedTextId, dragOffset],
+  );
 
   const handleMouseUp = useCallback(() => {
     if (isDragging && selectedTextId) {
@@ -281,7 +306,7 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
       const textMetrics = ctx.measureText(element.text);
       const textWidth = textMetrics.width;
       const textHeight = element.fontSize;
-      
+
       ctx.fillStyle = element.backgroundColor.color;
       ctx.globalAlpha = element.backgroundColor.opacity;
       ctx.fillRect(-textWidth / 2, 0, textWidth, textHeight);
@@ -313,7 +338,7 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
       ctx.strokeStyle = element.color;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      
+
       if (element.textDecoration === 'underline') {
         ctx.moveTo(-textWidth / 2, element.fontSize + 2);
         ctx.lineTo(textWidth / 2, element.fontSize + 2);
@@ -321,7 +346,7 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
         ctx.moveTo(-textWidth / 2, element.fontSize / 2);
         ctx.lineTo(textWidth / 2, element.fontSize / 2);
       }
-      
+
       ctx.stroke();
     }
 
@@ -338,11 +363,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
         img.onload = () => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0);
-          
-          textElements.forEach(element => {
+
+          textElements.forEach((element) => {
             drawTextOnCanvas(ctx, element);
           });
-          
+
           const dataUrl = canvas.toDataURL('image/png');
           onSave?.(dataUrl, textElements);
         };
@@ -361,11 +386,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
         img.onload = () => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0);
-          
-          textElements.forEach(element => {
+
+          textElements.forEach((element) => {
             drawTextOnCanvas(ctx, element);
           });
-          
+
           const link = document.createElement('a');
           link.download = 'image-with-text.png';
           link.href = canvas.toDataURL('image/png');
@@ -387,29 +412,23 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
   return (
     <Card title="Редактор изображений с текстом">
       <EditorContainer>
-        <CanvasContainer 
-          ref={containerRef}
-          onMouseMove={handleMouseMove}
-        >
+        <CanvasContainer ref={containerRef} onMouseMove={handleMouseMove}>
           {imageUrl ? (
             <>
               <img
                 ref={imageRef}
                 src={imageUrl}
                 alt="Background"
-                style={{ 
-                  maxWidth: '100%', 
+                style={{
+                  maxWidth: '100%',
                   maxHeight: '100%',
                   position: 'absolute',
                   top: 0,
-                  left: 0
+                  left: 0,
                 }}
               />
-              <canvas
-                ref={canvasRef}
-                style={{ display: 'none' }}
-              />
-              {textElements.map(element => (
+              <canvas ref={canvasRef} style={{ display: 'none' }} />
+              {textElements.map((element) => (
                 <TextElement
                   key={element.id}
                   x={element.x}
@@ -452,11 +471,7 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                 onChange={(e) => setImageUrl(e.target.value)}
                 onPressEnter={(e) => handleUrlSubmit((e.target as HTMLInputElement).value)}
               />
-              <Upload
-                beforeUpload={handleFileUpload}
-                showUploadList={false}
-                accept="image/*"
-              >
+              <Upload beforeUpload={handleFileUpload} showUploadList={false} accept="image/*">
                 <Button icon={<UploadOutlined />} block>
                   Загрузить с компьютера
                 </Button>
@@ -466,22 +481,17 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
 
           <div>
             <Title level={5}>Текстовые элементы</Title>
-            <Button 
-              icon={<PlusOutlined />} 
-              onClick={addTextElement}
-              block
-              style={{ marginBottom: 16 }}
-            >
+            <Button icon={<PlusOutlined />} onClick={addTextElement} block style={{ marginBottom: 16 }}>
               Добавить текст
             </Button>
 
-            {textElements.map(element => (
-              <Card 
-                key={element.id} 
-                size="small" 
-                style={{ 
+            {textElements.map((element) => (
+              <Card
+                key={element.id}
+                size="small"
+                style={{
                   marginBottom: 8,
-                  border: selectedTextId === element.id ? '2px solid #1890ff' : undefined
+                  border: selectedTextId === element.id ? '2px solid #1890ff' : undefined,
                 }}
               >
                 <Space direction="vertical" style={{ width: '100%' }}>
@@ -490,7 +500,7 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                     onChange={(e) => updateTextElement(element.id, { text: e.target.value })}
                     rows={2}
                   />
-                  
+
                   <Row gutter={8}>
                     <Col span={12}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -569,14 +579,18 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                     <Col span={12}>
                       <Switch
                         checked={element.fontWeight === 'bold'}
-                        onChange={(checked) => updateTextElement(element.id, { fontWeight: checked ? 'bold' : 'normal' })}
+                        onChange={(checked) =>
+                          updateTextElement(element.id, { fontWeight: checked ? 'bold' : 'normal' })
+                        }
                       />
                       <Text style={{ marginLeft: 8 }}>Жирный</Text>
                     </Col>
                     <Col span={12}>
                       <Switch
                         checked={element.fontStyle === 'italic'}
-                        onChange={(checked) => updateTextElement(element.id, { fontStyle: checked ? 'italic' : 'normal' })}
+                        onChange={(checked) =>
+                          updateTextElement(element.id, { fontStyle: checked ? 'italic' : 'normal' })
+                        }
                       />
                       <Text style={{ marginLeft: 8 }}>Курсив</Text>
                     </Col>
@@ -598,9 +612,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                       <Col span={12}>
                         <Switch
                           checked={element.shadow.enabled}
-                          onChange={(checked) => updateTextElement(element.id, { 
-                            shadow: { ...element.shadow, enabled: checked }
-                          })}
+                          onChange={(checked) =>
+                            updateTextElement(element.id, {
+                              shadow: { ...element.shadow, enabled: checked },
+                            })
+                          }
                         />
                         <Text style={{ marginLeft: 8 }}>Включить</Text>
                       </Col>
@@ -609,9 +625,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                           <Input
                             type="color"
                             value={element.shadow.color}
-                            onChange={(e) => updateTextElement(element.id, { 
-                              shadow: { ...element.shadow, color: e.target.value }
-                            })}
+                            onChange={(e) =>
+                              updateTextElement(element.id, {
+                                shadow: { ...element.shadow, color: e.target.value },
+                              })
+                            }
                             disabled={!element.shadow.enabled}
                             style={{ width: '40px', height: '32px', padding: '2px' }}
                           />
@@ -627,9 +645,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                             min={0}
                             max={20}
                             value={element.shadow.blur}
-                            onChange={(value) => updateTextElement(element.id, { 
-                              shadow: { ...element.shadow, blur: value }
-                            })}
+                            onChange={(value) =>
+                              updateTextElement(element.id, {
+                                shadow: { ...element.shadow, blur: value },
+                              })
+                            }
                           />
                         </div>
                         <Row gutter={8}>
@@ -639,9 +659,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                               min={-20}
                               max={20}
                               value={element.shadow.offsetX}
-                              onChange={(value) => updateTextElement(element.id, { 
-                                shadow: { ...element.shadow, offsetX: value }
-                              })}
+                              onChange={(value) =>
+                                updateTextElement(element.id, {
+                                  shadow: { ...element.shadow, offsetX: value },
+                                })
+                              }
                             />
                           </Col>
                           <Col span={12}>
@@ -650,9 +672,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                               min={-20}
                               max={20}
                               value={element.shadow.offsetY}
-                              onChange={(value) => updateTextElement(element.id, { 
-                                shadow: { ...element.shadow, offsetY: value }
-                              })}
+                              onChange={(value) =>
+                                updateTextElement(element.id, {
+                                  shadow: { ...element.shadow, offsetY: value },
+                                })
+                              }
                             />
                           </Col>
                         </Row>
@@ -666,9 +690,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                       <Col span={12}>
                         <Switch
                           checked={element.stroke.enabled}
-                          onChange={(checked) => updateTextElement(element.id, { 
-                            stroke: { ...element.stroke, enabled: checked }
-                          })}
+                          onChange={(checked) =>
+                            updateTextElement(element.id, {
+                              stroke: { ...element.stroke, enabled: checked },
+                            })
+                          }
                         />
                         <Text style={{ marginLeft: 8 }}>Включить</Text>
                       </Col>
@@ -677,9 +703,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                           <Input
                             type="color"
                             value={element.stroke.color}
-                            onChange={(e) => updateTextElement(element.id, { 
-                              stroke: { ...element.stroke, color: e.target.value }
-                            })}
+                            onChange={(e) =>
+                              updateTextElement(element.id, {
+                                stroke: { ...element.stroke, color: e.target.value },
+                              })
+                            }
                             disabled={!element.stroke.enabled}
                             style={{ width: '40px', height: '32px', padding: '2px' }}
                           />
@@ -694,9 +722,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                           min={1}
                           max={10}
                           value={element.stroke.width}
-                          onChange={(value) => updateTextElement(element.id, { 
-                            stroke: { ...element.stroke, width: value }
-                          })}
+                          onChange={(value) =>
+                            updateTextElement(element.id, {
+                              stroke: { ...element.stroke, width: value },
+                            })
+                          }
                         />
                       </div>
                     )}
@@ -708,9 +738,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                       <Col span={12}>
                         <Switch
                           checked={element.backgroundColor.enabled}
-                          onChange={(checked) => updateTextElement(element.id, { 
-                            backgroundColor: { ...element.backgroundColor, enabled: checked }
-                          })}
+                          onChange={(checked) =>
+                            updateTextElement(element.id, {
+                              backgroundColor: { ...element.backgroundColor, enabled: checked },
+                            })
+                          }
                         />
                         <Text style={{ marginLeft: 8 }}>Включить</Text>
                       </Col>
@@ -719,9 +751,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                           <Input
                             type="color"
                             value={element.backgroundColor.color}
-                            onChange={(e) => updateTextElement(element.id, { 
-                              backgroundColor: { ...element.backgroundColor, color: e.target.value }
-                            })}
+                            onChange={(e) =>
+                              updateTextElement(element.id, {
+                                backgroundColor: { ...element.backgroundColor, color: e.target.value },
+                              })
+                            }
                             disabled={!element.backgroundColor.enabled}
                             style={{ width: '40px', height: '32px', padding: '2px' }}
                           />
@@ -737,9 +771,11 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
                           max={1}
                           step={0.1}
                           value={element.backgroundColor.opacity}
-                          onChange={(value) => updateTextElement(element.id, { 
-                            backgroundColor: { ...element.backgroundColor, opacity: value }
-                          })}
+                          onChange={(value) =>
+                            updateTextElement(element.id, {
+                              backgroundColor: { ...element.backgroundColor, opacity: value },
+                            })
+                          }
                         />
                       </div>
                     )}
@@ -773,19 +809,10 @@ const ImageTextEditor: React.FC<ImageTextEditorProps> = ({
           <div>
             <Title level={5}>Экспорт</Title>
             <Space direction="vertical" style={{ width: '100%' }}>
-              <Button 
-                icon={<DownloadOutlined />} 
-                onClick={downloadImage}
-                block
-                disabled={!imageUrl}
-              >
+              <Button icon={<DownloadOutlined />} onClick={downloadImage} block disabled={!imageUrl}>
                 Скачать изображение
               </Button>
-              <Button 
-                onClick={exportImage}
-                block
-                disabled={!imageUrl}
-              >
+              <Button onClick={exportImage} block disabled={!imageUrl}>
                 Сохранить
               </Button>
             </Space>

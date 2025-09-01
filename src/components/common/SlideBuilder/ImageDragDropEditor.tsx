@@ -33,7 +33,7 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
   dropZones: initialDropZones,
   draggableItems: initialDraggableItems,
   onSave,
-  onCancel
+  onCancel,
 }) => {
   const [dropZones, setDropZones] = useState<DropZone[]>(initialDropZones);
   const [draggableItems, setDraggableItems] = useState<DraggableItem[]>(initialDraggableItems);
@@ -46,47 +46,43 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
       width: 100,
       height: 50,
       label: `Зона ${dropZones.length + 1}`,
-      correctItems: []
+      correctItems: [],
     };
     setDropZones([...dropZones, newZone]);
   };
 
   const removeDropZone = (id: string) => {
-    setDropZones(dropZones.filter(zone => zone.id !== id));
+    setDropZones(dropZones.filter((zone) => zone.id !== id));
     // Удаляем ссылки на эту зону из элементов
-    setDraggableItems(draggableItems.map(item => 
-      item.correctZoneId === id ? { ...item, correctZoneId: '' } : item
-    ));
+    setDraggableItems(
+      draggableItems.map((item) => (item.correctZoneId === id ? { ...item, correctZoneId: '' } : item)),
+    );
   };
 
   const updateDropZone = (id: string, field: keyof DropZone, value: any) => {
-    setDropZones(dropZones.map(zone => 
-      zone.id === id ? { ...zone, [field]: value } : zone
-    ));
+    setDropZones(dropZones.map((zone) => (zone.id === id ? { ...zone, [field]: value } : zone)));
   };
 
   const addDraggableItem = () => {
     const newItem: DraggableItem = {
       id: `item_${Date.now()}`,
       text: `Элемент ${draggableItems.length + 1}`,
-      correctZoneId: ''
+      correctZoneId: '',
     };
     setDraggableItems([...draggableItems, newItem]);
   };
 
   const removeDraggableItem = (id: string) => {
-    setDraggableItems(draggableItems.filter(item => item.id !== id));
+    setDraggableItems(draggableItems.filter((item) => item.id !== id));
   };
 
   const updateDraggableItem = (id: string, field: keyof DraggableItem, value: any) => {
-    setDraggableItems(draggableItems.map(item => 
-      item.id === id ? { ...item, [field]: value } : item
-    ));
+    setDraggableItems(draggableItems.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
   const handleSave = () => {
     // Проверяем, что все элементы имеют правильные зоны
-    const itemsWithoutZones = draggableItems.filter(item => !item.correctZoneId);
+    const itemsWithoutZones = draggableItems.filter((item) => !item.correctZoneId);
     if (itemsWithoutZones.length > 0) {
       message.warning('Некоторые элементы не имеют назначенных зон');
     }
@@ -98,19 +94,19 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
   return (
     <div style={{ padding: '20px' }}>
       <Title level={3}>Редактор Drag and Drop</Title>
-      
+
       {/* Предварительный просмотр изображения */}
       <Card title="Изображение" style={{ marginBottom: '20px' }}>
         <div style={{ textAlign: 'center' }}>
-          <img 
-            src={imageUrl} 
-            alt="Preview" 
-            style={{ 
-              maxWidth: '100%', 
-              maxHeight: '300px', 
+          <img
+            src={imageUrl}
+            alt="Preview"
+            style={{
+              maxWidth: '100%',
+              maxHeight: '300px',
               borderRadius: '8px',
-              border: '1px solid #d9d9d9'
-            }} 
+              border: '1px solid #d9d9d9',
+            }}
           />
         </div>
       </Card>
@@ -118,8 +114,8 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
       <Row gutter={16}>
         {/* Зоны для перетаскивания */}
         <Col span={12}>
-          <Card 
-            title="Зоны для перетаскивания" 
+          <Card
+            title="Зоны для перетаскивания"
             extra={
               <Button type="primary" icon={<PlusOutlined />} onClick={addDropZone}>
                 Добавить зону
@@ -132,16 +128,16 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
                   <Row gutter={8}>
                     <Col span={24}>
                       <Text strong>Зона {index + 1}</Text>
-                      <Button 
-                        type="text" 
-                        danger 
-                        icon={<MinusCircleOutlined />} 
+                      <Button
+                        type="text"
+                        danger
+                        icon={<MinusCircleOutlined />}
                         onClick={() => removeDropZone(zone.id)}
                         style={{ float: 'right' }}
                       />
                     </Col>
                   </Row>
-                  
+
                   <Row gutter={8} style={{ marginTop: '8px' }}>
                     <Col span={12}>
                       <Text>X (%):</Text>
@@ -164,7 +160,7 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
                       />
                     </Col>
                   </Row>
-                  
+
                   <Row gutter={8} style={{ marginTop: '8px' }}>
                     <Col span={12}>
                       <Text>Ширина:</Text>
@@ -185,7 +181,7 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
                       />
                     </Col>
                   </Row>
-                  
+
                   <Row style={{ marginTop: '8px' }}>
                     <Col span={24}>
                       <Text>Подпись:</Text>
@@ -204,8 +200,8 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
 
         {/* Перетаскиваемые элементы */}
         <Col span={12}>
-          <Card 
-            title="Перетаскиваемые элементы" 
+          <Card
+            title="Перетаскиваемые элементы"
             extra={
               <Button type="primary" icon={<PlusOutlined />} onClick={addDraggableItem}>
                 Добавить элемент
@@ -218,16 +214,16 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
                   <Row gutter={8}>
                     <Col span={24}>
                       <Text strong>Элемент {index + 1}</Text>
-                      <Button 
-                        type="text" 
-                        danger 
-                        icon={<MinusCircleOutlined />} 
+                      <Button
+                        type="text"
+                        danger
+                        icon={<MinusCircleOutlined />}
                         onClick={() => removeDraggableItem(item.id)}
                         style={{ float: 'right' }}
                       />
                     </Col>
                   </Row>
-                  
+
                   <Row style={{ marginTop: '8px' }}>
                     <Col span={24}>
                       <Text>Текст:</Text>
@@ -238,22 +234,22 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
                       />
                     </Col>
                   </Row>
-                  
+
                   <Row style={{ marginTop: '8px' }}>
                     <Col span={24}>
                       <Text>Правильная зона:</Text>
                       <select
                         value={item.correctZoneId}
                         onChange={(e) => updateDraggableItem(item.id, 'correctZoneId', e.target.value)}
-                        style={{ 
-                          width: '100%', 
-                          padding: '4px 8px', 
-                          borderRadius: '4px', 
-                          border: '1px solid #d9d9d9' 
+                        style={{
+                          width: '100%',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          border: '1px solid #d9d9d9',
                         }}
                       >
                         <option value="">Выберите зону</option>
-                        {dropZones.map(zone => (
+                        {dropZones.map((zone) => (
                           <option key={zone.id} value={zone.id}>
                             {zone.label || `Зона ${zone.id}`}
                           </option>
@@ -271,9 +267,7 @@ const ImageDragDropEditor: React.FC<ImageDragDropEditorProps> = ({
       {/* Кнопки управления */}
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
         <Space>
-          <Button onClick={onCancel}>
-            Отмена
-          </Button>
+          <Button onClick={onCancel}>Отмена</Button>
           <Button type="primary" icon={<SaveOutlined />} onClick={handleSave}>
             Сохранить конфигурацию
           </Button>

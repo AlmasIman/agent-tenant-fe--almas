@@ -46,7 +46,7 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
   };
 
   const renderMemoryGame = () => {
-    const [cards, setCards] = useState<Array<{id: number, value: string, flipped: boolean, matched: boolean}>>([]);
+    const [cards, setCards] = useState<Array<{ id: number; value: string; flipped: boolean; matched: boolean }>>([]);
     const [flippedCards, setFlippedCards] = useState<number[]>([]);
 
     useEffect(() => {
@@ -90,13 +90,15 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
     return (
       <div style={{ textAlign: 'center' }}>
         <Title level={3}>Игра "Память"</Title>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(4, 1fr)', 
-          gap: '10px', 
-          maxWidth: '400px', 
-          margin: '0 auto' 
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '10px',
+            maxWidth: '400px',
+            margin: '0 auto',
+          }}
+        >
           {cards.map((card) => (
             <div
               key={card.id}
@@ -141,7 +143,7 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
         [newPuzzle[index], newPuzzle[emptyIndex]] = [newPuzzle[emptyIndex], newPuzzle[index]];
         setPuzzle(newPuzzle);
         setMoves(moves + 1);
-        
+
         if (isSolved(newPuzzle)) {
           addScore(Math.max(100 - moves * 2, 20));
           message.success('Пазл собран!');
@@ -165,13 +167,15 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
       <div style={{ textAlign: 'center' }}>
         <Title level={3}>Пазл "15"</Title>
         <Text>Ходов: {moves}</Text>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(3, 1fr)', 
-          gap: '5px', 
-          maxWidth: '300px', 
-          margin: '20px auto' 
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '5px',
+            maxWidth: '300px',
+            margin: '20px auto',
+          }}
+        >
           {puzzle.map((num, index) => (
             <div
               key={index}
@@ -220,8 +224,8 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
     const handleDrop = (e: React.DragEvent, category: string) => {
       e.preventDefault();
       const itemId = parseInt(e.dataTransfer.getData('text/plain'));
-      const item = items.find(i => i.id === itemId);
-      
+      const item = items.find((i) => i.id === itemId);
+
       if (item && item.category === category) {
         addScore(5);
         message.success(`Правильно! ${item.text} - это ${category}`);
@@ -237,7 +241,7 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
     return (
       <div style={{ textAlign: 'center' }}>
         <Title level={3}>Перетащите технологии в правильные категории</Title>
-        
+
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', margin: '20px 0' }}>
           <div style={{ flex: 1 }}>
             <Title level={4}>Frontend</Title>
@@ -253,13 +257,16 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
               }}
             >
               {dropZones.frontend.map((item: any) => (
-                <div key={item.id} style={{ padding: '10px', margin: '5px', backgroundColor: '#e6f7ff', borderRadius: '4px' }}>
+                <div
+                  key={item.id}
+                  style={{ padding: '10px', margin: '5px', backgroundColor: '#e6f7ff', borderRadius: '4px' }}
+                >
                   {item.text}
                 </div>
               ))}
             </div>
           </div>
-          
+
           <div style={{ flex: 1 }}>
             <Title level={4}>Backend</Title>
             <div
@@ -274,7 +281,10 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
               }}
             >
               {dropZones.backend.map((item: any) => (
-                <div key={item.id} style={{ padding: '10px', margin: '5px', backgroundColor: '#e6f7ff', borderRadius: '4px' }}>
+                <div
+                  key={item.id}
+                  style={{ padding: '10px', margin: '5px', backgroundColor: '#e6f7ff', borderRadius: '4px' }}
+                >
                   {item.text}
                 </div>
               ))}
@@ -307,7 +317,7 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
 
   const renderGameContent = () => {
     const gameType = slide.content?.game?.type || 'memory';
-    
+
     switch (gameType) {
       case 'memory':
         return renderMemoryGame();
@@ -339,7 +349,9 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
       <Card style={{ textAlign: 'center', padding: '40px' }}>
         <CheckCircleOutlined style={{ fontSize: '48px', color: '#52c41a', marginBottom: '20px' }} />
         <Title level={2}>Игра завершена!</Title>
-        <Text>Ваш финальный счет: <strong>{score}</strong></Text>
+        <Text>
+          Ваш финальный счет: <strong>{score}</strong>
+        </Text>
         <br />
         <Progress percent={(score / 100) * 100} style={{ margin: '20px 0' }} />
         <Button type="primary" onClick={startGame}>
@@ -361,7 +373,7 @@ const GameSlide: React.FC<GameSlideProps> = ({ slide, onComplete, onProgress }) 
           <StarOutlined style={{ fontSize: '24px', color: '#faad14' }} />
         </Badge>
       </div>
-      
+
       {renderGameContent()}
     </Card>
   );

@@ -26,18 +26,21 @@ const SlideResizer: React.FC<SlideResizerProps> = ({ slide, onResize, children }
     });
   }, []);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isResizing) return;
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) return;
 
-    const deltaX = e.clientX - startSize.width;
-    const deltaY = e.clientY - startSize.height;
+      const deltaX = e.clientX - startSize.width;
+      const deltaY = e.clientY - startSize.height;
 
-    const newWidth = Math.max(300, currentSize.width + deltaX);
-    const newHeight = Math.max(200, currentSize.height + deltaY);
+      const newWidth = Math.max(300, currentSize.width + deltaX);
+      const newHeight = Math.max(200, currentSize.height + deltaY);
 
-    setCurrentSize({ width: newWidth, height: newHeight });
-    setStartSize({ width: e.clientX, height: e.clientY });
-  }, [isResizing, startSize, currentSize]);
+      setCurrentSize({ width: newWidth, height: newHeight });
+      setStartSize({ width: e.clientX, height: e.clientY });
+    },
+    [isResizing, startSize, currentSize],
+  );
 
   const handleMouseUp = useCallback(() => {
     if (isResizing) {
@@ -75,7 +78,7 @@ const SlideResizer: React.FC<SlideResizerProps> = ({ slide, onResize, children }
       }}
     >
       {children}
-      
+
       {/* Ручка для изменения размера */}
       <div
         style={{

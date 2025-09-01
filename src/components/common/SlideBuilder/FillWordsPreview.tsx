@@ -13,32 +13,33 @@ const FillWordsPreview: React.FC<FillWordsPreviewProps> = ({ text, hints }) => {
   const renderPreview = () => {
     if (!text) {
       return (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '40px 20px',
-          color: '#8c8c8c',
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+            color: '#8c8c8c',
+          }}
+        >
           <EyeOutlined style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }} />
-          <Text style={{ fontSize: '16px', color: '#8c8c8c' }}>
-            Введите текст с пропусками (используйте ___)
-          </Text>
+          <Text style={{ fontSize: '16px', color: '#8c8c8c' }}>Введите текст с пропусками (используйте ___)</Text>
         </div>
       );
     }
 
     // Парсим подсказки
     const hintsMap = new Map();
-    hints.split('\n')
-      .filter(line => line.trim())
-      .forEach(line => {
-        const [word, hint] = line.split(':').map(s => s.trim());
+    hints
+      .split('\n')
+      .filter((line) => line.trim())
+      .forEach((line) => {
+        const [word, hint] = line.split(':').map((s) => s.trim());
         if (word) {
           hintsMap.set(word, hint || '');
         }
       });
 
     // Находим все пропуски и заменяем их на поля
-    let result = [];
+    const result = [];
     let lastIndex = 0;
     let blankIndex = 0;
 
@@ -58,14 +59,17 @@ const FillWordsPreview: React.FC<FillWordsPreviewProps> = ({ text, hints }) => {
       const hint = hintsMap.get(currentWord) || '';
 
       result.push(
-        <span key={`blank-${blankIndex}`} style={{ 
-          display: 'inline-block', 
-          margin: '0 6px',
-          position: 'relative',
-        }}>
-          <Tag 
-            style={{ 
-              padding: '6px 12px', 
+        <span
+          key={`blank-${blankIndex}`}
+          style={{
+            display: 'inline-block',
+            margin: '0 6px',
+            position: 'relative',
+          }}
+        >
+          <Tag
+            style={{
+              padding: '6px 12px',
               fontSize: '14px',
               borderRadius: '16px',
               border: '2px dashed #1890ff',
@@ -87,16 +91,18 @@ const FillWordsPreview: React.FC<FillWordsPreviewProps> = ({ text, hints }) => {
             <span style={{ marginRight: '4px' }}>📝</span>
             {currentWord}
             {hint && (
-              <span style={{ 
-                marginLeft: '6px',
-                fontSize: '12px',
-                opacity: 0.8,
-              }}>
+              <span
+                style={{
+                  marginLeft: '6px',
+                  fontSize: '12px',
+                  opacity: 0.8,
+                }}
+              >
                 💡 {hint}
               </span>
             )}
           </Tag>
-        </span>
+        </span>,
       );
 
       lastIndex = blankPos + 3;
@@ -107,18 +113,18 @@ const FillWordsPreview: React.FC<FillWordsPreviewProps> = ({ text, hints }) => {
   };
 
   const blankCount = text ? text.split('___').length - 1 : 0;
-  const hintCount = hints ? hints.split('\n').filter(line => line.trim()).length : 0;
+  const hintCount = hints ? hints.split('\n').filter((line) => line.trim()).length : 0;
 
   return (
-    <Card 
-      size="small" 
+    <Card
+      size="small"
       title={
         <Space>
           <EyeOutlined style={{ color: '#1890ff' }} />
           <span style={{ fontWeight: '600', color: '#262626' }}>Предварительный просмотр</span>
         </Space>
       }
-      style={{ 
+      style={{
         marginTop: '16px',
         borderRadius: '12px',
         border: '1px solid #f0f0f0',
@@ -135,83 +141,95 @@ const FillWordsPreview: React.FC<FillWordsPreviewProps> = ({ text, hints }) => {
         background: 'white',
       }}
     >
-      <div style={{
-        background: 'linear-gradient(135deg, #fafbfc 0%, #f5f7fa 100%)',
-        borderRadius: '8px',
-        padding: '20px',
-        border: '1px solid #f0f0f0',
-        minHeight: '120px',
-        display: 'flex',
-        alignItems: 'center',
-      }}>
-        <Paragraph style={{ 
-          fontSize: '16px', 
-          lineHeight: '2.2',
-          margin: 0,
-          textAlign: 'justify',
-          color: '#2c3e50',
-          fontWeight: '400',
-        }}>
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #fafbfc 0%, #f5f7fa 100%)',
+          borderRadius: '8px',
+          padding: '20px',
+          border: '1px solid #f0f0f0',
+          minHeight: '120px',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <Paragraph
+          style={{
+            fontSize: '16px',
+            lineHeight: '2.2',
+            margin: 0,
+            textAlign: 'justify',
+            color: '#2c3e50',
+            fontWeight: '400',
+          }}
+        >
           {renderPreview()}
         </Paragraph>
       </div>
-      
+
       {(blankCount > 0 || hintCount > 0) && (
-        <div style={{ 
-          marginTop: '16px', 
-          paddingTop: '16px', 
-          borderTop: '1px solid #f0f0f0',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
+        <div
+          style={{
+            marginTop: '16px',
+            paddingTop: '16px',
+            borderTop: '1px solid #f0f0f0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <div style={{ display: 'flex', gap: '16px' }}>
-            <Badge 
-              count={blankCount} 
-              showZero 
-              style={{ 
+            <Badge
+              count={blankCount}
+              showZero
+              style={{
                 backgroundColor: blankCount > 0 ? '#52c41a' : '#d9d9d9',
               }}
             >
-              <span style={{ 
-                fontSize: '12px', 
-                color: '#666',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}>
+              <span
+                style={{
+                  fontSize: '12px',
+                  color: '#666',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
                 📝 Пропусков
               </span>
             </Badge>
-            
-            <Badge 
-              count={hintCount} 
-              showZero 
-              style={{ 
+
+            <Badge
+              count={hintCount}
+              showZero
+              style={{
                 backgroundColor: hintCount > 0 ? '#faad14' : '#d9d9d9',
               }}
             >
-              <span style={{ 
-                fontSize: '12px', 
-                color: '#666',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}>
+              <span
+                style={{
+                  fontSize: '12px',
+                  color: '#666',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
                 💡 Подсказок
               </span>
             </Badge>
           </div>
-          
+
           {blankCount > 0 && hintCount > 0 && (
-            <div style={{
-              padding: '4px 12px',
-              background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
-              borderRadius: '12px',
-              color: 'white',
-              fontSize: '12px',
-              fontWeight: '500',
-            }}>
+            <div
+              style={{
+                padding: '4px 12px',
+                background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
+                borderRadius: '12px',
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: '500',
+              }}
+            >
               ✅ Готово к использованию
             </div>
           )}

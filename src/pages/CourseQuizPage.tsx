@@ -14,7 +14,6 @@ import {
   Input,
   Select,
   Popconfirm,
-  Switch,
 } from 'antd';
 import {
   PlusOutlined,
@@ -27,6 +26,7 @@ import {
 } from '@ant-design/icons';
 import { PageTitle } from '@app/components/common/PageTitle/PageTitle';
 import { httpApi } from '@app/api/http.api';
+import { useApiCall } from '@app/hooks/useApiCall';
 import { TestQuestionCreator } from '@app/components/TestQuestionCreator';
 import { MultipleChoiceCreator } from '@app/components/MultipleChoiceCreator';
 
@@ -99,11 +99,15 @@ const CourseQuizPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const lsKey = (cid: string) => `trainingByCourse:${cid}`;
 
+  // Create deduplicated API functions
+  const getKbArticle = useApiCall(httpApi.get, { deduplicate: true, deduplicateTime: 2000 });
+  const getTrainings = useApiCall(httpApi.get, { deduplicate: true, deduplicateTime: 2000 });
+
   useEffect(() => {
     (async () => {
       if (!courseId) return;
       try {
-        const { data } = await httpApi.get<KBArticle>(`/kb/articles/${courseId}/`);
+        const { data } = await getKbArticle<KBArticle>(`/kb/articles/${courseId}/`);
         setCourse(data);
         // default training meta from article
         const base = (data.name || 'Викторина').trim();
@@ -114,7 +118,7 @@ const CourseQuizPage: React.FC = () => {
         message.error('Не удалось загрузить курс');
       }
     })();
-  }, [courseId]);
+  }, [courseId, getKbArticle]);
 
   useEffect(() => {
     (async () => {
@@ -136,7 +140,7 @@ const CourseQuizPage: React.FC = () => {
 
       // 3) fallback: возьмём первую викторину, привязанную к статье
       try {
-        const { data } = await httpApi.get('/trainings/trainings/', {
+        const { data } = await getTrainings('/trainings/trainings/', {
           params: { kb_article: courseId, page_size: 1 },
         });
         const list = Array.isArray(data) ? data : Array.isArray(data?.results) ? data.results : [];
@@ -148,7 +152,7 @@ const CourseQuizPage: React.FC = () => {
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [courseId]);
+  }, [courseId, getTrainings]);
 
   const openAddModal = () => {
     setEditingItem(null);
@@ -251,8 +255,10 @@ const CourseQuizPage: React.FC = () => {
       }
 
       // Проверяем, является ли это вопросом типа 'test' (с обратной связью для каждого ответа)
-      const hasIndividualFeedback = answers.some((a: any) => a?.feedback && a.feedback !== 'Правильно!' && a.feedback !== 'Неверно.');
-      
+      const hasIndividualFeedback = answers.some(
+        (a: any) => a?.feedback && a.feedback !== 'Правильно!' && a.feedback !== 'Неверно.',
+      );
+
       if (hasIndividualFeedback) {
         return {
           id: `${Date.now()}_${i}`,
@@ -534,12 +540,7 @@ const CourseQuizPage: React.FC = () => {
                           <ul style={{ margin: '4px 0 0 20px' }}>
                             {item.answers.map((answer, index) => (
                               <li key={index}>
-                                {answer.text}{' '}
-                                {answer.correct ? (
-                                  <Tag color="green">✓</Tag>
-                                ) : (
-                                  <Tag color="red">✗</Tag>
-                                )}
+                                {answer.text} {answer.correct ? <Tag color="green">✓</Tag> : <Tag color="red">✗</Tag>}
                               </li>
                             ))}
                           </ul>
@@ -598,7 +599,7 @@ const CourseQuizPage: React.FC = () => {
           <Form.Item noStyle shouldUpdate={(p, c) => p.type !== c.type}>
             {({ getFieldValue }) => {
               const questionType = getFieldValue('type');
-              
+
               if (questionType === 'multiple_choice') {
                 return (
                   <Form.Item
@@ -622,18 +623,18 @@ const CourseQuizPage: React.FC = () => {
                     </Select>
                   </Form.Item>
                 );
-                             } else if (questionType === 'test') {
-                 return (
-                   <Form.Item
-                     name="testData"
-                     label="Настройки теста"
-                     rules={[{ required: true, message: 'Настройте варианты ответов' }]}
-                   >
-                     <TestQuestionCreator />
-                   </Form.Item>
-                 );
+              } else if (questionType === 'test') {
+                return (
+                  <Form.Item
+                    name="testData"
+                    label="Настройки теста"
+                    rules={[{ required: true, message: 'Настройте варианты ответов' }]}
+                  >
+                    <TestQuestionCreator />
+                  </Form.Item>
+                );
               }
-              
+
               return null;
             }}
           </Form.Item>

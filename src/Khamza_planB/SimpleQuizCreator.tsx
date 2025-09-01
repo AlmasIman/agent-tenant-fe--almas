@@ -16,7 +16,15 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [questions, setQuestions] = useState<H5PQuizQuestion[]>(initialQuiz?.questions || []);
-  const [currentQuestionType, setCurrentQuestionType] = useState<'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'mark-the-words' | 'image-hotspot' | 'drag-the-words' | 'test'>('multiple-choice');
+  const [currentQuestionType, setCurrentQuestionType] = useState<
+    | 'multiple-choice'
+    | 'true-false'
+    | 'fill-in-the-blank'
+    | 'mark-the-words'
+    | 'image-hotspot'
+    | 'drag-the-words'
+    | 'test'
+  >('multiple-choice');
 
   const questionTypes = [
     { value: 'multiple-choice', label: t('quiz.multipleChoice') },
@@ -43,17 +51,23 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
       dragText: currentQuestionType === 'drag-the-words' ? '' : undefined,
       dragWords: currentQuestionType === 'drag-the-words' ? [] : undefined,
       dragTargets: currentQuestionType === 'drag-the-words' ? [] : undefined,
-      answers: currentQuestionType === 'test' ? [
-        { text: '', correct: false, feedback: '' },
-        { text: '', correct: false, feedback: '' },
-        { text: '', correct: false, feedback: '' },
-        { text: '', correct: false, feedback: '' }
-      ] : undefined,
+      answers:
+        currentQuestionType === 'test'
+          ? [
+              { text: '', correct: false, feedback: '' },
+              { text: '', correct: false, feedback: '' },
+              { text: '', correct: false, feedback: '' },
+              { text: '', correct: false, feedback: '' },
+            ]
+          : undefined,
       multiple: currentQuestionType === 'test' ? false : undefined,
-      feedback: currentQuestionType === 'test' ? {
-        correct: '',
-        incorrect: ''
-      } : undefined,
+      feedback:
+        currentQuestionType === 'test'
+          ? {
+              correct: '',
+              incorrect: '',
+            }
+          : undefined,
     };
     setQuestions([...questions, newQuestion]);
   };
@@ -155,7 +169,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
     updatedQuestions[questionIndex].answers!.push({
       text: '',
       correct: false,
-      feedback: ''
+      feedback: '',
     });
     setQuestions(updatedQuestions);
   };
@@ -166,7 +180,12 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
     setQuestions(updatedQuestions);
   };
 
-  const updateTestAnswer = (questionIndex: number, answerIndex: number, field: 'text' | 'correct' | 'feedback', value: any) => {
+  const updateTestAnswer = (
+    questionIndex: number,
+    answerIndex: number,
+    field: 'text' | 'correct' | 'feedback',
+    value: any,
+  ) => {
     const updatedQuestions = [...questions];
     updatedQuestions[questionIndex].answers![answerIndex] = {
       ...updatedQuestions[questionIndex].answers![answerIndex],
@@ -202,14 +221,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
       <Card
         key={question.id}
         title={`${t('quiz.question')} ${index + 1}`}
-        extra={
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => removeQuestion(index)}
-          />
-        }
+        extra={<Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeQuestion(index)} />}
         style={{ marginBottom: 16 }}
       >
         <Space direction="vertical" style={{ width: '100%' }}>
@@ -218,7 +230,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
             value={question.question}
             onChange={(e) => updateQuestion(index, 'question', e.target.value)}
           />
-          
+
           {question.type === 'multiple-choice' && (
             <div>
               <Space direction="vertical" style={{ width: '100%' }}>
@@ -272,12 +284,18 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
               <Input
                 placeholder={t('quiz.enterCorrectWords')}
                 value={question.correctWords?.join(', ') || ''}
-                onChange={(e) => updateCorrectWords(index, e.target.value.split(',').map(w => w.trim()).filter(w => w))}
+                onChange={(e) =>
+                  updateCorrectWords(
+                    index,
+                    e.target.value
+                      .split(',')
+                      .map((w) => w.trim())
+                      .filter((w) => w),
+                  )
+                }
                 addonBefore={t('quiz.correctWords')}
               />
-              <div style={{ fontSize: '12px', color: '#666', marginTop: 8 }}>
-                {t('quiz.markTheWordsHint')}
-              </div>
+              <div style={{ fontSize: '12px', color: '#666', marginTop: 8 }}>{t('quiz.markTheWordsHint')}</div>
             </div>
           )}
 
@@ -372,7 +390,15 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
               <Input
                 placeholder={t('quiz.enterDragWords')}
                 value={question.dragWords?.join(', ') || ''}
-                onChange={(e) => updateDragWords(index, e.target.value.split(',').map(w => w.trim()).filter(w => w))}
+                onChange={(e) =>
+                  updateDragWords(
+                    index,
+                    e.target.value
+                      .split(',')
+                      .map((w) => w.trim())
+                      .filter((w) => w),
+                  )
+                }
                 addonBefore={t('quiz.dragWords')}
                 style={{ marginBottom: 16 }}
               />
@@ -418,9 +444,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
                   </Card>
                 ))}
               </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>
-                {t('quiz.dragTheWordsHint')}
-              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>{t('quiz.dragTheWordsHint')}</div>
             </div>
           )}
 
@@ -434,7 +458,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
                 />
                 <span>{t('quiz.allowMultipleSelection')}</span>
               </div>
-              
+
               <div style={{ marginBottom: 16 }}>
                 <Button
                   type="dashed"
@@ -489,27 +513,29 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
                 <TextArea
                   placeholder={t('quiz.correctFeedback')}
                   value={question.feedback?.correct || ''}
-                  onChange={(e) => updateQuestion(index, 'feedback', {
-                    ...question.feedback,
-                    correct: e.target.value
-                  })}
+                  onChange={(e) =>
+                    updateQuestion(index, 'feedback', {
+                      ...question.feedback,
+                      correct: e.target.value,
+                    })
+                  }
                   rows={2}
                   style={{ marginBottom: 8 }}
                 />
                 <TextArea
                   placeholder={t('quiz.incorrectFeedback')}
                   value={question.feedback?.incorrect || ''}
-                  onChange={(e) => updateQuestion(index, 'feedback', {
-                    ...question.feedback,
-                    incorrect: e.target.value
-                  })}
+                  onChange={(e) =>
+                    updateQuestion(index, 'feedback', {
+                      ...question.feedback,
+                      incorrect: e.target.value,
+                    })
+                  }
                   rows={2}
                 />
               </div>
-              
-              <div style={{ fontSize: '12px', color: '#666' }}>
-                {t('quiz.testHint')}
-              </div>
+
+              <div style={{ fontSize: '12px', color: '#666' }}>{t('quiz.testHint')}</div>
             </div>
           )}
 
@@ -555,12 +581,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="timeLimit" label={t('quiz.timeLimit')}>
-                <InputNumber
-                  placeholder={t('quiz.minutes')}
-                  min={1}
-                  max={120}
-                  style={{ width: '100%' }}
-                />
+                <InputNumber placeholder={t('quiz.minutes')} min={1} max={120} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -569,12 +590,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
                 label={t('quiz.passingScore')}
                 rules={[{ required: true, message: t('quiz.passingScoreRequired') }]}
               >
-                <InputNumber
-                  placeholder="%"
-                  min={1}
-                  max={100}
-                  style={{ width: '100%' }}
-                />
+                <InputNumber placeholder="%" min={1} max={100} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
           </Row>
@@ -601,12 +617,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
           </Row>
 
           <Form.Item name="maxAttempts" label={t('quiz.maxAttempts')}>
-            <InputNumber
-              placeholder={t('quiz.unlimited')}
-              min={1}
-              max={10}
-              style={{ width: '100%' }}
-            />
+            <InputNumber placeholder={t('quiz.unlimited')} min={1} max={10} style={{ width: '100%' }} />
           </Form.Item>
         </Space>
       </Card>
@@ -619,21 +630,20 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
             <Col span={16}>
               <Select
                 value={currentQuestionType}
-                onChange={(value: 'multiple-choice' | 'true-false' | 'fill-in-the-blank') => setCurrentQuestionType(value)}
+                onChange={(value: 'multiple-choice' | 'true-false' | 'fill-in-the-blank') =>
+                  setCurrentQuestionType(value)
+                }
                 style={{ width: '100%' }}
               >
-                {questionTypes.map(type => (
-                  <Option key={type.value} value={type.value}>{type.label}</Option>
+                {questionTypes.map((type) => (
+                  <Option key={type.value} value={type.value}>
+                    {type.label}
+                  </Option>
                 ))}
               </Select>
             </Col>
             <Col span={8}>
-              <Button
-                type="dashed"
-                icon={<PlusOutlined />}
-                onClick={addQuestion}
-                style={{ width: '100%' }}
-              >
+              <Button type="dashed" icon={<PlusOutlined />} onClick={addQuestion} style={{ width: '100%' }}>
                 {t('quiz.addQuestion')}
               </Button>
             </Col>
@@ -642,9 +652,7 @@ export const SimpleQuizCreator: React.FC<SimpleQuizCreatorProps> = ({ onSave, in
           {questions.map((question, index) => renderQuestionForm(question, index))}
 
           {questions.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-              {t('quiz.noQuestionsYet')}
-            </div>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>{t('quiz.noQuestionsYet')}</div>
           )}
         </Space>
       </Card>

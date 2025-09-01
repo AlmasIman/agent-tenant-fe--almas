@@ -1,2 +1,1 @@
 export { CircularSlider } from './CircularSlider';
-

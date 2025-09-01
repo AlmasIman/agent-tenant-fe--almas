@@ -18,4 +18,3 @@ const CreateCoursePage: React.FC = () => {
 };
 
 export default CreateCoursePage;
- 

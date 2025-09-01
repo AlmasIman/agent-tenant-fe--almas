@@ -1,6 +1,24 @@
 import React from 'react';
 import { Card, Button, Space, Typography, Tag } from 'antd';
-import { DragOutlined, EditOutlined, DeleteOutlined, EyeOutlined, FileTextOutlined, PictureOutlined, PlayCircleOutlined, CodeOutlined, BarChartOutlined, QuestionCircleOutlined, GlobalOutlined, TrophyOutlined, StarOutlined, FireOutlined, CheckCircleOutlined, BookOutlined, FormOutlined } from '@ant-design/icons';
+import {
+  DragOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  FileTextOutlined,
+  PictureOutlined,
+  PlayCircleOutlined,
+  CodeOutlined,
+  BarChartOutlined,
+  QuestionCircleOutlined,
+  GlobalOutlined,
+  TrophyOutlined,
+  StarOutlined,
+  FireOutlined,
+  CheckCircleOutlined,
+  BookOutlined,
+  FormOutlined,
+} from '@ant-design/icons';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Slide, SlideType } from './types';
@@ -115,14 +133,7 @@ const getSlideTypeColor = (type: SlideType) => {
 };
 
 const SlideItem: React.FC<SlideItemProps> = ({ slide, onEdit, onPreview, onDelete, readOnly = false }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: slide.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: slide.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -145,7 +156,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onEdit, onPreview, onDelet
     onPreview(slide);
   };
 
-  const truncateContent = (content: string, maxLength: number = 100) => {
+  const truncateContent = (content: string, maxLength = 100) => {
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + '...';
   };
@@ -155,7 +166,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onEdit, onPreview, onDelet
       <Card
         size="small"
         hoverable
-        style={{ 
+        style={{
           marginBottom: '12px',
           cursor: readOnly ? 'default' : 'grab',
           border: isDragging ? '2px dashed #1890ff' : '1px solid #f0f0f0',
@@ -182,18 +193,18 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onEdit, onPreview, onDelet
             {!readOnly && (
               <div
                 {...listeners}
-                style={{ 
-                  cursor: 'grab', 
+                style={{
+                  cursor: 'grab',
                   marginRight: 8,
                   padding: '4px',
                   borderRadius: '4px',
-                  backgroundColor: '#f5f5f5'
+                  backgroundColor: '#f5f5f5',
                 }}
               >
                 <DragOutlined style={{ color: '#999' }} />
               </div>
             )}
-            
+
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
                 <Space size={8}>
@@ -201,22 +212,20 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onEdit, onPreview, onDelet
                   <Text strong style={{ fontSize: '14px' }}>
                     {slide.title}
                   </Text>
-                  <Tag color={getSlideTypeColor(slide.type)}>
-                    {getSlideTypeLabel(slide.type)}
-                  </Tag>
+                  <Tag color={getSlideTypeColor(slide.type)}>{getSlideTypeLabel(slide.type)}</Tag>
                   <Text type="secondary" style={{ fontSize: '12px' }}>
                     #{slide.order + 1}
                   </Text>
                 </Space>
               </div>
-              
+
               {slide.content && (
-                <Paragraph 
-                  style={{ 
-                    margin: 0, 
-                    fontSize: '12px', 
+                <Paragraph
+                  style={{
+                    margin: 0,
+                    fontSize: '12px',
                     color: '#666',
-                    lineHeight: '1.4'
+                    lineHeight: '1.4',
                   }}
                 >
                   {truncateContent(slide.content)}
@@ -234,13 +243,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ slide, onEdit, onPreview, onDelet
                 onClick={handlePreview}
                 title="Предварительный просмотр"
               />
-              <Button
-                type="text"
-                size="small"
-                icon={<EditOutlined />}
-                onClick={handleEdit}
-                title="Редактировать"
-              />
+              <Button type="text" size="small" icon={<EditOutlined />} onClick={handleEdit} title="Редактировать" />
               <Button
                 type="text"
                 size="small"

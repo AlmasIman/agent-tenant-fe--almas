@@ -13,7 +13,14 @@ import { SimpleQuizCreator } from './SimpleQuizCreator';
 import { SimpleQuizPlayer } from './SimpleQuizPlayer';
 import { useTranslation } from 'react-i18next';
 import { notificationController } from '@app/controllers/notificationController';
-import { PlusOutlined, PlayCircleOutlined, EditOutlined, DeleteOutlined, EyeOutlined, TrophyOutlined } from '@ant-design/icons';
+import {
+  PlusOutlined,
+  PlayCircleOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  TrophyOutlined,
+} from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 
 const { TabPane } = BaseTabs as any;
@@ -31,7 +38,7 @@ export const H5PQuizManager: React.FC = () => {
   useEffect(() => {
     const savedQuizzes = localStorage.getItem('h5p-quizzes');
     const savedResults = localStorage.getItem('h5p-results');
-    
+
     if (savedQuizzes) {
       setQuizzes(JSON.parse(savedQuizzes));
     }
@@ -51,7 +58,7 @@ export const H5PQuizManager: React.FC = () => {
 
   const handleSaveQuiz = (quiz: H5PQuiz) => {
     if (editingQuiz) {
-      setQuizzes(quizzes.map(q => q.id === quiz.id ? quiz : q));
+      setQuizzes(quizzes.map((q) => (q.id === quiz.id ? quiz : q)));
       setEditingQuiz(null);
     } else {
       setQuizzes([...quizzes, quiz]);
@@ -61,8 +68,8 @@ export const H5PQuizManager: React.FC = () => {
   };
 
   const handleDeleteQuiz = (quizId: string) => {
-    setQuizzes(quizzes.filter(q => q.id !== quizId));
-    setResults(results.filter(r => r.quizId !== quizId));
+    setQuizzes(quizzes.filter((q) => q.id !== quizId));
+    setResults(results.filter((r) => r.quizId !== quizId));
     notificationController.success({ message: t('quiz.quizDeleted') });
   };
 
@@ -73,8 +80,8 @@ export const H5PQuizManager: React.FC = () => {
 
   const handleQuizComplete = (result: H5PQuizResult) => {
     setResults([...results, result]);
-    notificationController.success({ 
-      message: result.passed ? t('quiz.quizPassed') : t('quiz.quizFailed') 
+    notificationController.success({
+      message: result.passed ? t('quiz.quizPassed') : t('quiz.quizFailed'),
     });
   };
 
@@ -84,11 +91,11 @@ export const H5PQuizManager: React.FC = () => {
   };
 
   const getQuizStats = (quizId: string) => {
-    const quizResults = results.filter(r => r.quizId === quizId);
+    const quizResults = results.filter((r) => r.quizId === quizId);
     if (quizResults.length === 0) return null;
 
     const avgScore = quizResults.reduce((sum, r) => sum + r.score, 0) / quizResults.length;
-    const passRate = (quizResults.filter(r => r.passed).length / quizResults.length) * 100;
+    const passRate = (quizResults.filter((r) => r.passed).length / quizResults.length) * 100;
     const totalAttempts = quizResults.length;
 
     return { avgScore, passRate, totalAttempts };
@@ -116,7 +123,7 @@ export const H5PQuizManager: React.FC = () => {
       title: t('quiz.timeLimit'),
       dataIndex: 'timeLimit',
       key: 'timeLimit',
-      render: (timeLimit: number) => timeLimit ? `${timeLimit} ${t('quiz.minutes')}` : t('quiz.noLimit'),
+      render: (timeLimit: number) => (timeLimit ? `${timeLimit} ${t('quiz.minutes')}` : t('quiz.noLimit')),
     },
     {
       title: t('quiz.passingScore'),
@@ -130,12 +137,18 @@ export const H5PQuizManager: React.FC = () => {
       render: (_, record: H5PQuiz) => {
         const stats = getQuizStats(record.id);
         if (!stats) return <span style={{ color: '#999' }}>{t('quiz.noAttempts')}</span>;
-        
+
         return (
           <BaseSpace direction="vertical" size="small">
-            <div>{t('quiz.avgScore')}: {stats.avgScore.toFixed(1)}%</div>
-            <div>{t('quiz.passRate')}: {stats.passRate.toFixed(1)}%</div>
-            <div>{t('quiz.attempts')}: {stats.totalAttempts}</div>
+            <div>
+              {t('quiz.avgScore')}: {stats.avgScore.toFixed(1)}%
+            </div>
+            <div>
+              {t('quiz.passRate')}: {stats.passRate.toFixed(1)}%
+            </div>
+            <div>
+              {t('quiz.attempts')}: {stats.totalAttempts}
+            </div>
           </BaseSpace>
         );
       },
@@ -145,24 +158,13 @@ export const H5PQuizManager: React.FC = () => {
       key: 'actions',
       render: (_, record: H5PQuiz) => (
         <BaseSpace>
-          <BaseButton
-            type="primary"
-            icon={<PlayCircleOutlined />}
-            onClick={() => handleStartQuiz(record)}
-          >
+          <BaseButton type="primary" icon={<PlayCircleOutlined />} onClick={() => handleStartQuiz(record)}>
             {t('quiz.start')}
           </BaseButton>
-          <BaseButton
-            icon={<EditOutlined />}
-            onClick={() => handleEditQuiz(record)}
-          >
+          <BaseButton icon={<EditOutlined />} onClick={() => handleEditQuiz(record)}>
             {t('common.edit')}
           </BaseButton>
-          <BaseButton
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDeleteQuiz(record.id)}
-          >
+          <BaseButton danger icon={<DeleteOutlined />} onClick={() => handleDeleteQuiz(record.id)}>
             {t('common.delete')}
           </BaseButton>
         </BaseSpace>
@@ -175,7 +177,7 @@ export const H5PQuizManager: React.FC = () => {
       title: t('quiz.quizTitle'),
       key: 'quizTitle',
       render: (_, record: H5PQuizResult) => {
-        const quiz = quizzes.find(q => q.id === record.quizId);
+        const quiz = quizzes.find((q) => q.id === record.quizId);
         return quiz?.title || t('quiz.unknownQuiz');
       },
     },
@@ -210,9 +212,7 @@ export const H5PQuizManager: React.FC = () => {
       title: t('quiz.status'),
       key: 'status',
       render: (_, record: H5PQuizResult) => (
-        <BaseTag color={record.passed ? 'green' : 'red'}>
-          {record.passed ? t('quiz.passed') : t('quiz.failed')}
-        </BaseTag>
+        <BaseTag color={record.passed ? 'green' : 'red'}>{record.passed ? t('quiz.passed') : t('quiz.failed')}</BaseTag>
       ),
     },
     {
@@ -233,25 +233,16 @@ export const H5PQuizManager: React.FC = () => {
           </BaseSpace>
         }
         extra={
-          <BaseButton
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setIsCreatorOpen(true)}
-          >
+          <BaseButton type="primary" icon={<PlusOutlined />} onClick={() => setIsCreatorOpen(true)}>
             {t('quiz.createNewQuiz')}
           </BaseButton>
         }
       >
         <BaseTabs defaultActiveKey="quizzes">
           <TabPane tab={t('quiz.quizzes')} key="quizzes">
-            <BaseTable
-              columns={quizColumns}
-              dataSource={quizzes}
-              rowKey="id"
-              pagination={{ pageSize: 10 }}
-            />
+            <BaseTable columns={quizColumns} dataSource={quizzes} rowKey="id" pagination={{ pageSize: 10 }} />
           </TabPane>
-          
+
           <TabPane tab={t('quiz.results')} key="results">
             <BaseTable
               columns={resultColumns}
@@ -260,25 +251,17 @@ export const H5PQuizManager: React.FC = () => {
               pagination={{ pageSize: 10 }}
             />
           </TabPane>
-          
+
           <TabPane tab={t('quiz.statistics')} key="statistics">
             <BaseSpace direction="vertical" style={{ width: '100%' }}>
               <BaseCard>
-                <Statistic
-                  title={t('quiz.totalQuizzes')}
-                  value={quizzes.length}
-                  prefix={<TrophyOutlined />}
-                />
+                <Statistic title={t('quiz.totalQuizzes')} value={quizzes.length} prefix={<TrophyOutlined />} />
               </BaseCard>
-              
+
               <BaseCard>
-                <Statistic
-                  title={t('quiz.totalAttempts')}
-                  value={results.length}
-                  prefix={<PlayCircleOutlined />}
-                />
+                <Statistic title={t('quiz.totalAttempts')} value={results.length} prefix={<PlayCircleOutlined />} />
               </BaseCard>
-              
+
               <BaseCard>
                 <Statistic
                   title={t('quiz.avgScore')}
@@ -302,10 +285,7 @@ export const H5PQuizManager: React.FC = () => {
         footer={null}
         width={800}
       >
-        <SimpleQuizCreator
-          onSave={handleSaveQuiz}
-          initialQuiz={editingQuiz || undefined}
-        />
+        <SimpleQuizCreator onSave={handleSaveQuiz} initialQuiz={editingQuiz || undefined} />
       </BaseModal>
 
       <BaseModal

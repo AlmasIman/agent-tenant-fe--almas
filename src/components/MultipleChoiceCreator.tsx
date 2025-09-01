@@ -13,12 +13,8 @@ interface MultipleChoiceCreatorProps {
 }
 
 export const MultipleChoiceCreator: React.FC<MultipleChoiceCreatorProps> = ({ value, onChange }) => {
-  const [options, setOptions] = useState<string[]>(
-    value?.options || ['', '', '', '']
-  );
-  const [answerKey, setAnswerKey] = useState<string[]>(
-    value?.answerKey || []
-  );
+  const [options, setOptions] = useState<string[]>(value?.options || ['', '', '', '']);
+  const [answerKey, setAnswerKey] = useState<string[]>(value?.answerKey || []);
 
   const updateOption = (index: number, value: string) => {
     const newOptions = [...options];
@@ -37,7 +33,7 @@ export const MultipleChoiceCreator: React.FC<MultipleChoiceCreatorProps> = ({ va
     if (options.length > 2) {
       const newOptions = options.filter((_, i) => i !== index);
       // Удаляем из правильных ответов, если этот вариант был выбран
-      const newAnswerKey = answerKey.filter(answer => answer !== options[index]);
+      const newAnswerKey = answerKey.filter((answer) => answer !== options[index]);
       setOptions(newOptions);
       setAnswerKey(newAnswerKey);
       onChange?.({ options: newOptions, answerKey: newAnswerKey });
@@ -45,9 +41,7 @@ export const MultipleChoiceCreator: React.FC<MultipleChoiceCreatorProps> = ({ va
   };
 
   const toggleAnswer = (option: string) => {
-    const newAnswerKey = answerKey.includes(option)
-      ? answerKey.filter(a => a !== option)
-      : [...answerKey, option];
+    const newAnswerKey = answerKey.includes(option) ? answerKey.filter((a) => a !== option) : [...answerKey, option];
     setAnswerKey(newAnswerKey);
     onChange?.({ options, answerKey: newAnswerKey });
   };
@@ -63,13 +57,7 @@ export const MultipleChoiceCreator: React.FC<MultipleChoiceCreatorProps> = ({ va
             style={{ marginTop: 8 }}
             extra={
               options.length > 2 ? (
-                <Button
-                  type="text"
-                  danger
-                  size="small"
-                  icon={<DeleteOutlined />}
-                  onClick={() => removeOption(index)}
-                />
+                <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => removeOption(index)} />
               ) : null
             }
           >
@@ -91,20 +79,25 @@ export const MultipleChoiceCreator: React.FC<MultipleChoiceCreatorProps> = ({ va
             </Space>
           </Card>
         ))}
-        
-        <Button
-          type="dashed"
-          icon={<PlusOutlined />}
-          onClick={addOption}
-          style={{ marginTop: 8, width: '100%' }}
-        >
+
+        <Button type="dashed" icon={<PlusOutlined />} onClick={addOption} style={{ marginTop: 8, width: '100%' }}>
           Добавить вариант
         </Button>
       </div>
 
       {answerKey.length > 0 && (
-        <div style={{ marginTop: 16, padding: '8px 12px', backgroundColor: '#f6ffed', borderRadius: '6px', border: '1px solid #b7eb8f' }}>
-          <Text strong style={{ color: '#52c41a' }}>Выбранные правильные ответы:</Text>
+        <div
+          style={{
+            marginTop: 16,
+            padding: '8px 12px',
+            backgroundColor: '#f6ffed',
+            borderRadius: '6px',
+            border: '1px solid #b7eb8f',
+          }}
+        >
+          <Text strong style={{ color: '#52c41a' }}>
+            Выбранные правильные ответы:
+          </Text>
           <div style={{ marginTop: 4 }}>
             {answerKey.map((answer, index) => (
               <Tag key={index} color="green" style={{ margin: '2px' }}>

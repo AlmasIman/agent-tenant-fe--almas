@@ -15,7 +15,7 @@ const AchievementSlide: React.FC<AchievementSlideProps> = ({ slide }) => {
   useEffect(() => {
     setIsVisible(true);
     setShowConfetti(true);
-    
+
     const timer = setTimeout(() => {
       setShowConfetti(false);
     }, 3000);
@@ -23,13 +23,15 @@ const AchievementSlide: React.FC<AchievementSlideProps> = ({ slide }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const achievement = slide.content ? JSON.parse(slide.content).achievement : {
-    title: 'Достижение',
-    description: 'Описание достижения',
-    icon: '🏆',
-    points: 100,
-    unlocked: true
-  };
+  const achievement = slide.content
+    ? JSON.parse(slide.content).achievement
+    : {
+        title: 'Достижение',
+        description: 'Описание достижения',
+        icon: '🏆',
+        points: 100,
+        unlocked: true,
+      };
 
   const renderConfetti = () => {
     if (!showConfetti) return null;
@@ -50,23 +52,25 @@ const AchievementSlide: React.FC<AchievementSlideProps> = ({ slide }) => {
             animation: `fall ${Math.random() * 3 + 2}s linear infinite`,
             zIndex: 1000,
           }}
-        />
+        />,
       );
     }
     return confetti;
   };
 
   return (
-    <div style={{ 
-      position: 'relative', 
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-    }}>
+    <div
+      style={{
+        position: 'relative',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+      }}
+    >
       {renderConfetti()}
-      
+
       <Card
         style={{
           textAlign: 'center',
@@ -81,18 +85,20 @@ const AchievementSlide: React.FC<AchievementSlideProps> = ({ slide }) => {
           borderRadius: '16px',
         }}
       >
-        <div style={{ 
-          fontSize: '64px', 
-          marginBottom: '20px',
-          animation: showConfetti ? 'bounce 1s ease-in-out infinite' : 'none',
-        }}>
+        <div
+          style={{
+            fontSize: '64px',
+            marginBottom: '20px',
+            animation: showConfetti ? 'bounce 1s ease-in-out infinite' : 'none',
+          }}
+        >
           {achievement.icon}
         </div>
 
-        <Badge.Ribbon 
-          text="НОВОЕ!" 
+        <Badge.Ribbon
+          text="НОВОЕ!"
           color="gold"
-          style={{ 
+          style={{
             fontSize: '12px',
             opacity: showConfetti ? 1 : 0,
             transition: 'opacity 0.3s',
@@ -103,30 +109,34 @@ const AchievementSlide: React.FC<AchievementSlideProps> = ({ slide }) => {
           </Title>
         </Badge.Ribbon>
 
-        <Text style={{ 
-          fontSize: '16px', 
-          color: '#666',
-          display: 'block',
-          marginBottom: '24px',
-        }}>
+        <Text
+          style={{
+            fontSize: '16px',
+            color: '#666',
+            display: 'block',
+            marginBottom: '24px',
+          }}
+        >
           {achievement.description}
         </Text>
 
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          gap: '8px',
-          marginBottom: '20px',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            marginBottom: '20px',
+          }}
+        >
           <FireOutlined style={{ color: '#ff4d4f', fontSize: '20px' }} />
           <Text strong style={{ fontSize: '18px', color: '#ff4d4f' }}>
             +{achievement.points} очков
           </Text>
         </div>
 
-        <Progress 
-          percent={100} 
+        <Progress
+          percent={100}
           showInfo={false}
           strokeColor={{
             '0%': '#faad14',
@@ -135,12 +145,14 @@ const AchievementSlide: React.FC<AchievementSlideProps> = ({ slide }) => {
           style={{ marginBottom: '20px' }}
         />
 
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          gap: '16px',
-          marginTop: '20px',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '16px',
+            marginTop: '20px',
+          }}
+        >
           <div style={{ textAlign: 'center' }}>
             <StarOutlined style={{ fontSize: '24px', color: '#faad14' }} />
             <br />
@@ -165,9 +177,13 @@ const AchievementSlide: React.FC<AchievementSlideProps> = ({ slide }) => {
             opacity: 0;
           }
         }
-        
+
         @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% {
+          0%,
+          20%,
+          50%,
+          80%,
+          100% {
             transform: translateY(0);
           }
           40% {

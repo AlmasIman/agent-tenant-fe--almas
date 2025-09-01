@@ -1,6 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { Modal, Button, Space, Typography, Progress } from 'antd';
-import { LeftOutlined, RightOutlined, CloseOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons';
+import {
+  LeftOutlined,
+  RightOutlined,
+  CloseOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
+} from '@ant-design/icons';
 import { Slide, SlideType } from './types';
 
 const { Title, Paragraph } = Typography;
@@ -12,12 +18,7 @@ interface SlidePresentationProps {
   startFromSlide?: number;
 }
 
-const SlidePresentation: React.FC<SlidePresentationProps> = ({ 
-  slides, 
-  visible, 
-  onClose, 
-  startFromSlide = 0 
-}) => {
+const SlidePresentation: React.FC<SlidePresentationProps> = ({ slides, visible, onClose, startFromSlide = 0 }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(startFromSlide);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -36,23 +37,26 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
     }
   }, [currentSlideIndex, slides.length]);
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    switch (event.key) {
-      case 'ArrowLeft':
-        handlePrevious();
-        break;
-      case 'ArrowRight':
-        handleNext();
-        break;
-      case 'Escape':
-        onClose();
-        break;
-      case 'F11':
-        event.preventDefault();
-        setIsFullscreen(!isFullscreen);
-        break;
-    }
-  }, [handlePrevious, handleNext, onClose, isFullscreen]);
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'ArrowLeft':
+          handlePrevious();
+          break;
+        case 'ArrowRight':
+          handleNext();
+          break;
+        case 'Escape':
+          onClose();
+          break;
+        case 'F11':
+          event.preventDefault();
+          setIsFullscreen(!isFullscreen);
+          break;
+      }
+    },
+    [handlePrevious, handleNext, onClose, isFullscreen],
+  );
 
   React.useEffect(() => {
     if (visible) {
@@ -95,7 +99,9 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
       padding: `${currentSlide.settings.padding || 16}px`,
       borderRadius: `${currentSlide.settings.borderRadius || 0}px`,
       boxShadow: currentSlide.settings.shadow ? '0 4px 8px rgba(0,0,0,0.1)' : 'none',
-      border: currentSlide.settings.border ? `${currentSlide.settings.borderWidth || 1}px solid ${currentSlide.settings.borderColor || '#d9d9d9'}` : 'none',
+      border: currentSlide.settings.border
+        ? `${currentSlide.settings.borderWidth || 1}px solid ${currentSlide.settings.borderColor || '#d9d9d9'}`
+        : 'none',
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
@@ -125,11 +131,11 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
                 {currentSlide.title}
               </Title>
             )}
-            <img 
-              src={currentSlide.content} 
+            <img
+              src={currentSlide.content}
               alt={currentSlide.title}
-              style={{ 
-                maxWidth: '100%', 
+              style={{
+                maxWidth: '100%',
                 maxHeight: '70%',
                 height: 'auto',
                 borderRadius: `${currentSlide.settings.borderRadius || 0}px`,
@@ -152,8 +158,8 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
               autoPlay={currentSlide.settings.autoPlay}
               loop={currentSlide.settings.loop}
               muted={currentSlide.settings.muted}
-              style={{ 
-                maxWidth: '100%', 
+              style={{
+                maxWidth: '100%',
                 maxHeight: '70%',
                 height: 'auto',
                 borderRadius: `${currentSlide.settings.borderRadius || 0}px`,
@@ -170,17 +176,19 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
                 {currentSlide.title}
               </Title>
             )}
-            <pre style={{ 
-              backgroundColor: '#1e1e1e', 
-              color: '#d4d4d4',
-              padding: '24px', 
-              borderRadius: '8px',
-              overflow: 'auto',
-              fontSize: '18px',
-              lineHeight: '1.6',
-              maxHeight: '70%',
-              width: '100%',
-            }}>
+            <pre
+              style={{
+                backgroundColor: '#1e1e1e',
+                color: '#d4d4d4',
+                padding: '24px',
+                borderRadius: '8px',
+                overflow: 'auto',
+                fontSize: '18px',
+                lineHeight: '1.6',
+                maxHeight: '70%',
+                width: '100%',
+              }}
+            >
               <code>{currentSlide.content}</code>
             </pre>
           </div>
@@ -194,14 +202,16 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
                 {currentSlide.title}
               </Title>
             )}
-            <div style={{ 
-              backgroundColor: '#f5f5f5', 
-              padding: '32px', 
-              borderRadius: '8px',
-              textAlign: 'center',
-              color: '#666',
-              fontSize: '18px',
-            }}>
+            <div
+              style={{
+                backgroundColor: '#f5f5f5',
+                padding: '32px',
+                borderRadius: '8px',
+                textAlign: 'center',
+                color: '#666',
+                fontSize: '18px',
+              }}
+            >
               График: {currentSlide.content ? 'Данные загружены' : 'Нет данных'}
             </div>
           </div>
@@ -216,17 +226,17 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
               </Title>
             )}
             <div style={{ textAlign: currentSlide.settings.alignment }}>
-              <Paragraph style={{ fontSize: '24px', marginBottom: '32px' }}>
-                Вопрос викторины
-              </Paragraph>
-              <div style={{ 
-                backgroundColor: '#f5f5f5', 
-                padding: '32px', 
-                borderRadius: '8px',
-                textAlign: 'center',
-                color: '#666',
-                fontSize: '18px',
-              }}>
+              <Paragraph style={{ fontSize: '24px', marginBottom: '32px' }}>Вопрос викторины</Paragraph>
+              <div
+                style={{
+                  backgroundColor: '#f5f5f5',
+                  padding: '32px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: '#666',
+                  fontSize: '18px',
+                }}
+              >
                 Варианты ответов будут отображаться здесь
               </div>
             </div>
@@ -243,8 +253,8 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
             )}
             <iframe
               src={currentSlide.content}
-              style={{ 
-                width: '100%', 
+              style={{
+                width: '100%',
                 height: '70%',
                 border: 'none',
                 borderRadius: `${currentSlide.settings.borderRadius || 0}px`,
@@ -263,18 +273,18 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
               </Title>
             )}
             <div style={{ textAlign: 'center' }}>
-              <Paragraph style={{ fontSize: '20px', marginBottom: '24px' }}>
-                Drag and Drop на изображении
-              </Paragraph>
-              <div style={{ 
-                backgroundColor: '#f5f5f5', 
-                padding: '32px', 
-                borderRadius: '8px',
-                textAlign: 'center',
-                color: '#666',
-                maxWidth: '600px',
-                margin: '0 auto',
-              }}>
+              <Paragraph style={{ fontSize: '20px', marginBottom: '24px' }}>Drag and Drop на изображении</Paragraph>
+              <div
+                style={{
+                  backgroundColor: '#f5f5f5',
+                  padding: '32px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: '#666',
+                  maxWidth: '600px',
+                  margin: '0 auto',
+                }}
+              >
                 Интерактивные элементы drag and drop будут отображаться здесь
               </div>
             </div>
@@ -302,8 +312,8 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
       onCancel={onClose}
       width="90vw"
       style={{ top: 20 }}
-      bodyStyle={{ 
-        padding: 0, 
+      bodyStyle={{
+        padding: 0,
         height: '80vh',
         position: 'relative',
       }}
@@ -311,72 +321,62 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
       closable={false}
     >
       {/* Прогресс бар */}
-      <div style={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        zIndex: 1000,
-        padding: '8px 16px',
-        backgroundColor: 'rgba(0,0,0,0.8)',
-        color: 'white',
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          padding: '8px 16px',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          color: 'white',
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>
             {getSlideIcon(currentSlide?.type)} Слайд {currentSlideIndex + 1} из {slides.length}
           </span>
-          <Progress 
-            percent={progress} 
-            size="small" 
-            showInfo={false}
-            strokeColor="#1890ff"
-            style={{ width: 200 }}
-          />
+          <Progress percent={progress} size="small" showInfo={false} strokeColor="#1890ff" style={{ width: 200 }} />
           <Space>
-            <Button 
-              type="text" 
+            <Button
+              type="text"
               icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
               onClick={() => setIsFullscreen(!isFullscreen)}
               style={{ color: 'white' }}
             />
-            <Button 
-              type="text" 
-              icon={<CloseOutlined />}
-              onClick={onClose}
-              style={{ color: 'white' }}
-            />
+            <Button type="text" icon={<CloseOutlined />} onClick={onClose} style={{ color: 'white' }} />
           </Space>
         </div>
       </div>
 
       {/* Контент слайда */}
-      <div style={{ 
-        height: '100%', 
-        paddingTop: '60px',
-        position: 'relative',
-      }}>
+      <div
+        style={{
+          height: '100%',
+          paddingTop: '60px',
+          position: 'relative',
+        }}
+      >
         {renderSlideContent()}
       </div>
 
       {/* Навигационные кнопки */}
-      <div style={{ 
-        position: 'absolute', 
-        bottom: '20px', 
-        left: '50%', 
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+        }}
+      >
         <Space>
-          <Button 
-            icon={<LeftOutlined />} 
-            onClick={handlePrevious}
-            disabled={currentSlideIndex === 0}
-            size="large"
-          >
+          <Button icon={<LeftOutlined />} onClick={handlePrevious} disabled={currentSlideIndex === 0} size="large">
             Предыдущий
           </Button>
-          <Button 
-            icon={<RightOutlined />} 
+          <Button
+            icon={<RightOutlined />}
             onClick={handleNext}
             disabled={currentSlideIndex === slides.length - 1}
             size="large"
@@ -387,16 +387,18 @@ const SlidePresentation: React.FC<SlidePresentationProps> = ({
       </div>
 
       {/* Подсказки */}
-      <div style={{ 
-        position: 'absolute', 
-        bottom: '80px', 
-        left: '50%', 
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-        color: '#666',
-        fontSize: '12px',
-        textAlign: 'center',
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          color: '#666',
+          fontSize: '12px',
+          textAlign: 'center',
+        }}
+      >
         Используйте стрелки ← → для навигации, ESC для выхода
       </div>
     </Modal>

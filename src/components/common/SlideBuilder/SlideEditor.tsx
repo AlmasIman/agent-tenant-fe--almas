@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Button, Space, Tabs, Switch, Slider, Row, Col, Upload, message, Card, Typography } from 'antd';
-import { SaveOutlined, CloseOutlined, UploadOutlined, PlusOutlined, MinusCircleOutlined, EditOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Select, Button, Space, Tabs, Switch, Slider, Row, Col, message, Card } from 'antd';
+import { SaveOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, EditOutlined } from '@ant-design/icons';
 import RichEditor from '@app/components/common/RichEditor';
 import FillWordsPreview from './FillWordsPreview';
 import FlashcardsPreview from './FlashcardsPreview';
@@ -27,13 +27,82 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
   const [imageEditorVisible, setImageEditorVisible] = useState(false);
   const [imageEditorData, setImageEditorData] = useState<{ imageData: string; textElements: any[] } | null>(null);
   const [imageDragDropEditorVisible, setImageDragDropEditorVisible] = useState(false);
-  const [imageDragDropData, setImageDragDropData] = useState<{ imageUrl: string; dropZones: any[]; draggableItems: any[] } | null>(null);
+  const [imageDragDropData, setImageDragDropData] = useState<{
+    imageUrl: string;
+    dropZones: any[];
+    draggableItems: any[];
+  } | null>(null);
 
   useEffect(() => {
     let content = slide.content;
     let fillWordsText = '';
     let fillWordsHints = '';
-    
+
+    // Обработка загрузки данных для простых типов слайдов
+    if (slide.type === SlideType.TEXT && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        content = parsed.text || slide.content;
+      } catch (error) {
+        // Если не JSON, используем как есть
+        content = slide.content;
+      }
+    }
+
+    if (slide.type === SlideType.IMAGE && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        if (parsed.imageData && parsed.textElements) {
+          // Если есть данные из ImageTextEditor
+          content = parsed.imageUrl || '';
+          setImageEditorData({
+            imageData: parsed.imageData,
+            textElements: parsed.textElements,
+          });
+        } else {
+          // Простое изображение
+          content = parsed.url || slide.content;
+        }
+      } catch (error) {
+        // Если не JSON, используем как есть
+        content = slide.content;
+      }
+    }
+
+    if (slide.type === SlideType.VIDEO && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        content = parsed.url || slide.content;
+      } catch (error) {
+        // Если не JSON, используем как есть
+        content = slide.content;
+      }
+    }
+
+    if (slide.type === SlideType.CODE && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        content = parsed.code || slide.content;
+        // Устанавливаем язык программирования
+        form.setFieldsValue({
+          codeLanguage: parsed.language || 'javascript',
+        });
+      } catch (error) {
+        // Если не JSON, используем как есть
+        content = slide.content;
+      }
+    }
+
+    if (slide.type === SlideType.EMBED && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        content = parsed.url || slide.content;
+      } catch (error) {
+        // Если не JSON, используем как есть
+        content = slide.content;
+      }
+    }
+
     // Обработка загрузки данных для специальных типов
     if (slide.type === SlideType.FILL_WORDS && slide.content) {
       try {
@@ -41,7 +110,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         if (parsed.fillWords) {
           content = parsed.fillWords.text || '';
           fillWordsText = parsed.fillWords.text || '';
-          
+
           // Преобразуем подсказки обратно в текстовый формат
           fillWordsHints = (parsed.fillWords.blanks || [])
             .map((blank: any) => `${blank.word}: ${blank.hint || ''}`)
@@ -51,18 +120,18 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         console.error('Error parsing fill words content:', error);
       }
     }
-    
+
     if (slide.type === SlideType.FLASHCARDS && slide.content) {
       try {
         const parsed = JSON.parse(slide.content);
         if (parsed.flashcards) {
           content = '';
-          
+
           // Преобразуем карточки обратно в текстовый формат
           const cardsText = (parsed.flashcards.cards || [])
             .map((card: any) => `${card.front} | ${card.back} | ${card.category} | ${card.difficulty}`)
             .join('\n');
-          
+
           content = cardsText;
           setPreviewText(cardsText);
         }
@@ -70,23 +139,23 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         console.error('Error parsing flashcards content:', error);
       }
     }
-    
+
     if (slide.type === SlideType.QUIZ && slide.content) {
       try {
         const parsed = JSON.parse(slide.content);
         if (parsed.quiz) {
           content = '';
-          
+
           // Преобразуем вопросы в формат для формы
           const quizQuestions = (parsed.quiz.questions || []).map((question: any) => ({
             question: question.question || '',
             options: question.options.map((option: string, index: number) => ({
               text: option,
-              correct: index === question.correctAnswer
+              correct: index === question.correctAnswer,
             })),
-            explanation: question.explanation || ''
+            explanation: question.explanation || '',
           }));
-          
+
           // Устанавливаем данные для формы
           form.setFieldsValue({
             quizQuestions: quizQuestions,
@@ -98,7 +167,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         console.error('Error parsing quiz content:', error);
       }
     }
-    
+
     if (slide.type === SlideType.IMAGE && slide.content) {
       try {
         const parsed = JSON.parse(slide.content);
@@ -107,7 +176,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           content = parsed.imageUrl || '';
           setImageEditorData({
             imageData: parsed.imageData,
-            textElements: parsed.textElements
+            textElements: parsed.textElements,
           });
         } else {
           // Простое изображение
@@ -118,7 +187,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         content = slide.content;
       }
     }
-    
+
     if (slide.type === SlideType.IMAGE_DRAG_DROP && slide.content) {
       try {
         const parsed = JSON.parse(slide.content);
@@ -127,27 +196,43 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           setImageDragDropData({
             imageUrl: parsed.imageDragDrop.imageUrl,
             dropZones: parsed.imageDragDrop.dropZones || [],
-            draggableItems: parsed.imageDragDrop.draggableItems || []
+            draggableItems: parsed.imageDragDrop.draggableItems || [],
           });
         } else {
-          content = slide.content;
+          content = parsed.imageUrl || slide.content;
         }
       } catch (error) {
         content = slide.content;
       }
     }
-    
+
     form.setFieldsValue({
       title: slide.title,
       type: slide.type,
       content: content,
       fillWordsText: fillWordsText,
       fillWordsHints: fillWordsHints,
-      fillWordsShowHints: slide.content ? JSON.parse(slide.content)?.fillWords?.showHints : false,
-      fillWordsCaseSensitive: slide.content ? JSON.parse(slide.content)?.fillWords?.caseSensitive : false,
+      fillWordsShowHints: slide.content
+        ? (() => {
+            try {
+              return JSON.parse(slide.content)?.fillWords?.showHints || false;
+            } catch {
+              return false;
+            }
+          })()
+        : false,
+      fillWordsCaseSensitive: slide.content
+        ? (() => {
+            try {
+              return JSON.parse(slide.content)?.fillWords?.caseSensitive || false;
+            } catch {
+              return false;
+            }
+          })()
+        : false,
       ...slide.settings,
     });
-    
+
     // Обновляем предварительный просмотр
     setPreviewText(fillWordsText);
     setPreviewHints(fillWordsHints);
@@ -156,69 +241,108 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      
+
       // Обработка специальных типов слайдов
       let processedContent = values.content;
-      
+
+      if (values.type === SlideType.TEXT) {
+        // Для текстовых слайдов сохраняем как JSON с полем text
+        processedContent = JSON.stringify({ text: values.content || '' });
+      }
+
+      if (values.type === SlideType.IMAGE) {
+        // Для изображений сохраняем как JSON с полем url
+        if (imageEditorData) {
+          processedContent = JSON.stringify({
+            imageUrl: values.content, // URL изображения
+            imageData: imageEditorData.imageData, // Данные изображения с текстом
+            textElements: imageEditorData.textElements, // Текстовые элементы
+          });
+        } else {
+          // Простое изображение без текста
+          processedContent = JSON.stringify({ url: values.content || '' });
+        }
+      }
+
+      if (values.type === SlideType.VIDEO) {
+        // Для видео сохраняем как JSON с полем url
+        processedContent = JSON.stringify({ url: values.content || '' });
+      }
+
+      if (values.type === SlideType.CODE) {
+        // Для кода сохраняем как JSON с полями language и code
+        processedContent = JSON.stringify({
+          language: values.codeLanguage || 'javascript',
+          code: values.content || '',
+        });
+      }
+
+      if (values.type === SlideType.EMBED) {
+        // Для встраиваемого контента сохраняем как JSON с полем url
+        processedContent = JSON.stringify({ url: values.content || '' });
+      }
+
       if (values.type === SlideType.FILL_WORDS) {
         const text = values.fillWordsText || '';
         const hintsText = values.fillWordsHints || '';
         const showHints = values.fillWordsShowHints || false;
         const caseSensitive = values.fillWordsCaseSensitive || false;
-        
+
         // Парсим подсказки из текста
-        const hints = hintsText.split('\n')
-          .filter(line => line.trim())
+        const hints = hintsText
+          .split('\n')
+          .filter((line: string) => line.trim())
           .map((line: string, index: number) => {
             const [word, hint] = line.split(':').map((s: string) => s.trim());
             return {
               id: (index + 1).toString(),
               word: word || '',
               hint: hint || '',
-              position: text.indexOf('___')
+              position: text.indexOf('___'),
             };
           })
-          .filter(hint => hint.word);
-        
+          .filter((hint: { word: any }) => hint.word);
+
         // Находим все пропуски в тексте
         const blanks = [];
         let position = 0;
         let blankIndex = 0;
-        
+
         while (true) {
           const blankPos = text.indexOf('___', position);
           if (blankPos === -1) break;
-          
+
           const hint = hints[blankIndex] || { word: '', hint: '' };
           blanks.push({
             id: (blankIndex + 1).toString(),
             word: hint.word,
             hint: hint.hint,
-            position: blankPos
+            position: blankPos,
           });
-          
+
           position = blankPos + 3;
           blankIndex++;
         }
-        
+
         processedContent = JSON.stringify({
           fillWords: {
             text: text,
             blanks: blanks,
             showHints: showHints,
-            caseSensitive: caseSensitive
-          }
+            caseSensitive: caseSensitive,
+          },
         });
       }
-      
+
       if (values.type === SlideType.FLASHCARDS) {
         const content = values.flashcardsContent || '';
         const shuffle = values.flashcardsShuffle || false;
         const showProgress = values.flashcardsShowProgress || false;
-        
+
         // Парсим карточки из текста
-        const cards = content.split('\n')
-          .filter(line => line.trim() && line.includes('|'))
+        const cards = content
+          .split('\n')
+          .filter((line: string) => line.trim() && line.includes('|'))
           .map((line: string, index: number) => {
             const parts = line.split('|').map((part: string) => part.trim());
             return {
@@ -226,59 +350,50 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               front: parts[0] || '',
               back: parts[1] || '',
               category: parts[2] || 'Общее',
-              difficulty: parts[3] || 'Легко'
+              difficulty: parts[3] || 'Легко',
             };
           });
-        
+
         processedContent = JSON.stringify({
           flashcards: {
             cards: cards,
             shuffle: shuffle,
-            showProgress: showProgress
-          }
+            showProgress: showProgress,
+          },
         });
       }
-      
+
       if (values.type === SlideType.QUIZ) {
         const questions = values.quizQuestions || [];
         const shuffle = values.quizShuffle || false;
         const showExplanation = values.quizShowExplanation || false;
-        
+
         // Преобразуем данные формы в нужный формат
         const processedQuestions = questions.map((question: any, index: number) => {
-          const correctAnswerIndex = question.options.findIndex((option: any) => option.correct);
+          // Handle multiple correct answers
+          const correctIndices = question.options
+            .map((option: any, optionIndex: number) => (option.correct ? optionIndex : -1))
+            .filter((index: number) => index !== -1);
+
           return {
             id: (index + 1).toString(),
             question: question.question || '',
             options: question.options.map((option: any) => option.text || ''),
-            correctAnswer: correctAnswerIndex !== -1 ? correctAnswerIndex : 0,
-            explanation: question.explanation || ''
+            correctAnswer: correctIndices.length > 0 ? correctIndices[0] : 0, // For backward compatibility
+            correct_indices: correctIndices, // For new format
+            explanation: question.explanation || '',
           };
         });
-        
+
         processedContent = JSON.stringify({
           quiz: {
             questions: processedQuestions,
             shuffle: shuffle,
-            showExplanation: showExplanation
-          }
+            showExplanation: showExplanation,
+          },
         });
       }
-      
-      if (values.type === SlideType.IMAGE) {
-        // Если есть данные из ImageTextEditor, используем их
-        if (imageEditorData) {
-          processedContent = JSON.stringify({
-            imageUrl: values.content, // URL изображения
-            imageData: imageEditorData.imageData, // Данные изображения с текстом
-            textElements: imageEditorData.textElements // Текстовые элементы
-          });
-        } else {
-          // Простое изображение без текста
-          processedContent = values.content;
-        }
-      }
-      
+
       if (values.type === SlideType.IMAGE_DRAG_DROP) {
         // Если есть данные из ImageDragDropEditor, используем их
         if (imageDragDropData) {
@@ -286,15 +401,15 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
             imageDragDrop: {
               imageUrl: values.content, // URL изображения
               dropZones: imageDragDropData.dropZones,
-              draggableItems: imageDragDropData.draggableItems
-            }
+              draggableItems: imageDragDropData.draggableItems,
+            },
           });
         } else {
           // Простое изображение без drag and drop
-          processedContent = values.content;
+          processedContent = JSON.stringify({ imageUrl: values.content || '' });
         }
       }
-      
+
       const updatedSlide: Slide = {
         ...currentSlide,
         title: values.title,
@@ -322,6 +437,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         },
         metadata: {
           ...currentSlide.metadata,
+          createdAt: currentSlide.metadata?.createdAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
       };
@@ -349,30 +465,30 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
             <Form.Item name="content" label="URL изображения">
               <Input placeholder="Введите URL изображения" />
             </Form.Item>
-            
+
             <Form.Item label="Редактор изображений с текстом">
               <Space direction="vertical" style={{ width: '100%' }}>
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   icon={<EditOutlined />}
                   onClick={() => setImageEditorVisible(true)}
                   style={{ width: '100%' }}
                 >
                   Открыть редактор изображений
                 </Button>
-                
+
                 {imageEditorData && (
                   <Card size="small" style={{ marginTop: '8px' }}>
                     <div style={{ textAlign: 'center' }}>
-                      <img 
-                        src={imageEditorData.imageData} 
-                        alt="Preview" 
-                        style={{ 
-                          maxWidth: '100%', 
-                          maxHeight: '200px', 
+                      <img
+                        src={imageEditorData.imageData}
+                        alt="Preview"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '200px',
                           borderRadius: '8px',
-                          border: '1px solid #d9d9d9'
-                        }} 
+                          border: '1px solid #d9d9d9',
+                        }}
                       />
                       <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
                         Изображение с {imageEditorData.textElements.length} текстовыми элементами
@@ -425,13 +541,15 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
       case SlideType.QUIZ:
         return (
           <>
-            <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '12px',
-              padding: '16px',
-              marginBottom: '20px',
-              color: 'white',
-            }}>
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '20px',
+                color: 'white',
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
                 <span style={{ fontSize: '20px', marginRight: '8px' }}>❓</span>
                 <span style={{ fontWeight: '600', fontSize: '16px' }}>Викторина</span>
@@ -476,7 +594,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                         label="Вопрос"
                         rules={[{ required: true, message: 'Введите вопрос' }]}
                       >
-                        <Input 
+                        <Input
                           placeholder="Введите текст вопроса"
                           style={{
                             borderRadius: '8px',
@@ -497,31 +615,36 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                       <Form.List name={[name, 'options']}>
                         {(optionFields, { add: addOption, remove: removeOption }) => (
                           <>
-                                                         <div style={{ marginBottom: '12px' }}>
-                               <span style={{ fontWeight: '500', color: '#262626' }}>Варианты ответов:</span>
-                             </div>
+                            <div style={{ marginBottom: '12px' }}>
+                              <span style={{ fontWeight: '500', color: '#262626' }}>Варианты ответов:</span>
+                            </div>
                             {optionFields.map(({ key: optionKey, name: optionName, ...optionRestField }) => (
-                              <div key={optionKey} style={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                gap: '8px',
-                                marginBottom: '8px',
-                                padding: '8px',
-                                background: '#fafafa',
-                                borderRadius: '8px',
-                              }}>
-                                <div style={{
-                                  width: '24px',
-                                  height: '24px',
-                                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                  borderRadius: '50%',
+                              <div
+                                key={optionKey}
+                                style={{
                                   display: 'flex',
                                   alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: 'white',
-                                  fontWeight: 'bold',
-                                  fontSize: '12px',
-                                }}>
+                                  gap: '8px',
+                                  marginBottom: '8px',
+                                  padding: '8px',
+                                  background: '#fafafa',
+                                  borderRadius: '8px',
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: '24px',
+                                    height: '24px',
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    fontSize: '12px',
+                                  }}
+                                >
                                   {String.fromCharCode(65 + optionName)}
                                 </div>
                                 <Form.Item
@@ -530,7 +653,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                                   rules={[{ required: true, message: 'Введите вариант ответа' }]}
                                   style={{ flex: 1, marginBottom: 0 }}
                                 >
-                                  <Input 
+                                  <Input
                                     placeholder={`Вариант ${String.fromCharCode(65 + optionName)}`}
                                     style={{
                                       borderRadius: '8px',
@@ -553,8 +676,8 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                                   valuePropName="checked"
                                   style={{ marginBottom: 0 }}
                                 >
-                                  <Switch 
-                                    checkedChildren="✓" 
+                                  <Switch
+                                    checkedChildren="✓"
                                     unCheckedChildren="✗"
                                     style={{ backgroundColor: '#52c41a' }}
                                   />
@@ -569,10 +692,10 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                                 />
                               </div>
                             ))}
-                            <Button 
-                              type="dashed" 
-                              onClick={() => addOption()} 
-                              block 
+                            <Button
+                              type="dashed"
+                              onClick={() => addOption()}
+                              block
                               icon={<PlusOutlined />}
                               style={{
                                 borderRadius: '8px',
@@ -587,12 +710,8 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                         )}
                       </Form.List>
 
-                      <Form.Item
-                        {...restField}
-                        name={[name, 'explanation']}
-                        label="Объяснение (необязательно)"
-                      >
-                        <TextArea 
+                      <Form.Item {...restField} name={[name, 'explanation']} label="Объяснение (необязательно)">
+                        <TextArea
                           rows={2}
                           placeholder="Объяснение правильного ответа"
                           style={{
@@ -612,10 +731,10 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                       </Form.Item>
                     </Card>
                   ))}
-                  <Button 
-                    type="dashed" 
-                    onClick={() => add()} 
-                    block 
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
                     icon={<PlusOutlined />}
                     style={{
                       borderRadius: '12px',
@@ -631,38 +750,27 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               )}
             </Form.List>
 
-            <div style={{
-              display: 'flex',
-              gap: '16px',
-              marginBottom: '20px',
-            }}>
-              <Form.Item 
-                name="quizShuffle" 
-                label="Перемешивать вопросы" 
-                valuePropName="checked"
-                style={{ flex: 1 }}
-              >
-                <Switch 
-                  checkedChildren="Да" 
-                  unCheckedChildren="Нет"
-                  style={{ backgroundColor: '#52c41a' }}
-                />
+            <div
+              style={{
+                display: 'flex',
+                gap: '16px',
+                marginBottom: '20px',
+              }}
+            >
+              <Form.Item name="quizShuffle" label="Перемешивать вопросы" valuePropName="checked" style={{ flex: 1 }}>
+                <Switch checkedChildren="Да" unCheckedChildren="Нет" style={{ backgroundColor: '#52c41a' }} />
               </Form.Item>
-              
-              <Form.Item 
-                name="quizShowExplanation" 
-                label="Показывать объяснения" 
+
+              <Form.Item
+                name="quizShowExplanation"
+                label="Показывать объяснения"
                 valuePropName="checked"
                 style={{ flex: 1 }}
               >
-                <Switch 
-                  checkedChildren="Да" 
-                  unCheckedChildren="Нет"
-                  style={{ backgroundColor: '#1890ff' }}
-                />
+                <Switch checkedChildren="Да" unCheckedChildren="Нет" style={{ backgroundColor: '#1890ff' }} />
               </Form.Item>
             </div>
-            
+
             {/* Предварительный просмотр не нужен для интерактивной формы */}
           </>
         );
@@ -696,8 +804,8 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           <>
             <Form.Item name="gameType" label="Тип игры">
               <Select placeholder="Выберите тип игры">
-                <Option value="memory">Игра "Память"</Option>
-                <Option value="puzzle">Пазл "15"</Option>
+                <Option value="memory">Игра &quot;Память&quot;</Option>
+                <Option value="puzzle">Пазл &quot;15&quot;</Option>
                 <Option value="dragdrop">Перетаскивание</Option>
                 <Option value="matching">Сопоставление</Option>
               </Select>
@@ -763,13 +871,15 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
       case SlideType.FLASHCARDS:
         return (
           <>
-            <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '12px',
-              padding: '16px',
-              marginBottom: '20px',
-              color: 'white',
-            }}>
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '20px',
+                color: 'white',
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
                 <span style={{ fontSize: '20px', marginRight: '8px' }}>📚</span>
                 <span style={{ fontWeight: '600', fontSize: '16px' }}>Флеш-карточки</span>
@@ -779,16 +889,14 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               </span>
             </div>
 
-            <Form.Item 
-              name="flashcardsContent" 
+            <Form.Item
+              name="flashcardsContent"
               label={
-                <span style={{ fontWeight: '600', color: '#262626' }}>
-                  📝 Карточки (каждая строка = одна карточка)
-                </span>
+                <span style={{ fontWeight: '600', color: '#262626' }}>📝 Карточки (каждая строка = одна карточка)</span>
               }
             >
-              <TextArea 
-                rows={8} 
+              <TextArea
+                rows={8}
                 placeholder="Вопрос | Ответ | Категория | Сложность
 
 Примеры:
@@ -813,55 +921,49 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               />
             </Form.Item>
 
-            <div style={{
-              display: 'flex',
-              gap: '16px',
-              marginBottom: '20px',
-            }}>
-              <Form.Item 
-                name="flashcardsShuffle" 
-                label="Перемешивать карточки" 
+            <div
+              style={{
+                display: 'flex',
+                gap: '16px',
+                marginBottom: '20px',
+              }}
+            >
+              <Form.Item
+                name="flashcardsShuffle"
+                label="Перемешивать карточки"
                 valuePropName="checked"
                 style={{ flex: 1 }}
               >
-                <Switch 
-                  checkedChildren="Да" 
-                  unCheckedChildren="Нет"
-                  style={{ backgroundColor: '#52c41a' }}
-                />
+                <Switch checkedChildren="Да" unCheckedChildren="Нет" style={{ backgroundColor: '#52c41a' }} />
               </Form.Item>
-              
-              <Form.Item 
-                name="flashcardsShowProgress" 
-                label="Показывать прогресс" 
+
+              <Form.Item
+                name="flashcardsShowProgress"
+                label="Показывать прогресс"
                 valuePropName="checked"
                 style={{ flex: 1 }}
               >
-                <Switch 
-                  checkedChildren="Да" 
-                  unCheckedChildren="Нет"
-                  style={{ backgroundColor: '#1890ff' }}
-                />
+                <Switch checkedChildren="Да" unCheckedChildren="Нет" style={{ backgroundColor: '#1890ff' }} />
               </Form.Item>
             </div>
-            
+
             {/* Предварительный просмотр флеш-карточек */}
-            <FlashcardsPreview 
-              content={previewText} 
-            />
+            <FlashcardsPreview content={previewText} />
           </>
         );
 
       case SlideType.FILL_WORDS:
         return (
           <>
-            <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '12px',
-              padding: '16px',
-              marginBottom: '20px',
-              color: 'white',
-            }}>
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '20px',
+                color: 'white',
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
                 <span style={{ fontSize: '20px', marginRight: '8px' }}>📝</span>
                 <span style={{ fontWeight: '600', fontSize: '16px' }}>Заполнение пропусков</span>
@@ -871,16 +973,12 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               </span>
             </div>
 
-            <Form.Item 
-              name="fillWordsText" 
-              label={
-                <span style={{ fontWeight: '600', color: '#262626' }}>
-                  📄 Исходный текст
-                </span>
-              }
+            <Form.Item
+              name="fillWordsText"
+              label={<span style={{ fontWeight: '600', color: '#262626' }}>📄 Исходный текст</span>}
             >
-              <TextArea 
-                rows={6} 
+              <TextArea
+                rows={6}
                 placeholder="Введите текст с пропусками. Используйте ___ для обозначения пропусков."
                 style={{
                   borderRadius: '8px',
@@ -898,16 +996,14 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               />
             </Form.Item>
 
-            <Form.Item 
-              name="fillWordsHints" 
+            <Form.Item
+              name="fillWordsHints"
               label={
-                <span style={{ fontWeight: '600', color: '#262626' }}>
-                  💡 Подсказки (каждая строка = одно слово)
-                </span>
+                <span style={{ fontWeight: '600', color: '#262626' }}>💡 Подсказки (каждая строка = одно слово)</span>
               }
             >
-              <TextArea 
-                rows={4} 
+              <TextArea
+                rows={4}
                 placeholder="правильное_слово: Подсказка для этого слова
 второе_слово: Подсказка для второго слова
 третье_слово: Подсказка для третьего слова"
@@ -927,43 +1023,34 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               />
             </Form.Item>
 
-            <div style={{
-              display: 'flex',
-              gap: '16px',
-              marginBottom: '20px',
-            }}>
-              <Form.Item 
-                name="fillWordsShowHints" 
-                label="Показывать подсказки" 
+            <div
+              style={{
+                display: 'flex',
+                gap: '16px',
+                marginBottom: '20px',
+              }}
+            >
+              <Form.Item
+                name="fillWordsShowHints"
+                label="Показывать подсказки"
                 valuePropName="checked"
                 style={{ flex: 1 }}
               >
-                <Switch 
-                  checkedChildren="Да" 
-                  unCheckedChildren="Нет"
-                  style={{ backgroundColor: '#52c41a' }}
-                />
+                <Switch checkedChildren="Да" unCheckedChildren="Нет" style={{ backgroundColor: '#52c41a' }} />
               </Form.Item>
-              
-              <Form.Item 
-                name="fillWordsCaseSensitive" 
-                label="Учитывать регистр" 
+
+              <Form.Item
+                name="fillWordsCaseSensitive"
+                label="Учитывать регистр"
                 valuePropName="checked"
                 style={{ flex: 1 }}
               >
-                <Switch 
-                  checkedChildren="Да" 
-                  unCheckedChildren="Нет"
-                  style={{ backgroundColor: '#1890ff' }}
-                />
+                <Switch checkedChildren="Да" unCheckedChildren="Нет" style={{ backgroundColor: '#1890ff' }} />
               </Form.Item>
             </div>
-            
+
             {/* Предварительный просмотр */}
-            <FillWordsPreview 
-              text={previewText} 
-              hints={previewHints} 
-            />
+            <FillWordsPreview text={previewText} hints={previewHints} />
           </>
         );
 
@@ -973,30 +1060,30 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
             <Form.Item name="content" label="URL изображения">
               <Input placeholder="Введите URL изображения для drag and drop" />
             </Form.Item>
-            
+
             <Form.Item label="Редактор Drag and Drop">
               <Space direction="vertical" style={{ width: '100%' }}>
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   icon={<EditOutlined />}
                   onClick={() => setImageDragDropEditorVisible(true)}
                   style={{ width: '100%' }}
                 >
                   Открыть редактор Drag and Drop
                 </Button>
-                
+
                 {imageDragDropData && (
                   <Card size="small" style={{ marginTop: '8px' }}>
                     <div style={{ textAlign: 'center' }}>
-                      <img 
-                        src={imageDragDropData.imageUrl} 
-                        alt="Preview" 
-                        style={{ 
-                          maxWidth: '100%', 
-                          maxHeight: '200px', 
+                      <img
+                        src={imageDragDropData.imageUrl}
+                        alt="Preview"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '200px',
                           borderRadius: '8px',
-                          border: '1px solid #d9d9d9'
-                        }} 
+                          border: '1px solid #d9d9d9',
+                        }}
                       />
                       <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
                         {imageDragDropData.dropZones.length} зон, {imageDragDropData.draggableItems.length} элементов
@@ -1128,11 +1215,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                 <Input placeholder="Введите заголовок слайда" />
               </Form.Item>
 
-              <Form.Item
-                name="type"
-                label="Тип слайда"
-                rules={[{ required: true, message: 'Выберите тип слайда' }]}
-              >
+              <Form.Item name="type" label="Тип слайда" rules={[{ required: true, message: 'Выберите тип слайда' }]}>
                 <Select onChange={(value) => setCurrentSlide({ ...currentSlide, type: value })}>
                   <Option value={SlideType.TEXT}>Текст</Option>
                   <Option value={SlideType.IMAGE}>Изображение</Option>
@@ -1145,9 +1228,9 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                   <Option value={SlideType.INTERACTIVE}>Интерактивный</Option>
                   <Option value={SlideType.ACHIEVEMENT}>Достижение</Option>
                   <Option value={SlideType.PROGRESS}>Прогресс</Option>
-                                  <Option value={SlideType.FLASHCARDS}>Флеш-карточки</Option>
-                <Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Option>
-                <Option value={SlideType.IMAGE_DRAG_DROP}>Drag & Drop на изображении</Option>
+                  <Option value={SlideType.FLASHCARDS}>Флеш-карточки</Option>
+                  <Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Option>
+                  <Option value={SlideType.IMAGE_DRAG_DROP}>Drag & Drop на изображении</Option>
                 </Select>
               </Form.Item>
 
@@ -1160,7 +1243,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           </Tabs>
         </Form>
       </Modal>
-      
+
       {/* Модальное окно ImageTextEditor */}
       <Modal
         title="Редактор изображений с текстом"
@@ -1180,7 +1263,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           initialTextElements={imageEditorData?.textElements || []}
         />
       </Modal>
-      
+
       {/* Модальное окно ImageDragDropEditor */}
       <Modal
         title="Редактор Drag and Drop на изображении"
@@ -1195,10 +1278,10 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           dropZones={imageDragDropData?.dropZones || []}
           draggableItems={imageDragDropData?.draggableItems || []}
           onSave={(dropZones, draggableItems) => {
-            setImageDragDropData({ 
-              imageUrl: form.getFieldValue('content'), 
-              dropZones, 
-              draggableItems 
+            setImageDragDropData({
+              imageUrl: form.getFieldValue('content'),
+              dropZones,
+              draggableItems,
             });
             setImageDragDropEditorVisible(false);
             message.success('Конфигурация Drag and Drop сохранена!');

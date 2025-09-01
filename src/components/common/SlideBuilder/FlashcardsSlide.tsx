@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Space, Typography, Progress, Badge, message } from 'antd';
-import { RotateLeftOutlined, RotateRightOutlined, ArrowLeftOutlined, ArrowRightOutlined, ReloadOutlined } from '@ant-design/icons';
+import {
+  RotateLeftOutlined,
+  RotateRightOutlined,
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -29,12 +35,12 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
       try {
         const content = JSON.parse(slide.content);
         let flashCards = content.flashcards?.cards || [];
-        
+
         if (content.flashcards?.shuffle) {
           flashCards = [...flashCards].sort(() => Math.random() - 0.5);
           setIsShuffled(true);
         }
-        
+
         setCards(flashCards);
       } catch (error) {
         console.error('Error parsing flashcards:', error);
@@ -53,7 +59,7 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
     if (currentCardIndex < cards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
       setIsFlipped(false);
-      setCompletedCards(prev => new Set([...prev, currentCard.id]));
+      setCompletedCards((prev) => new Set([...prev, currentCard.id]));
     } else {
       // Все карточки просмотрены
       const finalScore = Math.round((completedCards.size / cards.length) * 100);
@@ -80,19 +86,27 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
 
   const getDifficultyColor = (difficulty?: string) => {
     switch (difficulty) {
-      case 'easy': return 'green';
-      case 'medium': return 'orange';
-      case 'hard': return 'red';
-      default: return 'blue';
+      case 'easy':
+        return 'green';
+      case 'medium':
+        return 'orange';
+      case 'hard':
+        return 'red';
+      default:
+        return 'blue';
     }
   };
 
   const getDifficultyLabel = (difficulty?: string) => {
     switch (difficulty) {
-      case 'easy': return 'Легко';
-      case 'medium': return 'Средне';
-      case 'hard': return 'Сложно';
-      default: return 'Обычно';
+      case 'easy':
+        return 'Легко';
+      case 'medium':
+        return 'Средне';
+      case 'hard':
+        return 'Сложно';
+      default:
+        return 'Обычно';
     }
   };
 
@@ -106,32 +120,34 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      height: '100%',
-      padding: '20px',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        height: '100%',
+        padding: '20px',
+      }}
+    >
       {/* Заголовок и прогресс */}
       <div style={{ width: '100%', marginBottom: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <Title level={3} style={{ margin: 0 }}>Флеш-карточки</Title>
+          <Title level={3} style={{ margin: 0 }}>
+            Флеш-карточки
+          </Title>
           <Space>
-            {currentCard?.category && (
-              <Badge color="blue" text={currentCard.category} />
-            )}
+            {currentCard?.category && <Badge color="blue" text={currentCard.category} />}
             {currentCard?.difficulty && (
-              <Badge 
-                color={getDifficultyColor(currentCard.difficulty)} 
-                text={getDifficultyLabel(currentCard.difficulty)} 
+              <Badge
+                color={getDifficultyColor(currentCard.difficulty)}
+                text={getDifficultyLabel(currentCard.difficulty)}
               />
             )}
           </Space>
         </div>
-        
-        <Progress 
-          percent={Math.round(((currentCardIndex + 1) / cards.length) * 100)} 
+
+        <Progress
+          percent={Math.round(((currentCardIndex + 1) / cards.length) * 100)}
           showInfo={false}
           strokeColor="#1890ff"
         />
@@ -141,13 +157,15 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
       </div>
 
       {/* Карточка */}
-      <div style={{ 
-        position: 'relative', 
-        width: '100%', 
-        maxWidth: '500px',
-        height: '300px',
-        perspective: '1000px',
-      }}>
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: '500px',
+          height: '300px',
+          perspective: '1000px',
+        }}
+      >
         <div
           style={{
             width: '100%',
@@ -210,24 +228,21 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
       </div>
 
       {/* Навигация */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        gap: '16px', 
-        marginTop: '20px',
-        width: '100%',
-      }}>
-        <Button 
-          icon={<ArrowLeftOutlined />} 
-          onClick={handlePrevious}
-          disabled={currentCardIndex === 0}
-          size="large"
-        >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '16px',
+          marginTop: '20px',
+          width: '100%',
+        }}
+      >
+        <Button icon={<ArrowLeftOutlined />} onClick={handlePrevious} disabled={currentCardIndex === 0} size="large">
           Назад
         </Button>
 
-        <Button 
-          type="primary" 
+        <Button
+          type="primary"
           icon={isFlipped ? <RotateLeftOutlined /> : <RotateRightOutlined />}
           onClick={handleFlip}
           size="large"
@@ -235,8 +250,8 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
           {isFlipped ? 'Перевернуть обратно' : 'Перевернуть'}
         </Button>
 
-        <Button 
-          icon={<ArrowRightOutlined />} 
+        <Button
+          icon={<ArrowRightOutlined />}
           onClick={handleNext}
           disabled={currentCardIndex === cards.length - 1}
           size="large"
@@ -247,11 +262,7 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
 
       {/* Дополнительные действия */}
       <div style={{ marginTop: '16px' }}>
-        <Button 
-          icon={<ReloadOutlined />} 
-          onClick={handleShuffle}
-          type="dashed"
-        >
+        <Button icon={<ReloadOutlined />} onClick={handleShuffle} type="dashed">
           Перемешать карточки
         </Button>
       </div>

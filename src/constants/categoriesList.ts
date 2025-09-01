@@ -18,5 +18,4 @@ export const categoriesList: Category[] = [
     name: 'users',
     title: 'пользователи',
   },
-  
 ];

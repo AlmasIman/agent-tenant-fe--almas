@@ -16,28 +16,28 @@ export const testQuizExample: H5PQuiz = {
         {
           text: 'Вариант 1',
           correct: true,
-          feedback: 'Правильно! Это верный ответ.'
+          feedback: 'Правильно! Это верный ответ.',
         },
         {
           text: 'Вариант 2',
           correct: false,
-          feedback: 'Неправильно, попробуйте еще раз.'
+          feedback: 'Неправильно, попробуйте еще раз.',
         },
         {
           text: 'Вариант 3',
           correct: true,
-          feedback: 'Да, это тоже правильный ответ.'
+          feedback: 'Да, это тоже правильный ответ.',
         },
         {
           text: 'Вариант 4',
           correct: false,
-          feedback: 'Этот вариант неверный.'
-        }
+          feedback: 'Этот вариант неверный.',
+        },
       ],
       feedback: {
         correct: 'Отлично! Вы ответили правильно.',
-        incorrect: 'Есть ошибки, попробуйте еще раз.'
-      }
+        incorrect: 'Есть ошибки, попробуйте еще раз.',
+      },
     },
     {
       id: 'question_2',
@@ -49,34 +49,34 @@ export const testQuizExample: H5PQuiz = {
         {
           text: 'Первый вариант',
           correct: false,
-          feedback: 'Это неправильный ответ.'
+          feedback: 'Это неправильный ответ.',
         },
         {
           text: 'Второй вариант',
           correct: true,
-          feedback: 'Отлично! Это правильный ответ.'
+          feedback: 'Отлично! Это правильный ответ.',
         },
         {
           text: 'Третий вариант',
           correct: false,
-          feedback: 'Этот вариант неверный.'
+          feedback: 'Этот вариант неверный.',
         },
         {
           text: 'Четвертый вариант',
           correct: false,
-          feedback: 'Попробуйте еще раз.'
-        }
+          feedback: 'Попробуйте еще раз.',
+        },
       ],
       feedback: {
         correct: 'Поздравляем! Вы выбрали правильный ответ.',
-        incorrect: 'К сожалению, это неправильный ответ.'
-      }
-    }
+        incorrect: 'К сожалению, это неправильный ответ.',
+      },
+    },
   ],
   timeLimit: 10,
   passingScore: 70,
   shuffleQuestions: false,
   showResults: true,
   allowRetry: true,
-  maxAttempts: 3
+  maxAttempts: 3,
 };

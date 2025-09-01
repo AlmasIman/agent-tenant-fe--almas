@@ -29,25 +29,12 @@ const CreateSpaceModal: React.FC<CreateSpaceModalProps> = ({ visible, onCancel, 
   };
 
   return (
-    <Modal
-      title="Создать новое пространство"
-      open={visible}
-      onCancel={onCancel}
-      footer={null}
-      destroyOnClose
-    >
+    <Modal title="Создать новое пространство" open={visible} onCancel={onCancel} footer={null} destroyOnClose>
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item
-          name="name"
-          label="Название"
-          rules={[{ required: true, message: 'Введите название пространства' }]}
-        >
+        <Form.Item name="name" label="Название" rules={[{ required: true, message: 'Введите название пространства' }]}>
           <Input placeholder="Введите название" />
         </Form.Item>
-        <Form.Item
-          name="description"
-          label="Описание"
-        >
+        <Form.Item name="description" label="Описание">
           <Input.TextArea rows={3} placeholder="Введите описание (необязательно)" />
         </Form.Item>
         <Form.Item>
@@ -60,4 +47,4 @@ const CreateSpaceModal: React.FC<CreateSpaceModalProps> = ({ visible, onCancel, 
   );
 };
 
-export default CreateSpaceModal; 
+export default CreateSpaceModal;

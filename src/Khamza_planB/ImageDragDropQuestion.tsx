@@ -48,18 +48,19 @@ const DropZoneStyled = styled.div<{
   isIncorrect: boolean;
 }>`
   position: absolute;
-  left: ${props => props.x}%;
-  top: ${props => props.y}%;
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
-  border: 2px dashed ${props => {
-    if (props.isCorrect) return '#52c41a';
-    if (props.isIncorrect) return '#ff4d4f';
-    if (props.isHighlighted) return '#1890ff';
-    return '#d9d9d9';
-  }};
+  left: ${(props) => props.x}%;
+  top: ${(props) => props.y}%;
+  width: ${(props) => props.width}px;
+  height: ${(props) => props.height}px;
+  border: 2px dashed
+    ${(props) => {
+      if (props.isCorrect) return '#52c41a';
+      if (props.isIncorrect) return '#ff4d4f';
+      if (props.isHighlighted) return '#1890ff';
+      return '#d9d9d9';
+    }};
   border-radius: 4px;
-  background-color: ${props => {
+  background-color: ${(props) => {
     if (props.isCorrect) return 'rgba(82, 196, 26, 0.1)';
     if (props.isIncorrect) return 'rgba(255, 77, 79, 0.1)';
     if (props.isHighlighted) return 'rgba(24, 144, 255, 0.1)';
@@ -70,9 +71,9 @@ const DropZoneStyled = styled.div<{
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
-    background-color: ${props => {
+    background-color: ${(props) => {
       if (props.isCorrect || props.isIncorrect) return props.backgroundColor;
       return 'rgba(24, 144, 255, 0.2)';
     }};
@@ -85,7 +86,7 @@ const DropZoneLabel = styled.div<{
 }>`
   font-size: 12px;
   font-weight: bold;
-  color: ${props => {
+  color: ${(props) => {
     if (props.isCorrect) return '#52c41a';
     if (props.isIncorrect) return '#ff4d4f';
     return '#666';
@@ -105,36 +106,37 @@ const DraggableItemStyled = styled.div<{
 }>`
   padding: 8px 12px;
   margin: 4px;
-  background-color: ${props => {
+  background-color: ${(props) => {
     if (props.isCorrect) return '#f6ffed';
     if (props.isIncorrect) return '#fff2f0';
     if (props.isPlaced) return '#f0f8ff';
     return '#1890ff';
   }};
-  color: ${props => {
+  color: ${(props) => {
     if (props.isCorrect) return '#52c41a';
     if (props.isIncorrect) return '#ff4d4f';
     if (props.isPlaced) return '#1890ff';
     return 'white';
   }};
-  border: 2px solid ${props => {
-    if (props.isCorrect) return '#52c41a';
-    if (props.isIncorrect) return '#ff4d4f';
-    if (props.isPlaced) return '#1890ff';
-    return '#1890ff';
-  }};
+  border: 2px solid
+    ${(props) => {
+      if (props.isCorrect) return '#52c41a';
+      if (props.isIncorrect) return '#ff4d4f';
+      if (props.isPlaced) return '#1890ff';
+      return '#1890ff';
+    }};
   border-radius: 6px;
-  cursor: ${props => props.isDragging ? 'grabbing' : 'grab'};
+  cursor: ${(props) => (props.isDragging ? 'grabbing' : 'grab')};
   user-select: none;
   font-weight: 500;
   transition: all 0.3s ease;
-  opacity: ${props => props.isPlaced ? 0.6 : 1};
-  
+  opacity: ${(props) => (props.isPlaced ? 0.6 : 1)};
+
   &:hover {
-    transform: ${props => props.isDragging ? 'none' : 'translateY(-2px)'};
-    box-shadow: ${props => props.isDragging ? 'none' : '0 4px 8px rgba(0,0,0,0.1)'};
+    transform: ${(props) => (props.isDragging ? 'none' : 'translateY(-2px)')};
+    box-shadow: ${(props) => (props.isDragging ? 'none' : '0 4px 8px rgba(0,0,0,0.1)')};
   }
-  
+
   &:active {
     transform: scale(0.95);
   }
@@ -147,25 +149,26 @@ const PlacedItem = styled.div<{
   isIncorrect: boolean;
 }>`
   position: absolute;
-  left: ${props => props.x}%;
-  top: ${props => props.y}%;
+  left: ${(props) => props.x}%;
+  top: ${(props) => props.y}%;
   transform: translate(-50%, -50%);
   padding: 6px 10px;
-  background-color: ${props => {
+  background-color: ${(props) => {
     if (props.isCorrect) return '#f6ffed';
     if (props.isIncorrect) return '#fff2f0';
     return '#f0f8ff';
   }};
-  color: ${props => {
+  color: ${(props) => {
     if (props.isCorrect) return '#52c41a';
     if (props.isIncorrect) return '#ff4d4f';
     return '#1890ff';
   }};
-  border: 2px solid ${props => {
-    if (props.isCorrect) return '#52c41a';
-    if (props.isIncorrect) return '#ff4d4f';
-    return '#1890ff';
-  }};
+  border: 2px solid
+    ${(props) => {
+      if (props.isCorrect) return '#52c41a';
+      if (props.isIncorrect) return '#ff4d4f';
+      return '#1890ff';
+    }};
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
@@ -180,12 +183,13 @@ const ImageDragDropQuestion: React.FC<ImageDragDropQuestionProps> = ({
   onAnswerChange,
   currentAnswer = {},
   isAnswered = false,
-  showFeedback = false
+  showFeedback = false,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [draggedItem, setDraggedItem] = useState<DraggableItem | null>(null);
   const [highlightedZone, setHighlightedZone] = useState<string | null>(null);
-  const [placedItems, setPlacedItems] = useState<Record<string, { item: DraggableItem; zoneId: string }>>(currentAnswer);
+  const [placedItems, setPlacedItems] =
+    useState<Record<string, { item: DraggableItem; zoneId: string }>>(currentAnswer);
   const imageRef = useRef<HTMLImageElement>(null);
 
   const handleDragStart = useCallback((e: React.DragEvent, item: DraggableItem) => {
@@ -216,58 +220,67 @@ const ImageDragDropQuestion: React.FC<ImageDragDropQuestionProps> = ({
     setHighlightedZone(null);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent, zoneId: string) => {
-    e.preventDefault();
-    const itemId = e.dataTransfer.getData('text/plain');
-    const item = draggableItems.find(di => di.id === itemId);
-    
-    if (item) {
-      const newPlacedItems = { ...placedItems, [itemId]: { item, zoneId } };
-      setPlacedItems(newPlacedItems);
-      
-      // Преобразуем в формат для onAnswerChange
-      const answers: Record<string, string> = {};
-      Object.entries(newPlacedItems).forEach(([itemId, { zoneId }]) => {
-        answers[itemId] = zoneId;
-      });
-      
-      onAnswerChange(answers);
-    }
-    
-    setIsDragging(false);
-    setDraggedItem(null);
-    setHighlightedZone(null);
-  }, [placedItems, draggableItems, onAnswerChange]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent, zoneId: string) => {
+      e.preventDefault();
+      const itemId = e.dataTransfer.getData('text/plain');
+      const item = draggableItems.find((di) => di.id === itemId);
 
-  const handleZoneClick = useCallback((zoneId: string) => {
-    if (draggedItem) {
-      const newPlacedItems = { ...placedItems, [draggedItem.id]: { item: draggedItem, zoneId } };
-      setPlacedItems(newPlacedItems);
-      
-      const answers: Record<string, string> = {};
-      Object.entries(newPlacedItems).forEach(([itemId, { zoneId }]) => {
-        answers[itemId] = zoneId;
-      });
-      
-      onAnswerChange(answers);
+      if (item) {
+        const newPlacedItems = { ...placedItems, [itemId]: { item, zoneId } };
+        setPlacedItems(newPlacedItems);
+
+        // Преобразуем в формат для onAnswerChange
+        const answers: Record<string, string> = {};
+        Object.entries(newPlacedItems).forEach(([itemId, { zoneId }]) => {
+          answers[itemId] = zoneId;
+        });
+
+        onAnswerChange(answers);
+      }
+
       setIsDragging(false);
       setDraggedItem(null);
       setHighlightedZone(null);
-    }
-  }, [draggedItem, placedItems, onAnswerChange]);
+    },
+    [placedItems, draggableItems, onAnswerChange],
+  );
 
-  const handleRemoveItem = useCallback((itemId: string) => {
-    const newPlacedItems = { ...placedItems };
-    delete newPlacedItems[itemId];
-    setPlacedItems(newPlacedItems);
-    
-    const answers: Record<string, string> = {};
-    Object.entries(newPlacedItems).forEach(([itemId, { zoneId }]) => {
-      answers[itemId] = zoneId;
-    });
-    
-    onAnswerChange(answers);
-  }, [placedItems, onAnswerChange]);
+  const handleZoneClick = useCallback(
+    (zoneId: string) => {
+      if (draggedItem) {
+        const newPlacedItems = { ...placedItems, [draggedItem.id]: { item: draggedItem, zoneId } };
+        setPlacedItems(newPlacedItems);
+
+        const answers: Record<string, string> = {};
+        Object.entries(newPlacedItems).forEach(([itemId, { zoneId }]) => {
+          answers[itemId] = zoneId;
+        });
+
+        onAnswerChange(answers);
+        setIsDragging(false);
+        setDraggedItem(null);
+        setHighlightedZone(null);
+      }
+    },
+    [draggedItem, placedItems, onAnswerChange],
+  );
+
+  const handleRemoveItem = useCallback(
+    (itemId: string) => {
+      const newPlacedItems = { ...placedItems };
+      delete newPlacedItems[itemId];
+      setPlacedItems(newPlacedItems);
+
+      const answers: Record<string, string> = {};
+      Object.entries(newPlacedItems).forEach(([itemId, { zoneId }]) => {
+        answers[itemId] = zoneId;
+      });
+
+      onAnswerChange(answers);
+    },
+    [placedItems, onAnswerChange],
+  );
 
   const handleReset = useCallback(() => {
     setPlacedItems({});
@@ -275,13 +288,13 @@ const ImageDragDropQuestion: React.FC<ImageDragDropQuestionProps> = ({
   }, [onAnswerChange]);
 
   const isItemCorrect = (itemId: string, zoneId: string) => {
-    const item = draggableItems.find(di => di.id === itemId);
+    const item = draggableItems.find((di) => di.id === itemId);
     return item?.correctZoneId === zoneId;
   };
 
   const getAvailableItems = () => {
     const placedItemIds = Object.keys(placedItems);
-    return draggableItems.filter(item => !placedItemIds.includes(item.id));
+    return draggableItems.filter((item) => !placedItemIds.includes(item.id));
   };
 
   return (
@@ -291,14 +304,14 @@ const ImageDragDropQuestion: React.FC<ImageDragDropQuestionProps> = ({
           ref={imageRef}
           src={imageUrl}
           alt="Question"
-          style={{ 
-            maxWidth: '100%', 
+          style={{
+            maxWidth: '100%',
             height: 'auto',
-            display: 'block'
+            display: 'block',
           }}
           draggable={false}
         />
-        
+
         {/* Drop zones */}
         {dropZones.map((zone) => (
           <DropZoneStyled
@@ -308,12 +321,18 @@ const ImageDragDropQuestion: React.FC<ImageDragDropQuestionProps> = ({
             width={zone.width}
             height={zone.height}
             isHighlighted={highlightedZone === zone.id}
-            isCorrect={showFeedback && Object.entries(placedItems).some(([itemId, { zoneId }]) => 
-              zoneId === zone.id && isItemCorrect(itemId, zoneId)
-            )}
-            isIncorrect={showFeedback && Object.entries(placedItems).some(([itemId, { zoneId }]) => 
-              zoneId === zone.id && !isItemCorrect(itemId, zoneId)
-            )}
+            isCorrect={
+              showFeedback &&
+              Object.entries(placedItems).some(
+                ([itemId, { zoneId }]) => zoneId === zone.id && isItemCorrect(itemId, zoneId),
+              )
+            }
+            isIncorrect={
+              showFeedback &&
+              Object.entries(placedItems).some(
+                ([itemId, { zoneId }]) => zoneId === zone.id && !isItemCorrect(itemId, zoneId),
+              )
+            }
             onDragOver={(e) => handleZoneDragOver(e, zone.id)}
             onDragLeave={handleZoneDragLeave}
             onDrop={(e) => handleDrop(e, zone.id)}
@@ -321,24 +340,30 @@ const ImageDragDropQuestion: React.FC<ImageDragDropQuestionProps> = ({
           >
             {zone.label && (
               <DropZoneLabel
-                isCorrect={showFeedback && Object.entries(placedItems).some(([itemId, { zoneId }]) => 
-                  zoneId === zone.id && isItemCorrect(itemId, zoneId)
-                )}
-                isIncorrect={showFeedback && Object.entries(placedItems).some(([itemId, { zoneId }]) => 
-                  zoneId === zone.id && !isItemCorrect(itemId, zoneId)
-                )}
+                isCorrect={
+                  showFeedback &&
+                  Object.entries(placedItems).some(
+                    ([itemId, { zoneId }]) => zoneId === zone.id && isItemCorrect(itemId, zoneId),
+                  )
+                }
+                isIncorrect={
+                  showFeedback &&
+                  Object.entries(placedItems).some(
+                    ([itemId, { zoneId }]) => zoneId === zone.id && !isItemCorrect(itemId, zoneId),
+                  )
+                }
               >
                 {zone.label}
               </DropZoneLabel>
             )}
           </DropZoneStyled>
         ))}
-        
+
         {/* Placed items */}
         {Object.entries(placedItems).map(([itemId, { item, zoneId }]) => {
-          const zone = dropZones.find(z => z.id === zoneId);
+          const zone = dropZones.find((z) => z.id === zoneId);
           if (!zone) return null;
-          
+
           return (
             <PlacedItem
               key={itemId}
@@ -387,14 +412,10 @@ const ImageDragDropQuestion: React.FC<ImageDragDropQuestionProps> = ({
 
       {/* Controls */}
       <Space>
-        <Button 
-          icon={<ReloadOutlined />} 
-          onClick={handleReset}
-          disabled={Object.keys(placedItems).length === 0}
-        >
+        <Button icon={<ReloadOutlined />} onClick={handleReset} disabled={Object.keys(placedItems).length === 0}>
           Сбросить
         </Button>
-        
+
         {showFeedback && (
           <div style={{ marginTop: 16 }}>
             <Space>
@@ -407,9 +428,7 @@ const ImageDragDropQuestion: React.FC<ImageDragDropQuestionProps> = ({
                     ) : (
                       <CloseOutlined style={{ color: '#ff4d4f' }} />
                     )}
-                    <span style={{ color: isCorrect ? '#52c41a' : '#ff4d4f' }}>
-                      {item.text}
-                    </span>
+                    <span style={{ color: isCorrect ? '#52c41a' : '#ff4d4f' }}>{item.text}</span>
                   </span>
                 );
               })}

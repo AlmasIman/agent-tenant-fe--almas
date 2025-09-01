@@ -31,7 +31,7 @@ const ImageDragDropDemoPage: React.FC = () => {
               width: 80,
               height: 40,
               label: 'Зона 1',
-              correctItems: ['item1']
+              correctItems: ['item1'],
             },
             {
               id: 'zone2',
@@ -40,7 +40,7 @@ const ImageDragDropDemoPage: React.FC = () => {
               width: 80,
               height: 40,
               label: 'Зона 2',
-              correctItems: ['item2']
+              correctItems: ['item2'],
             },
             {
               id: 'zone3',
@@ -49,27 +49,27 @@ const ImageDragDropDemoPage: React.FC = () => {
               width: 80,
               height: 40,
               label: 'Зона 3',
-              correctItems: ['item3']
-            }
+              correctItems: ['item3'],
+            },
           ],
           draggableItems: [
             {
               id: 'item1',
               text: 'Fragaria',
-              correctZoneId: 'zone1'
+              correctZoneId: 'zone1',
             },
             {
               id: 'item2',
               text: 'Vaccinium',
-              correctZoneId: 'zone2'
+              correctZoneId: 'zone2',
             },
             {
               id: 'item3',
               text: 'Rubus',
-              correctZoneId: 'zone3'
-            }
-          ]
-        }
+              correctZoneId: 'zone3',
+            },
+          ],
+        },
       },
       {
         id: 'q2',
@@ -87,7 +87,7 @@ const ImageDragDropDemoPage: React.FC = () => {
               width: 60,
               height: 30,
               label: 'Цветок',
-              correctItems: ['rose']
+              correctItems: ['rose'],
             },
             {
               id: 'flower2',
@@ -96,7 +96,7 @@ const ImageDragDropDemoPage: React.FC = () => {
               width: 60,
               height: 30,
               label: 'Лист',
-              correctItems: ['tulip']
+              correctItems: ['tulip'],
             },
             {
               id: 'flower3',
@@ -105,35 +105,35 @@ const ImageDragDropDemoPage: React.FC = () => {
               width: 60,
               height: 30,
               label: 'Стебель',
-              correctItems: ['daisy']
-            }
+              correctItems: ['daisy'],
+            },
           ],
           draggableItems: [
             {
               id: 'rose',
               text: 'Роза',
-              correctZoneId: 'flower1'
+              correctZoneId: 'flower1',
             },
             {
               id: 'tulip',
               text: 'Тюльпан',
-              correctZoneId: 'flower2'
+              correctZoneId: 'flower2',
             },
             {
               id: 'daisy',
               text: 'Ромашка',
-              correctZoneId: 'flower3'
-            }
-          ]
-        }
-      }
+              correctZoneId: 'flower3',
+            },
+          ],
+        },
+      },
     ],
     timeLimit: 5, // 5 минут
     passingScore: 70,
     shuffleQuestions: false,
     showResults: true,
     allowRetry: true,
-    maxAttempts: 3
+    maxAttempts: 3,
   };
 
   const handleQuizComplete = (result: H5PQuizResult) => {
@@ -154,11 +154,7 @@ const ImageDragDropDemoPage: React.FC = () => {
   if (showQuiz) {
     return (
       <div style={{ padding: '20px' }}>
-        <SimpleQuizPlayer
-          quiz={demoQuiz}
-          onComplete={handleQuizComplete}
-          onExit={handleQuizExit}
-        />
+        <SimpleQuizPlayer quiz={demoQuiz} onComplete={handleQuizComplete} onExit={handleQuizExit} />
       </div>
     );
   }
@@ -167,10 +163,10 @@ const ImageDragDropDemoPage: React.FC = () => {
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <Card>
         <Title level={2}>Демо: Drag and Drop на изображениях</Title>
-        
+
         <Paragraph>
-          Это демонстрация нового типа вопроса <strong>image-drag-drop</strong>, который позволяет 
-          пользователям перетаскивать элементы на изображение в определенные зоны.
+          Это демонстрация нового типа вопроса <strong>image-drag-drop</strong>, который позволяет пользователям
+          перетаскивать элементы на изображение в определенные зоны.
         </Paragraph>
 
         <Title level={3}>Особенности:</Title>
@@ -195,10 +191,12 @@ const ImageDragDropDemoPage: React.FC = () => {
           <Card style={{ marginTop: '20px', backgroundColor: '#f6ffed' }}>
             <Title level={4}>Последний результат:</Title>
             <Paragraph>
-              <strong>Результат:</strong> {quizResult.score}% ({quizResult.correctAnswers}/{quizResult.totalQuestions} правильных)
+              <strong>Результат:</strong> {quizResult.score}% ({quizResult.correctAnswers}/{quizResult.totalQuestions}{' '}
+              правильных)
             </Paragraph>
             <Paragraph>
-              <strong>Время:</strong> {Math.floor(quizResult.timeSpent / 60)}:{(quizResult.timeSpent % 60).toString().padStart(2, '0')}
+              <strong>Время:</strong> {Math.floor(quizResult.timeSpent / 60)}:
+              {(quizResult.timeSpent % 60).toString().padStart(2, '0')}
             </Paragraph>
             <Paragraph>
               <strong>Статус:</strong> {quizResult.passed ? 'Пройдено' : 'Не пройдено'}

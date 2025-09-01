@@ -1,6 +1,22 @@
 import React from 'react';
 import { Modal, Typography, Space, Tag, Button } from 'antd';
-import { CloseOutlined, FileTextOutlined, PictureOutlined, PlayCircleOutlined, CodeOutlined, BarChartOutlined, QuestionCircleOutlined, GlobalOutlined, TrophyOutlined, StarOutlined, FireOutlined, CheckCircleOutlined, BookOutlined, FormOutlined, DragOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  FileTextOutlined,
+  PictureOutlined,
+  PlayCircleOutlined,
+  CodeOutlined,
+  BarChartOutlined,
+  QuestionCircleOutlined,
+  GlobalOutlined,
+  TrophyOutlined,
+  StarOutlined,
+  FireOutlined,
+  CheckCircleOutlined,
+  BookOutlined,
+  FormOutlined,
+  DragOutlined,
+} from '@ant-design/icons';
 import { Slide, SlideType } from './types';
 import GameSlide from './GameSlide';
 import AchievementSlide from './AchievementSlide';
@@ -130,7 +146,9 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
       padding: `${slide.settings.padding || 16}px`,
       borderRadius: `${slide.settings.borderRadius || 0}px`,
       boxShadow: slide.settings.shadow ? '0 4px 8px rgba(0,0,0,0.1)' : 'none',
-      border: slide.settings.border ? `${slide.settings.borderWidth || 1}px solid ${slide.settings.borderColor || '#d9d9d9'}` : 'none',
+      border: slide.settings.border
+        ? `${slide.settings.borderWidth || 1}px solid ${slide.settings.borderColor || '#d9d9d9'}`
+        : 'none',
       minHeight: '400px',
       display: 'flex',
       flexDirection: 'column',
@@ -159,7 +177,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                 {slide.title}
               </Title>
             )}
-            
+
             {/* Проверяем, есть ли данные из ImageTextEditor */}
             {(() => {
               try {
@@ -168,11 +186,11 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                   // Отображаем изображение с текстом
                   return (
                     <div style={{ position: 'relative', display: 'inline-block' }}>
-                      <img 
-                        src={parsed.imageData} 
+                      <img
+                        src={parsed.imageData}
                         alt={slide.title}
-                        style={{ 
-                          maxWidth: '100%', 
+                        style={{
+                          maxWidth: '100%',
                           height: 'auto',
                           borderRadius: `${slide.settings.borderRadius || 0}px`,
                         }}
@@ -187,7 +205,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                       <div style={{ display: 'none', textAlign: 'center', color: '#999' }}>
                         Изображение не загружено
                       </div>
-                      
+
                       {/* Отображаем текстовые элементы поверх изображения */}
                       {parsed.textElements.map((element: any) => (
                         <div
@@ -205,12 +223,17 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                             fontWeight: element.fontWeight,
                             fontStyle: element.fontStyle,
                             textDecoration: element.textDecoration,
-                            textShadow: element.shadow?.enabled ? 
-                              `${element.shadow.offsetX}px ${element.shadow.offsetY}px ${element.shadow.blur}px ${element.shadow.color}` : 'none',
-                            WebkitTextStroke: element.stroke?.enabled ? 
-                              `${element.stroke.width}px ${element.stroke.color}` : 'none',
-                            backgroundColor: element.backgroundColor?.enabled ? 
-                              `${element.backgroundColor.color}${Math.round(element.backgroundColor.opacity * 255).toString(16).padStart(2, '0')}` : 'transparent',
+                            textShadow: element.shadow?.enabled
+                              ? `${element.shadow.offsetX}px ${element.shadow.offsetY}px ${element.shadow.blur}px ${element.shadow.color}`
+                              : 'none',
+                            WebkitTextStroke: element.stroke?.enabled
+                              ? `${element.stroke.width}px ${element.stroke.color}`
+                              : 'none',
+                            backgroundColor: element.backgroundColor?.enabled
+                              ? `${element.backgroundColor.color}${Math.round(element.backgroundColor.opacity * 255)
+                                  .toString(16)
+                                  .padStart(2, '0')}`
+                              : 'transparent',
                             padding: '4px',
                             borderRadius: '4px',
                             pointerEvents: 'none', // Чтобы текст не мешал взаимодействию
@@ -225,14 +248,14 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
               } catch (error) {
                 // Если не JSON, значит просто URL изображения
               }
-              
+
               // Обычное изображение без текста
               return (
-                <img 
-                  src={slide.content} 
+                <img
+                  src={slide.content}
                   alt={slide.title}
-                  style={{ 
-                    maxWidth: '100%', 
+                  style={{
+                    maxWidth: '100%',
                     height: 'auto',
                     borderRadius: `${slide.settings.borderRadius || 0}px`,
                   }}
@@ -246,10 +269,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                 />
               );
             })()}
-            
-            <div style={{ display: 'none', textAlign: 'center', color: '#999' }}>
-              Изображение не загружено
-            </div>
+
+            <div style={{ display: 'none', textAlign: 'center', color: '#999' }}>Изображение не загружено</div>
           </div>
         );
 
@@ -267,8 +288,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
               autoPlay={slide.settings.autoPlay}
               loop={slide.settings.loop}
               muted={slide.settings.muted}
-              style={{ 
-                maxWidth: '100%', 
+              style={{
+                maxWidth: '100%',
                 height: 'auto',
                 borderRadius: `${slide.settings.borderRadius || 0}px`,
               }}
@@ -284,14 +305,16 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                 {slide.title}
               </Title>
             )}
-            <pre style={{ 
-              backgroundColor: '#f5f5f5', 
-              padding: '16px', 
-              borderRadius: '4px',
-              overflow: 'auto',
-              fontSize: '14px',
-              lineHeight: '1.5',
-            }}>
+            <pre
+              style={{
+                backgroundColor: '#f5f5f5',
+                padding: '16px',
+                borderRadius: '4px',
+                overflow: 'auto',
+                fontSize: '14px',
+                lineHeight: '1.5',
+              }}
+            >
               <code>{slide.content}</code>
             </pre>
           </div>
@@ -305,13 +328,15 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
                 {slide.title}
               </Title>
             )}
-            <div style={{ 
-              backgroundColor: '#f5f5f5', 
-              padding: '16px', 
-              borderRadius: '4px',
-              textAlign: 'center',
-              color: '#666',
-            }}>
+            <div
+              style={{
+                backgroundColor: '#f5f5f5',
+                padding: '16px',
+                borderRadius: '4px',
+                textAlign: 'center',
+                color: '#666',
+              }}
+            >
               График: {slide.content ? 'Данные загружены' : 'Нет данных'}
             </div>
           </div>
@@ -339,8 +364,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
             )}
             <iframe
               src={slide.content}
-              style={{ 
-                width: '100%', 
+              style={{
+                width: '100%',
                 height: '300px',
                 border: 'none',
                 borderRadius: `${slide.settings.borderRadius || 0}px`,
@@ -378,16 +403,16 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
               </Title>
             )}
             <div style={{ textAlign: slide.settings.alignment }}>
-              <Paragraph style={{ fontSize: '18px', marginBottom: '24px' }}>
-                Прогресс прохождения курса
-              </Paragraph>
-              <div style={{ 
-                backgroundColor: '#f5f5f5', 
-                padding: '32px', 
-                borderRadius: '8px',
-                textAlign: 'center',
-                color: '#666',
-              }}>
+              <Paragraph style={{ fontSize: '18px', marginBottom: '24px' }}>Прогресс прохождения курса</Paragraph>
+              <div
+                style={{
+                  backgroundColor: '#f5f5f5',
+                  padding: '32px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: '#666',
+                }}
+              >
                 Индикатор прогресса будет отображаться здесь
               </div>
             </div>
@@ -403,16 +428,16 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
               </Title>
             )}
             <div style={{ textAlign: slide.settings.alignment }}>
-              <Paragraph style={{ fontSize: '18px', marginBottom: '24px' }}>
-                Интерактивный контент
-              </Paragraph>
-              <div style={{ 
-                backgroundColor: '#f5f5f5', 
-                padding: '32px', 
-                borderRadius: '8px',
-                textAlign: 'center',
-                color: '#666',
-              }}>
+              <Paragraph style={{ fontSize: '18px', marginBottom: '24px' }}>Интерактивный контент</Paragraph>
+              <div
+                style={{
+                  backgroundColor: '#f5f5f5',
+                  padding: '32px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: '#666',
+                }}
+              >
                 Интерактивные элементы будут отображаться здесь
               </div>
             </div>
@@ -452,16 +477,16 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
               </Title>
             )}
             <div style={{ textAlign: slide.settings.alignment }}>
-              <Paragraph style={{ fontSize: '18px', marginBottom: '24px' }}>
-                Drag and Drop на изображении
-              </Paragraph>
-              <div style={{ 
-                backgroundColor: '#f5f5f5', 
-                padding: '32px', 
-                borderRadius: '8px',
-                textAlign: 'center',
-                color: '#666',
-              }}>
+              <Paragraph style={{ fontSize: '18px', marginBottom: '24px' }}>Drag and Drop на изображении</Paragraph>
+              <div
+                style={{
+                  backgroundColor: '#f5f5f5',
+                  padding: '32px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: '#666',
+                }}
+              >
                 Интерактивные элементы drag and drop будут отображаться здесь
               </div>
             </div>
@@ -488,9 +513,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         <Space>
           {getSlideIcon(slide.type)}
           <span>Предварительный просмотр: {slide.title}</span>
-          <Tag color={getSlideTypeColor(slide.type)}>
-            {getSlideTypeLabel(slide.type)}
-          </Tag>
+          <Tag color={getSlideTypeColor(slide.type)}>{getSlideTypeLabel(slide.type)}</Tag>
         </Space>
       }
       open={true}
@@ -502,12 +525,14 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         </Button>,
       ]}
     >
-      <div style={{ 
-        border: '1px solid #d9d9d9', 
-        borderRadius: '8px', 
-        overflow: 'hidden',
-        backgroundColor: '#fafafa',
-      }}>
+      <div
+        style={{
+          border: '1px solid #d9d9d9',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          backgroundColor: '#fafafa',
+        }}
+      >
         {renderContent()}
       </div>
     </Modal>
