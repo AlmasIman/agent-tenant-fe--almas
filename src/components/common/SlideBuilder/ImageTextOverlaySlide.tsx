@@ -34,11 +34,7 @@ const ImageTextOverlaySlide: React.FC<ImageTextOverlaySlideProps> = ({ slide, on
   }
 
   return (
-    <div className="slide-container">
-      <div className="slide-header">
-        <div className="slide-number">03</div>
-      </div>
-
+        <div className="slide-container">
       <div className="slide-content">
         <div className="slide-title-section">
           <Title level={2} className="slide-title">
@@ -115,35 +111,16 @@ const ImageTextOverlaySlide: React.FC<ImageTextOverlaySlideProps> = ({ slide, on
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            border: 1px solid #f0f0f0;
+            border: none;
+            padding: 40px;
           }
 
-          .slide-header {
-            background: #f8fafc;
-            padding: 16px 24px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-          }
 
-          .slide-number {
-            background: #3b82f6;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-          }
 
           
 
           .slide-content {
-            padding: 32px 40px;
+            padding: 0;
           }
 
           .slide-title-section {
@@ -181,7 +158,7 @@ const ImageTextOverlaySlide: React.FC<ImageTextOverlaySlideProps> = ({ slide, on
             max-height: 500px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
+            border: none;
           }
 
           .text-overlay-elements {

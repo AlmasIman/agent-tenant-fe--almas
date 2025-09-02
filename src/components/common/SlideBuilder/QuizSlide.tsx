@@ -29,16 +29,19 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
     if (slide.content) {
       try {
         const content = JSON.parse(slide.content);
-        
+
         // Handle both formats: wrapped in quiz object or direct data
-        let quizData = content.quiz || content;
-        
+        const quizData = content.quiz || content;
+
         if (quizData && quizData.questions) {
           const formattedQuestions = quizData.questions.map((q: any, index: number) => ({
             id: q.id || `question-${index}`,
             question: q.question || q.prompt || q.text || '',
             options: q.options || q.answers || [],
-            correctAnswer: q.correctAnswer || q.correct || (q.correct_indices && q.correct_indices.length > 0 ? q.correct_indices[0] : 0),
+            correctAnswer:
+              q.correctAnswer ||
+              q.correct ||
+              (q.correct_indices && q.correct_indices.length > 0 ? q.correct_indices[0] : 0),
             explanation: q.explanation || '',
           }));
           setQuestions(formattedQuestions);
@@ -82,9 +85,9 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
     questions.forEach((question, index) => {
       const userAnswer = userAnswers[question.id];
       const correctAnswer = question.correctAnswer;
-      
+
       console.log(`Question ${index + 1}: User answered ${userAnswer}, Correct is ${correctAnswer}`);
-      
+
       if (userAnswer === correctAnswer) {
         correctAnswers++;
       }
@@ -92,7 +95,7 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
 
     const finalScore = Math.round((correctAnswers / totalQuestions) * 100);
     console.log(`Final score: ${correctAnswers}/${totalQuestions} = ${finalScore}%`);
-    
+
     setScore(finalScore);
     setIsCompleted(true);
 
@@ -117,10 +120,6 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
   if (questions.length === 0) {
     return (
       <div className="slide-container">
-        <div className="slide-header">
-          <div className="slide-number">04</div>
-        </div>
-        
         <div className="slide-content">
           <div className="slide-title-section">
             <Title level={2} className="slide-title">
@@ -128,49 +127,29 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
             </Title>
             <Divider className="slide-divider" />
           </div>
-          
+
           <div className="quiz-placeholder">
             <QuestionCircleOutlined className="placeholder-icon" />
             <div className="placeholder-text">Нет вопросов для отображения</div>
           </div>
         </div>
 
-        <style dangerouslySetInnerHTML={{
-          __html: `
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
             .slide-container {
               background: white;
               border-radius: 12px;
               box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
               overflow: hidden;
-              border: 1px solid #f0f0f0;
-            }
-
-            .slide-header {
-              background: #f8fafc;
-              padding: 16px 24px;
-              border-bottom: 1px solid #e2e8f0;
-              display: flex;
-              align-items: center;
-              gap: 12px;
-            }
-
-            .slide-number {
-              background: #3b82f6;
-              color: white;
-              width: 32px;
-              height: 32px;
-              border-radius: 6px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-weight: 600;
-              font-size: 14px;
+              border: none;
+              padding: 40px;
             }
 
 
 
             .slide-content {
-              padding: 32px 40px;
+              padding: 0;
             }
 
             .slide-title-section {
@@ -214,8 +193,9 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
               font-weight: 500;
               color: #64748b;
             }
-          `
-        }} />
+          `,
+          }}
+        />
       </div>
     );
   }
@@ -227,10 +207,6 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
 
   return (
     <div className="slide-container">
-              <div className="slide-header">
-          <div className="slide-number">04</div>
-        </div>
-      
       <div className="slide-content">
         <div className="slide-title-section">
           <Title level={2} className="slide-title">
@@ -238,16 +214,20 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
           </Title>
           <Divider className="slide-divider" />
         </div>
-        
+
         <div className="quiz-content">
           {/* Progress Section */}
           <div className="quiz-progress">
             <div className="progress-header">
-              <Text className="progress-text">Вопрос {currentQuestionIndex + 1} из {questions.length}</Text>
-              <Text className="progress-text">Отвечено: {answeredCount} из {questions.length}</Text>
+              <Text className="progress-text">
+                Вопрос {currentQuestionIndex + 1} из {questions.length}
+              </Text>
+              <Text className="progress-text">
+                Отвечено: {answeredCount} из {questions.length}
+              </Text>
             </div>
-            <Progress 
-              percent={progressPercent} 
+            <Progress
+              percent={progressPercent}
               showInfo={false}
               strokeColor="#3b82f6"
               trailColor="#e2e8f0"
@@ -271,29 +251,24 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
                 onChange={(e) => handleAnswerSelect(currentQuestion.id, e.target.value)}
                 className="radio-group"
               >
-                                 {currentQuestion.options.map((option, index) => (
-                   <div
-                     key={index}
-                     className={`answer-option ${userAnswer === index ? 'selected' : ''}`}
-                   >
-                     <Radio value={index} className="radio-button">
-                       <span className="option-text">
-                         {String.fromCharCode(65 + index)}) {option}
-                       </span>
-                     </Radio>
-                   </div>
-                 ))}
+                {currentQuestion.options.map((option, index) => (
+                  <div key={index} className={`answer-option ${userAnswer === index ? 'selected' : ''}`}>
+                    <Radio value={index} className="radio-button">
+                      <span className="option-text">
+                        {String.fromCharCode(65 + index)}) {option}
+                      </span>
+                    </Radio>
+                  </div>
+                ))}
               </Radio.Group>
             </div>
 
-                         {/* Explanation - Only show after quiz completion */}
-             {isCompleted && showExplanation && currentQuestion.explanation && (
-               <div className="explanation">
-                 <Text className="explanation-text">
-                   💡 {currentQuestion.explanation}
-                 </Text>
-               </div>
-             )}
+            {/* Explanation - Only show after quiz completion */}
+            {isCompleted && showExplanation && currentQuestion.explanation && (
+              <div className="explanation">
+                <Text className="explanation-text">💡 {currentQuestion.explanation}</Text>
+              </div>
+            )}
           </div>
 
           {/* Result Card */}
@@ -323,7 +298,7 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
               >
                 ← Предыдущий
               </Button>
-              
+
               <Button
                 onClick={() => setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1))}
                 disabled={currentQuestionIndex === questions.length - 1}
@@ -347,11 +322,7 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
                 Завершить викторину
               </Button>
             ) : (
-              <Button
-                icon={<ReloadOutlined />}
-                onClick={handleReset}
-                className="action-button secondary"
-              >
+              <Button icon={<ReloadOutlined />} onClick={handleReset} className="action-button secondary">
                 Попробовать снова
               </Button>
             )}
@@ -359,14 +330,15 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
           .slide-container {
             background: white;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            border: 1px solid #f0f0f0;
+            border: none;
           }
 
           .slide-header {
@@ -424,7 +396,7 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
             background: #f8fafc;
             padding: 20px;
             border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            border: none;
           }
 
           .progress-header {
@@ -441,7 +413,7 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
 
           .question-card {
             background: white;
-            border: 1px solid #e2e8f0;
+            border: none;
             border-radius: 8px;
             padding: 24px;
           }
@@ -513,7 +485,7 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
             margin-top: 16px;
             padding: 16px;
             background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            border: none;
             border-radius: 8px;
           }
 
@@ -564,7 +536,7 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
              gap: 16px;
              padding: 20px;
              background: #f8fafc;
-             border: 1px solid #e2e8f0;
+             border: none;
              border-radius: 8px;
            }
 
@@ -574,7 +546,7 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
              font-size: 14px;
              font-weight: 500;
              border-radius: 6px;
-             border: 1px solid #d1d5db;
+             border: none;
              background: white;
              color: #374151;
              transition: all 0.2s ease;
@@ -651,8 +623,9 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
               width: 100%;
             }
           }
-        `
-      }} />
+        `,
+        }}
+      />
     </div>
   );
 };

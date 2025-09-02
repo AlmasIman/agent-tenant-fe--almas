@@ -174,6 +174,10 @@ const CourseViewPage: React.FC = () => {
   const [currentTopicId, setCurrentTopicId] = useState<string>('intro');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Scroll navigation state
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   // Presentation state
   const [presentationId, setPresentationId] = useState<number | null>(null);
   const [presentation, setPresentation] = useState<Presentation | null>(null);
@@ -201,7 +205,7 @@ const CourseViewPage: React.FC = () => {
       slides.forEach((slide, index) => {
         const topic: CourseTopic = {
           id: slide.id.toString(),
-          title: slide.name || `Слайд ${index + 1}`,
+          title: slide.name || `Слайд ${slide.order || index + 1}`,
           type: getSlideType(slide.type),
           duration: 5, // Default 5 minutes per slide
           completed: readSlides.has(slide.id.toString()),
@@ -285,6 +289,15 @@ const CourseViewPage: React.FC = () => {
           slides: data.slides ? [...data.slides].sort((a, b) => (a.order || 0) - (b.order || 0)) : [],
         };
 
+        console.log(
+          'Original slides order:',
+          data.slides?.map((s) => ({ id: s.id, name: s.name, order: s.order })),
+        );
+        console.log(
+          'Sorted slides order:',
+          sortedData.slides?.map((s) => ({ id: s.id, name: s.name, order: s.order })),
+        );
+
         setPresentation(sortedData);
         const topicsFromSlides = convertSlidesToTopics(sortedData.slides);
         setTopics(topicsFromSlides);
@@ -311,6 +324,15 @@ const CourseViewPage: React.FC = () => {
   const currentTopic = useMemo(() => {
     return topics.find((topic) => topic.id === currentTopicId) || topics[0];
   }, [topics, currentTopicId]);
+
+  // Update topics with current state based on scroll position
+  const updatedTopics = useMemo(() => {
+    return topics.map((topic, index) => ({
+      ...topic,
+      current: index === currentSlideIndex,
+      completed: index <= currentSlideIndex || topic.completed,
+    }));
+  }, [topics, currentSlideIndex]);
 
   // Convert API slide to internal slide format
   const convertSlide = (apiSlide: PresentationSlide) => {
@@ -406,9 +428,10 @@ const CourseViewPage: React.FC = () => {
 
   // Render course content
   const renderCourseContent = () => {
-    if (currentTopicId === 'intro') {
-      return (
-        <div className="course-content">
+    return (
+      <div className="course-content">
+        {/* Introduction Section */}
+        <div ref={(el) => (slideRefs.current[0] = el)} className="course-section">
           <div className="course-intro">
             <Title level={1} className="course-title">
               {article?.title}
@@ -432,42 +455,83 @@ const CourseViewPage: React.FC = () => {
             </div>
           </div>
         </div>
-      );
-    }
 
-    // Render slide content
-    const slide = presentation?.slides.find((s) => s.id.toString() === currentTopicId);
-    if (slide) {
-      const convertedSlide = convertSlide(slide);
-      return (
-        <div className="course-slide-content">
-          <div className="slide-header">
-            <Title level={2} className="slide-title">
-              {slide.name}
-            </Title>
-            <div className="slide-meta">
-              <Tag color="blue">{slide.type}</Tag>
-              <Text type="secondary">
-                Слайд {slide.order + 1} из {presentation?.slides.length}
-              </Text>
+        {/* Slides Sections */}
+        {presentation?.slides.map((slide, index) => {
+          const convertedSlide = convertSlide(slide);
+          console.log(`Rendering slide ${index + 1}:`, { id: slide.id, name: slide.name, order: slide.order });
+          return (
+            <div key={slide.id} ref={(el) => (slideRefs.current[index + 1] = el)} className="course-section">
+              <div className="course-slide-content">
+                <div className="slide-content">{renderSlide(convertedSlide)}</div>
+              </div>
             </div>
-          </div>
-          <div className="slide-content">{renderSlide(convertedSlide)}</div>
-        </div>
-      );
-    }
-
-    return <Empty description="Контент не найден" />;
+          );
+        })}
+      </div>
+    );
   };
 
   // Handle topic click
   const handleTopicClick = (topicId: string) => {
     setCurrentTopicId(topicId);
-    // Mark as completed if it's a slide
-    if (topicId !== 'intro' && presentation?.slides.find((s) => s.id.toString() === topicId)) {
-      setReadSlides((prev) => new Set([...Array.from(prev), topicId]));
+
+    if (topicId === 'intro') {
+      // Scroll to introduction section
+      if (slideRefs.current[0]) {
+        slideRefs.current[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      // Find the slide with this topicId and scroll to it
+      const slideIndex = presentation?.slides.findIndex((s) => s.id.toString() === topicId);
+      if (slideIndex !== undefined && slideIndex >= 0 && slideRefs.current[slideIndex + 1]) {
+        slideRefs.current[slideIndex + 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Mark as completed
+        setReadSlides((prev) => new Set([...Array.from(prev), topicId]));
+      }
     }
   };
+
+  // Handle scroll-based navigation
+  const handleScroll = useCallback(() => {
+    if (!slideRefs.current.length) return;
+
+    const scrollPosition = window.scrollY + window.innerHeight / 2;
+    let newIndex = 0;
+
+    for (let i = 0; i < slideRefs.current.length; i++) {
+      const element = slideRefs.current[i];
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        const elementTop = rect.top + window.scrollY;
+        const elementBottom = elementTop + rect.height;
+
+        if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
+          newIndex = i;
+          break;
+        }
+      }
+    }
+
+    if (newIndex !== currentSlideIndex) {
+      setCurrentSlideIndex(newIndex);
+      // Update current topic based on slide index
+      if (newIndex === 0) {
+        setCurrentTopicId('intro');
+      } else if (presentation?.slides[newIndex - 1]) {
+        const slideId = presentation.slides[newIndex - 1].id.toString();
+        setCurrentTopicId(slideId);
+        // Mark as completed
+        setReadSlides((prev) => new Set([...Array.from(prev), slideId]));
+      }
+    }
+  }, [currentSlideIndex, presentation?.slides]);
+
+  // Add scroll listener
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   if (loading) {
     return (
@@ -551,7 +615,7 @@ const CourseViewPage: React.FC = () => {
           <div className="sidebar-content">
             <div className="course-progress">
               <Title level={4}>Прогресс курса</Title>
-              <Progress percent={overallProgress} strokeColor="#52c41a" format={(percent) => `${percent}% завершено`} />
+              <Progress percent={overallProgress} strokeColor="#52c41a" format={(percent) => `${percent}%`} />
               <div className="progress-stats">
                 <Text type="secondary">
                   {topics.filter((t) => t.completed).length} из {topics.length} тем завершено
@@ -812,12 +876,9 @@ const CourseViewPage: React.FC = () => {
           }
 
             .course-layout {
-              max-width: 1200px;
-              margin: 0 auto;
+              width: 100%;
               background: white;
-              border-radius: 12px;
               overflow: hidden;
-              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             }
 
             .course-sidebar {
@@ -833,6 +894,16 @@ const CourseViewPage: React.FC = () => {
 
             .course-progress {
               margin-bottom: 24px;
+            }
+
+            .course-progress .ant-progress {
+              margin-bottom: 8px;
+            }
+
+            .course-progress .ant-progress-text {
+              font-size: 14px;
+              font-weight: 600;
+              color: #1e293b;
             }
 
             .progress-stats {
@@ -960,6 +1031,17 @@ const CourseViewPage: React.FC = () => {
             .course-content {
               max-width: 800px;
               margin: 0 auto;
+              padding: 0;
+            }
+
+            .course-section {
+              margin-bottom: 20px;
+              padding: 20px 0;
+              border-bottom: none;
+            }
+
+            .course-section:last-child {
+              margin-bottom: 0;
             }
 
             .course-intro {
@@ -976,6 +1058,9 @@ const CourseViewPage: React.FC = () => {
             .course-slide-content {
               max-width: 900px;
               margin: 0 auto;
+              border: none;
+              background: transparent;
+              box-shadow: none;
             }
 
             .slide-header {
@@ -995,10 +1080,10 @@ const CourseViewPage: React.FC = () => {
             }
 
             .slide-content {
-              background: white;
-              border-radius: 12px;
-              padding: 32px;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+              background: transparent;
+              border-radius: 0;
+              padding: 0;
+              box-shadow: none;
             }
 
             @media (max-width: 768px) {

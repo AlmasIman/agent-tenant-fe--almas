@@ -21,10 +21,6 @@ const TextSlide: React.FC<TextSlideProps> = ({ slide, onComplete }) => {
 
   return (
     <div className="slide-container">
-              <div className="slide-header">
-          <div className="slide-number">01</div>
-        </div>
-      
       <div className="slide-content">
         <div className="slide-title-section">
           <Title level={2} className="slide-title">
@@ -32,51 +28,26 @@ const TextSlide: React.FC<TextSlideProps> = ({ slide, onComplete }) => {
           </Title>
           <Divider className="slide-divider" />
         </div>
-        
+
         <div className="slide-text-content">
-          <div
-            className="slide-text"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
+          <div className="slide-text" dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
           .slide-container {
             background: white;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            border: 1px solid #f0f0f0;
+            border: none;
+            padding: 40px;
           }
-
-          .slide-header {
-            background: #f8fafc;
-            padding: 16px 24px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-          }
-
-          .slide-number {
-            background: #3b82f6;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-          }
-
-          
 
           .slide-content {
-            padding: 32px 40px;
+            padding: 0;
           }
 
           .slide-title-section {
@@ -165,7 +136,7 @@ const TextSlide: React.FC<TextSlideProps> = ({ slide, onComplete }) => {
             padding: 16px;
             border-radius: 8px;
             overflow-x: auto;
-            border: 1px solid #e2e8f0;
+            border: none;
             margin: 16px 0;
           }
 
@@ -207,8 +178,9 @@ const TextSlide: React.FC<TextSlideProps> = ({ slide, onComplete }) => {
               font-size: 15px;
             }
           }
-        `
-      }} />
+        `,
+        }}
+      />
     </div>
   );
 };
