@@ -162,7 +162,6 @@ const CourseViewPage: React.FC = () => {
   const [article, setArticle] = useState<TrainingVM | null>(null);
 
   // UI state
-  const [fontScale, setFontScale] = useState(1);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [readingStats, setReadingStats] = useState<{ words: number; minutes: number }>({
@@ -431,15 +430,6 @@ const CourseViewPage: React.FC = () => {
                 ))}
               </Space>
             </div>
-
-            {article?.contentHtml && (
-              <div
-                ref={contentRef}
-                className="course-content-html"
-                style={{ fontSize: `${16 * fontScale}px` }}
-                dangerouslySetInnerHTML={{ __html: article.contentHtml }}
-              />
-            )}
           </div>
         </div>
       );
@@ -625,30 +615,6 @@ const CourseViewPage: React.FC = () => {
                 <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} type="text">
                   Назад к курсам
                 </Button>
-              </div>
-
-              <div className="content-controls">
-                <Space>
-                  <Tooltip title="Уменьшить шрифт">
-                    <Button
-                      icon={<MinusOutlined />}
-                      onClick={() => setFontScale((v) => Math.max(0.9, +(v - 0.1).toFixed(2)))}
-                      type="text"
-                    />
-                  </Tooltip>
-                  <Tooltip title="Увеличить шрифт">
-                    <Button
-                      icon={<PlusOutlined />}
-                      onClick={() => setFontScale((v) => Math.min(1.4, +(v + 0.1).toFixed(2)))}
-                      type="text"
-                    />
-                  </Tooltip>
-                  <Text type="secondary">{Math.round(fontScale * 100)}%</Text>
-                  <Divider type="vertical" />
-                  <Button icon={<PrinterOutlined />} type="text">
-                    Печать
-                  </Button>
-                </Space>
               </div>
             </div>
 

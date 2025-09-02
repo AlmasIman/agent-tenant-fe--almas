@@ -59,10 +59,14 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
     if (currentCardIndex < cards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
       setIsFlipped(false);
-      setCompletedCards((prev) => new Set([...prev, currentCard.id]));
+      setCompletedCards((prev) => {
+        const updated = new Set(prev);
+        updated.add(currentCard.id);
+        return updated;
+      });
     } else {
       // Все карточки просмотрены
-      const finalScore = Math.round((completedCards.size / cards.length) * 100);
+      const finalScore = Math.round(((completedCards.size + 1) / cards.length) * 100);
       onComplete?.(finalScore);
       message.success(`Просмотрено ${cards.length} карточек!`);
     }
@@ -266,15 +270,6 @@ const FlashcardsSlide: React.FC<FlashcardsSlideProps> = ({ slide, onComplete }) 
           Перемешать карточки
         </Button>
       </div>
-
-      {/* Статистика */}
-      {completedCards.size > 0 && (
-        <div style={{ marginTop: '16px', textAlign: 'center' }}>
-          <Text type="secondary">
-            Просмотрено: {completedCards.size} из {cards.length}
-          </Text>
-        </div>
-      )}
     </div>
   );
 };

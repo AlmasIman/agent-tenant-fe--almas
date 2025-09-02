@@ -14,7 +14,7 @@ const TrainingItemPage: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      httpApi.get<TrainingData>(`my/trainings/${id}/`).then(({ data }) => {
+      httpApi.get<TrainingData>(`trainings/${id}/`).then(({ data }) => {
         setTraining(data);
         setLoading(false);
       });
