@@ -13,6 +13,7 @@ export enum SlideType {
   FLASHCARDS = 'FLASHCARDS',
   FILL_WORDS = 'FILL_WORDS',
   IMAGE_DRAG_DROP = 'IMAGE_DRAG_DROP',
+  IMAGE_TEXT_OVERLAY = 'IMAGE_TEXT_OVERLAY',
 }
 
 export interface SlideSettings {
@@ -140,6 +141,42 @@ export interface SlideContent {
       id: string;
       text: string;
       correctZoneId: string;
+    }>;
+  };
+  imageTextOverlay?: {
+    url: string;
+    text: string;
+    textElements?: Array<{
+      id: string;
+      text: string;
+      x: number;
+      y: number;
+      fontSize: number;
+      color: string;
+      fontFamily: string;
+      rotation: number;
+      opacity: number;
+      textAlign: 'left' | 'center' | 'right';
+      fontWeight: 'normal' | 'bold';
+      fontStyle: 'normal' | 'italic';
+      textDecoration: 'none' | 'underline' | 'line-through';
+      shadow?: {
+        enabled: boolean;
+        color: string;
+        blur: number;
+        offsetX: number;
+        offsetY: number;
+      };
+      stroke?: {
+        enabled: boolean;
+        color: string;
+        width: number;
+      };
+      backgroundColor?: {
+        enabled: boolean;
+        color: string;
+        opacity: number;
+      };
     }>;
   };
 }

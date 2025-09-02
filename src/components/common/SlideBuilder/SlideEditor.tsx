@@ -69,6 +69,27 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
       }
     }
 
+    if (slide.type === SlideType.IMAGE_TEXT_OVERLAY && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        content = parsed.url || slide.content;
+        // Устанавливаем текст для наложения
+        form.setFieldsValue({
+          overlayText: parsed.text || '',
+        });
+        // Если есть расширенные текстовые элементы
+        if (parsed.textElements) {
+          setImageEditorData({
+            imageData: parsed.url || '',
+            textElements: parsed.textElements,
+          });
+        }
+      } catch (error) {
+        // Если не JSON, используем как есть
+        content = slide.content;
+      }
+    }
+
     if (slide.type === SlideType.VIDEO && slide.content) {
       try {
         const parsed = JSON.parse(slide.content);
@@ -261,6 +282,23 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         } else {
           // Простое изображение без текста
           processedContent = JSON.stringify({ url: values.content || '' });
+        }
+      }
+
+      if (values.type === SlideType.IMAGE_TEXT_OVERLAY) {
+        // Для изображений с текстом сохраняем как JSON с полями url и text
+        if (imageEditorData) {
+          processedContent = JSON.stringify({
+            url: values.content, // URL изображения
+            text: values.overlayText || '', // Простой текст для наложения
+            textElements: imageEditorData.textElements, // Расширенные текстовые элементы
+          });
+        } else {
+          // Простое изображение с текстом
+          processedContent = JSON.stringify({
+            url: values.content || '',
+            text: values.overlayText || '',
+          });
         }
       }
 
@@ -475,6 +513,70 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                   style={{ width: '100%' }}
                 >
                   Открыть редактор изображений
+                </Button>
+
+                {imageEditorData && (
+                  <Card size="small" style={{ marginTop: '8px' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <img
+                        src={imageEditorData.imageData}
+                        alt="Preview"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '200px',
+                          borderRadius: '8px',
+                          border: '1px solid #d9d9d9',
+                        }}
+                      />
+                      <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+                        Изображение с {imageEditorData.textElements.length} текстовыми элементами
+                      </div>
+                    </div>
+                  </Card>
+                )}
+              </Space>
+            </Form.Item>
+          </>
+        );
+
+      case SlideType.IMAGE_TEXT_OVERLAY:
+        return (
+          <>
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '20px',
+                color: 'white',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '20px', marginRight: '8px' }}>🖼️</span>
+                <span style={{ fontWeight: '600', fontSize: '16px' }}>Изображение с текстом</span>
+              </div>
+              <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px' }}>
+                Создайте изображение с наложенным текстом для презентаций
+              </span>
+            </div>
+
+            <Form.Item name="content" label="URL изображения">
+              <Input placeholder="Введите URL изображения" />
+            </Form.Item>
+
+            <Form.Item name="overlayText" label="Текст для наложения">
+              <TextArea rows={3} placeholder="Введите текст, который будет отображаться поверх изображения" />
+            </Form.Item>
+
+            <Form.Item label="Редактор изображений с текстом">
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  onClick={() => setImageEditorVisible(true)}
+                  style={{ width: '100%' }}
+                >
+                  Открыть расширенный редактор изображений
                 </Button>
 
                 {imageEditorData && (
@@ -1220,17 +1322,18 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                   <Option value={SlideType.TEXT}>Текст</Option>
                   <Option value={SlideType.IMAGE}>Изображение</Option>
                   <Option value={SlideType.VIDEO}>Видео</Option>
-                  <Option value={SlideType.CODE}>Код</Option>
-                  <Option value={SlideType.CHART}>График</Option>
+                  <Option value={SlideType.IMAGE_TEXT_OVERLAY}>Изображение с текстом</Option>
+                  {/* <Option value={SlideType.CODE}>Код</Option> */}
+                  {/* <Option value={SlideType.CHART}>График</Option> */}
                   <Option value={SlideType.QUIZ}>Викторина</Option>
-                  <Option value={SlideType.EMBED}>Встраивание</Option>
-                  <Option value={SlideType.GAME}>Игра</Option>
-                  <Option value={SlideType.INTERACTIVE}>Интерактивный</Option>
-                  <Option value={SlideType.ACHIEVEMENT}>Достижение</Option>
-                  <Option value={SlideType.PROGRESS}>Прогресс</Option>
+                  {/* <Option value={SlideType.EMBED}>Встраивание</Option> */}
+                  {/* <Option value={SlideType.GAME}>Игра</Option> */}
+                  {/* <Option value={SlideType.INTERACTIVE}>Интерактивный</Option> */}
+                  {/* <Option value={SlideType.ACHIEVEMENT}>Достижение</Option> */}
+                  {/* <Option value={SlideType.PROGRESS}>Прогресс</Option> */}
                   <Option value={SlideType.FLASHCARDS}>Флеш-карточки</Option>
-                  <Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Option>
-                  <Option value={SlideType.IMAGE_DRAG_DROP}>Drag & Drop на изображении</Option>
+                  {/* <Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Option> */}
+                  {/* <Option value={SlideType.IMAGE_DRAG_DROP}>Drag & Drop на изображении</Option> */}
                 </Select>
               </Form.Item>
 

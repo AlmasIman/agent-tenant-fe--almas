@@ -23,6 +23,7 @@ import InteractiveSlide from '@app/components/common/SlideBuilder/InteractiveSli
 import AchievementSlide from '@app/components/common/SlideBuilder/AchievementSlide';
 import ProgressSlide from '@app/components/common/SlideBuilder/ProgressSlide';
 import ImageDragDropSlide from '@app/components/common/SlideBuilder/ImageDragDropSlide';
+import ImageTextOverlaySlide from '@app/components/common/SlideBuilder/ImageTextOverlaySlide';
 
 const { Title, Text } = Typography;
 
@@ -160,6 +161,36 @@ const PresentationViewer: React.FC<PresentationViewerProps> = ({
       };
     }
     
+    // Special handling for flashcards - wrap in flashcards object
+    if (apiSlide.type.toLowerCase() === 'flashcards') {
+      // Handle nested data structure where data might contain another object
+      let cardsData = apiSlide.data.cards || [];
+      
+      // If data is a nested object with its own data field, extract from there
+      if (apiSlide.data && typeof apiSlide.data === 'object' && apiSlide.data.data) {
+        cardsData = apiSlide.data.data.cards || [];
+      }
+      
+      content = {
+        flashcards: {
+          cards: cardsData,
+          shuffle: false,
+          showProgress: false,
+        },
+      };
+    }
+
+    // Special handling for image_text_overlay - wrap in imageTextOverlay object
+    if (apiSlide.type.toLowerCase() === 'image_text_overlay') {
+      content = {
+        imageTextOverlay: {
+          url: apiSlide.data.url || '',
+          text: apiSlide.data.text || '',
+          textElements: apiSlide.data.textElements || [],
+        },
+      };
+    }
+    
     return {
       id: apiSlide.id.toString(),
       title: apiSlide.name,
@@ -202,6 +233,8 @@ const PresentationViewer: React.FC<PresentationViewerProps> = ({
         return <ProgressSlide slide={slide} onComplete={handleSlideComplete} />;
       case 'image_drag_drop':
         return <ImageDragDropSlide slide={slide} onComplete={handleSlideComplete} />;
+      case 'image_text_overlay':
+        return <ImageTextOverlaySlide slide={slide} onComplete={handleSlideComplete} />;
       default:
         return (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>

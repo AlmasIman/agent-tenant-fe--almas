@@ -551,7 +551,8 @@ const AlmasCourseCreatePage: React.FC = () => {
   // FLASHCARDS
   const buildFlashcardsData = (content: any) => {
     const c = tryJson(content);
-    const rawCards = asArray(c?.cards);
+    // Handle both direct cards array and flashcards wrapper
+    const rawCards = asArray(c?.cards || c?.flashcards?.cards);
     const cards = rawCards
       .map((card: any) => ({
         front: asString(card?.front ?? card?.q ?? card?.question ?? ''),

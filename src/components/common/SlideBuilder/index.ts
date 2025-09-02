@@ -12,4 +12,5 @@ export { default as FillWordsPreview } from './FillWordsPreview';
 export { default as FlashcardsPreview } from './FlashcardsPreview';
 export { default as QuizPreview } from './QuizPreview';
 export { default as QuizSlide } from './QuizSlide';
+export { default as ImageTextOverlaySlide } from './ImageTextOverlaySlide';
 export * from './types';

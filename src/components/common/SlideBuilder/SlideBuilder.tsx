@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Card, Button, Space, Typography, Row, Col, Empty, message } from 'antd';
+import { Card, Button, Space, Typography, Row, Col, Empty, message, Select } from 'antd';
 import { PlusOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
@@ -36,6 +36,7 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
   const [previewSlide, setPreviewSlide] = useState<Slide | null>(null);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [isAllSlidesPreviewVisible, setIsAllSlidesPreviewVisible] = useState(false);
+  const [selectedSlideType, setSelectedSlideType] = useState<SlideType>(SlideType.TEXT);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -49,6 +50,8 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
       case SlideType.TEXT:
         return 'Введите текст слайда здесь...';
       case SlideType.IMAGE:
+        return 'https://via.placeholder.com/800x600?text=Вставьте+URL+изображения';
+      case SlideType.IMAGE_TEXT_OVERLAY:
         return 'https://via.placeholder.com/800x600?text=Вставьте+URL+изображения';
       case SlideType.VIDEO:
         return 'https://www.youtube.com/watch?v=';
@@ -82,14 +85,14 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
   const handleAddSlide = useCallback(() => {
     const newSlide: Slide = {
       id: Date.now().toString(),
-      type: SlideType.TEXT,
+      type: selectedSlideType,
       title: 'Новый слайд',
-      content: getDefaultContentForType(SlideType.TEXT),
+      content: getDefaultContentForType(selectedSlideType),
       order: slides.length,
       settings: {},
     };
     onSlidesChange([...slides, newSlide]);
-  }, [slides, onSlidesChange]);
+  }, [slides, onSlidesChange, selectedSlideType]);
 
   const handleEditSlide = useCallback((slide: Slide) => {
     setEditingSlide(slide);
@@ -206,21 +209,36 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
                     >
                       Посмотреть все
                     </Button>
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      onClick={handleAddSlide}
-                      style={{
-                        borderRadius: '8px',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        border: 'none',
-                        fontWeight: '500',
-                        boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)',
-                        height: '40px',
-                      }}
-                    >
-                      Добавить слайд
-                    </Button>
+                    <Space>
+                      <Select
+                        value={selectedSlideType}
+                        onChange={setSelectedSlideType}
+                        style={{ width: 200 }}
+                        placeholder="Выберите тип слайда"
+                      >
+                        <Select.Option value={SlideType.TEXT}>Текст</Select.Option>
+                        <Select.Option value={SlideType.IMAGE}>Изображение</Select.Option>
+                        <Select.Option value={SlideType.VIDEO}>Видео</Select.Option>
+                        <Select.Option value={SlideType.IMAGE_TEXT_OVERLAY}>Изображение с текстом</Select.Option>
+                        <Select.Option value={SlideType.QUIZ}>Викторина</Select.Option>
+                        <Select.Option value={SlideType.FLASHCARDS}>Флеш-карточки</Select.Option>
+                      </Select>
+                      <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={handleAddSlide}
+                        style={{
+                          borderRadius: '8px',
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          border: 'none',
+                          fontWeight: '500',
+                          boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)',
+                          height: '40px',
+                        }}
+                      >
+                        Добавить слайд
+                      </Button>
+                    </Space>
                   </div>
                 )}
               </div>
@@ -240,9 +258,24 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
             {slides.length === 0 ? (
               <Empty description="Нет слайдов" image={Empty.PRESENTED_IMAGE_SIMPLE}>
                 {!readOnly && (
-                  <Button type="primary" icon={<PlusOutlined />} onClick={handleAddSlide}>
-                    Создать первый слайд
-                  </Button>
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <Select
+                      value={selectedSlideType}
+                      onChange={setSelectedSlideType}
+                      style={{ width: 200 }}
+                      placeholder="Выберите тип слайда"
+                    >
+                      <Select.Option value={SlideType.TEXT}>Текст</Select.Option>
+                      <Select.Option value={SlideType.IMAGE}>Изображение</Select.Option>
+                      <Select.Option value={SlideType.VIDEO}>Видео</Select.Option>
+                      <Select.Option value={SlideType.IMAGE_TEXT_OVERLAY}>Изображение с текстом</Select.Option>
+                      <Select.Option value={SlideType.QUIZ}>Викторина</Select.Option>
+                      <Select.Option value={SlideType.FLASHCARDS}>Флеш-карточки</Select.Option>
+                    </Select>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAddSlide}>
+                      Создать первый слайд
+                    </Button>
+                  </Space>
                 )}
               </Empty>
             ) : (

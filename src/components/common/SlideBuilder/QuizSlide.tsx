@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Space, Typography, Radio, message, Progress } from 'antd';
-import { CheckOutlined, ReloadOutlined, TrophyOutlined } from '@ant-design/icons';
+import { Card, Button, Space, Typography, Radio, message, Progress, Divider } from 'antd';
+import { CheckOutlined, ReloadOutlined, TrophyOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -34,7 +34,14 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
         let quizData = content.quiz || content;
         
         if (quizData && quizData.questions) {
-          setQuestions(quizData.questions);
+          const formattedQuestions = quizData.questions.map((q: any, index: number) => ({
+            id: q.id || `question-${index}`,
+            question: q.question || q.prompt || q.text || '',
+            options: q.options || q.answers || [],
+            correctAnswer: q.correctAnswer || q.correct || (q.correct_indices && q.correct_indices.length > 0 ? q.correct_indices[0] : 0),
+            explanation: q.explanation || '',
+          }));
+          setQuestions(formattedQuestions);
           setShowExplanation(quizData.showExplanation || false);
         } else {
           console.warn('No questions found in quiz data:', content);
@@ -72,13 +79,20 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
     }
 
     let correctAnswers = 0;
-    questions.forEach((question) => {
-      if (userAnswers[question.id] === question.correctAnswer) {
+    questions.forEach((question, index) => {
+      const userAnswer = userAnswers[question.id];
+      const correctAnswer = question.correctAnswer;
+      
+      console.log(`Question ${index + 1}: User answered ${userAnswer}, Correct is ${correctAnswer}`);
+      
+      if (userAnswer === correctAnswer) {
         correctAnswers++;
       }
     });
 
     const finalScore = Math.round((correctAnswers / totalQuestions) * 100);
+    console.log(`Final score: ${correctAnswers}/${totalQuestions} = ${finalScore}%`);
+    
     setScore(finalScore);
     setIsCompleted(true);
 
@@ -100,335 +114,545 @@ const QuizSlide: React.FC<QuizSlideProps> = ({ slide, onComplete }) => {
     setScore(0);
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return '#52c41a';
-    if (score >= 70) return '#faad14';
-    return '#ff4d4f';
-  };
-
-  const getScoreGradient = (score: number) => {
-    if (score >= 90) return 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)';
-    if (score >= 70) return 'linear-gradient(135deg, #faad14 0%, #ffc53d 100%)';
-    return 'linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)';
-  };
-
   if (questions.length === 0) {
     return (
-      <div
-        style={{
-          textAlign: 'center',
-          padding: '60px 20px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: '16px',
-          color: 'white',
-        }}
-      >
-        <Title level={2} style={{ color: 'white', marginBottom: '16px' }}>
-          Викторина
-        </Title>
-        <Text style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '16px' }}>Нет вопросов для отображения</Text>
+      <div className="slide-container">
+        <div className="slide-header">
+          <div className="slide-number">04</div>
+        </div>
+        
+        <div className="slide-content">
+          <div className="slide-title-section">
+            <Title level={2} className="slide-title">
+              {slide.title}
+            </Title>
+            <Divider className="slide-divider" />
+          </div>
+          
+          <div className="quiz-placeholder">
+            <QuestionCircleOutlined className="placeholder-icon" />
+            <div className="placeholder-text">Нет вопросов для отображения</div>
+          </div>
+        </div>
+
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            .slide-container {
+              background: white;
+              border-radius: 12px;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+              overflow: hidden;
+              border: 1px solid #f0f0f0;
+            }
+
+            .slide-header {
+              background: #f8fafc;
+              padding: 16px 24px;
+              border-bottom: 1px solid #e2e8f0;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+            }
+
+            .slide-number {
+              background: #3b82f6;
+              color: white;
+              width: 32px;
+              height: 32px;
+              border-radius: 6px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 600;
+              font-size: 14px;
+            }
+
+
+
+            .slide-content {
+              padding: 32px 40px;
+            }
+
+            .slide-title-section {
+              margin-bottom: 32px;
+            }
+
+            .slide-title {
+              color: #1e293b !important;
+              font-size: 28px !important;
+              font-weight: 700 !important;
+              margin: 0 0 16px 0 !important;
+              line-height: 1.3 !important;
+            }
+
+            .slide-divider {
+              margin: 0 !important;
+              border-color: #e2e8f0 !important;
+            }
+
+            .quiz-placeholder {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              padding: 60px 40px;
+              background: #f8fafc;
+              border: 2px dashed #cbd5e1;
+              border-radius: 8px;
+              color: #64748b;
+              min-height: 300px;
+              gap: 16px;
+            }
+
+            .placeholder-icon {
+              font-size: 48px;
+              color: #94a3b8;
+            }
+
+            .placeholder-text {
+              font-size: 18px;
+              font-weight: 500;
+              color: #64748b;
+            }
+          `
+        }} />
       </div>
     );
   }
 
   const currentQuestion = questions[currentQuestionIndex];
   const userAnswer = userAnswers[currentQuestion.id];
-  const isCorrect = userAnswer === currentQuestion.correctAnswer;
+  const progressPercent = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
+  const answeredCount = Object.keys(userAnswers).length;
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        padding: '24px',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        borderRadius: '16px',
-      }}
-    >
-      {/* Заголовок */}
-      <div
-        style={{
-          marginBottom: '24px',
-          textAlign: 'center',
-          padding: '20px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: '16px',
-          color: 'white',
-          boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
-        }}
-      >
-        <Title level={2} style={{ color: 'white', marginBottom: '8px' }}>
-          Викторина
-        </Title>
-        <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '16px' }}>
-          Вопрос {currentQuestionIndex + 1} из {questions.length}
-        </Text>
-      </div>
-
-      {/* Прогресс */}
-      <div
-        style={{
-          marginBottom: '24px',
-          padding: '16px',
-          background: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <Progress
-          percent={Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}
-          showInfo={false}
-          strokeColor={{
-            '0%': '#667eea',
-            '100%': '#764ba2',
-          }}
-          strokeWidth={8}
-          trailColor="#f0f0f0"
-        />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '8px',
-          }}
-        >
-          <Text style={{ fontSize: '14px', color: '#666' }}>
-            Прогресс: {currentQuestionIndex + 1} из {questions.length}
-          </Text>
-          <Text style={{ fontSize: '14px', color: '#666' }}>
-            Отвечено: {Object.keys(userAnswers).length} из {questions.length}
-          </Text>
+    <div className="slide-container">
+              <div className="slide-header">
+          <div className="slide-number">04</div>
         </div>
-      </div>
-
-      {/* Вопрос */}
-      <Card
-        style={{
-          flex: 1,
-          marginBottom: '24px',
-          background: 'white',
-          borderRadius: '16px',
-          border: 'none',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            padding: '24px',
-            background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-            minHeight: '200px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}
-        >
-          <Title
-            level={3}
-            style={{
-              marginBottom: '24px',
-              color: '#2c3e50',
-              textAlign: 'center',
-            }}
-          >
-            {currentQuestion.question}
+      
+      <div className="slide-content">
+        <div className="slide-title-section">
+          <Title level={2} className="slide-title">
+            {slide.title}
           </Title>
-
-          {/* Варианты ответов */}
-          <Radio.Group
-            value={userAnswer}
-            onChange={(e) => handleAnswerSelect(currentQuestion.id, e.target.value)}
-            style={{ width: '100%' }}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {currentQuestion.options.map((option, index) => (
-                <div
-                  key={index}
-                  style={{
-                    padding: '12px 16px',
-                    background:
-                      userAnswer === index
-                        ? isCorrect
-                          ? 'rgba(82, 196, 26, 0.1)'
-                          : 'rgba(255, 77, 79, 0.1)'
-                        : '#ffffff',
-                    border:
-                      userAnswer === index
-                        ? isCorrect
-                          ? '2px solid #52c41a'
-                          : '2px solid #ff4d4f'
-                        : '2px solid #f0f0f0',
-                    borderRadius: '12px',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (userAnswer === undefined) {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (userAnswer === undefined) {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }
-                  }}
-                >
-                  <Radio
-                    value={index}
-                    style={{
-                      width: '100%',
-                      color: userAnswer === index ? (isCorrect ? '#52c41a' : '#ff4d4f') : '#666',
-                      fontWeight: userAnswer === index ? '600' : 'normal',
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: userAnswer === index ? (isCorrect ? '#52c41a' : '#ff4d4f') : '#666',
-                        fontWeight: userAnswer === index ? '600' : 'normal',
-                        fontSize: '16px',
-                      }}
-                    >
-                      {String.fromCharCode(65 + index)}) {option}
-                    </span>
-                  </Radio>
-                </div>
-              ))}
+          <Divider className="slide-divider" />
+        </div>
+        
+        <div className="quiz-content">
+          {/* Progress Section */}
+          <div className="quiz-progress">
+            <div className="progress-header">
+              <Text className="progress-text">Вопрос {currentQuestionIndex + 1} из {questions.length}</Text>
+              <Text className="progress-text">Отвечено: {answeredCount} из {questions.length}</Text>
             </div>
-          </Radio.Group>
+            <Progress 
+              percent={progressPercent} 
+              showInfo={false}
+              strokeColor="#3b82f6"
+              trailColor="#e2e8f0"
+              strokeWidth={6}
+            />
+          </div>
 
-          {/* Объяснение */}
-          {showExplanation && userAnswer !== undefined && currentQuestion.explanation && (
-            <div
-              style={{
-                marginTop: '16px',
-                padding: '12px 16px',
-                background: 'rgba(82, 196, 26, 0.1)',
-                borderRadius: '8px',
-                border: '1px solid rgba(82, 196, 26, 0.2)',
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: '14px',
-                  color: '#52c41a',
-                  fontStyle: 'italic',
-                }}
+          {/* Question Card */}
+          <div className="question-card">
+            <div className="question-header">
+              <QuestionCircleOutlined className="question-icon" />
+              <Title level={3} className="question-title">
+                {currentQuestion.question}
+              </Title>
+            </div>
+
+            {/* Answer Options */}
+            <div className="answer-options">
+              <Radio.Group
+                value={userAnswer}
+                onChange={(e) => handleAnswerSelect(currentQuestion.id, e.target.value)}
+                className="radio-group"
               >
-                💡 {currentQuestion.explanation}
+                                 {currentQuestion.options.map((option, index) => (
+                   <div
+                     key={index}
+                     className={`answer-option ${userAnswer === index ? 'selected' : ''}`}
+                   >
+                     <Radio value={index} className="radio-button">
+                       <span className="option-text">
+                         {String.fromCharCode(65 + index)}) {option}
+                       </span>
+                     </Radio>
+                   </div>
+                 ))}
+              </Radio.Group>
+            </div>
+
+                         {/* Explanation - Only show after quiz completion */}
+             {isCompleted && showExplanation && currentQuestion.explanation && (
+               <div className="explanation">
+                 <Text className="explanation-text">
+                   💡 {currentQuestion.explanation}
+                 </Text>
+               </div>
+             )}
+          </div>
+
+          {/* Result Card */}
+          {isCompleted && (
+            <div className="result-card">
+              <div className="result-header">
+                <TrophyOutlined className="trophy-icon" />
+                <Title level={2} className="result-title">
+                  Результат: {score}%
+                </Title>
+              </div>
+              <Text className="result-message">
+                {score >= 90 && 'Отлично! Вы отлично справились с викториной! 🎉'}
+                {score >= 70 && score < 90 && 'Хорошо! Есть небольшие ошибки, но в целом хорошо! 👍'}
+                {score < 70 && 'Попробуйте еще раз! Обратите внимание на ошибки. 💪'}
               </Text>
             </div>
           )}
-        </div>
-      </Card>
 
-      {/* Результат */}
-      {isCompleted && (
-        <Card
-          style={{
-            marginBottom: '24px',
-            background: 'white',
-            borderRadius: '16px',
-            border: 'none',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              padding: '24px',
-              background: getScoreGradient(score),
-              textAlign: 'center',
-              color: 'white',
-            }}
-          >
-            <div style={{ marginBottom: '16px' }}>
-              <TrophyOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+          {/* Navigation Buttons */}
+          {!isCompleted && (
+            <div className="quiz-navigation">
+              <Button
+                onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
+                disabled={currentQuestionIndex === 0}
+                className="nav-button"
+              >
+                ← Предыдущий
+              </Button>
+              
+              <Button
+                onClick={() => setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1))}
+                disabled={currentQuestionIndex === questions.length - 1}
+                className="nav-button"
+              >
+                Следующий →
+              </Button>
             </div>
-            <Title level={2} style={{ color: 'white', marginBottom: '8px' }}>
-              Результат: {score}%
-            </Title>
-            <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '16px' }}>
-              {score >= 90 && 'Отлично! Вы отлично справились с викториной! 🎉'}
-              {score >= 70 && score < 90 && 'Хорошо! Есть небольшие ошибки, но в целом хорошо! 👍'}
-              {score < 70 && 'Попробуйте еще раз! Обратите внимание на ошибки. 💪'}
-            </Text>
-          </div>
-        </Card>
-      )}
+          )}
 
-      {/* Кнопки управления */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '16px',
-          flexWrap: 'wrap',
-        }}
-      >
-        {!isCompleted ? (
-          <Button
-            type="primary"
-            icon={<CheckOutlined />}
-            onClick={handleNextQuestion}
-            disabled={userAnswer === undefined}
-            size="large"
-            style={{
-              height: '48px',
-              borderRadius: '24px',
-              fontSize: '16px',
-              fontWeight: '600',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              border: 'none',
-              boxShadow: '0 4px 16px rgba(102, 126, 234, 0.4)',
-              transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              if (userAnswer !== undefined) {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.6)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (userAnswer !== undefined) {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(102, 126, 234, 0.4)';
-              }
-            }}
-          >
-            {currentQuestionIndex === questions.length - 1 ? 'Завершить' : 'Следующий вопрос'}
-          </Button>
-        ) : (
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={handleReset}
-            size="large"
-            style={{
-              height: '48px',
-              borderRadius: '24px',
-              fontSize: '16px',
-              fontWeight: '600',
-              border: '2px solid #1890ff',
-              color: '#1890ff',
-              background: 'white',
-              transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 16px rgba(24, 144, 255, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            Попробовать снова
-          </Button>
-        )}
+          {/* Action Buttons */}
+          <div className="quiz-actions">
+            {!isCompleted ? (
+              <Button
+                type="primary"
+                icon={<CheckOutlined />}
+                onClick={handleComplete}
+                disabled={Object.keys(userAnswers).length < questions.length}
+                className="action-button"
+              >
+                Завершить викторину
+              </Button>
+            ) : (
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleReset}
+                className="action-button secondary"
+              >
+                Попробовать снова
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .slide-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+          }
+
+          .slide-header {
+            background: #f8fafc;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+
+          .slide-number {
+            background: #3b82f6;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+          }
+
+
+
+          .slide-content {
+            padding: 32px 40px;
+          }
+
+          .slide-title-section {
+            margin-bottom: 32px;
+          }
+
+          .slide-title {
+            color: #1e293b !important;
+            font-size: 28px !important;
+            font-weight: 700 !important;
+            margin: 0 0 16px 0 !important;
+            line-height: 1.3 !important;
+          }
+
+          .slide-divider {
+            margin: 0 !important;
+            border-color: #e2e8f0 !important;
+          }
+
+          .quiz-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+          }
+
+          .quiz-progress {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+          }
+
+          .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+          }
+
+          .progress-text {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+          }
+
+          .question-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 24px;
+          }
+
+          .question-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+          }
+
+          .question-icon {
+            font-size: 24px;
+            color: #3b82f6;
+          }
+
+          .question-title {
+            color: #1e293b !important;
+            font-size: 20px !important;
+            font-weight: 600 !important;
+            margin: 0 !important;
+            line-height: 1.4 !important;
+          }
+
+          .answer-options {
+            margin-bottom: 20px;
+          }
+
+          .radio-group {
+            width: 100%;
+          }
+
+          .answer-option {
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+          }
+
+          .answer-option:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+          }
+
+                     .answer-option.selected {
+             border-color: #3b82f6;
+             background: rgba(59, 130, 246, 0.05);
+           }
+
+          .radio-button {
+            width: 100%;
+          }
+
+          .option-text {
+            font-size: 16px;
+            color: #374151;
+            font-weight: 500;
+          }
+
+                     .answer-option.selected .option-text {
+             color: #3b82f6;
+             font-weight: 600;
+           }
+
+          .explanation {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+          }
+
+          .explanation-text {
+            color: #10b981;
+            font-size: 14px;
+            font-style: italic;
+          }
+
+          .result-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 8px;
+            text-align: center;
+          }
+
+          .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+          }
+
+          .trophy-icon {
+            font-size: 32px;
+            color: #fbbf24;
+          }
+
+          .result-title {
+            color: white !important;
+            font-size: 24px !important;
+            font-weight: 700 !important;
+            margin: 0 !important;
+          }
+
+          .result-message {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-weight: 500;
+          }
+
+                     .quiz-navigation {
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+             gap: 16px;
+             padding: 20px;
+             background: #f8fafc;
+             border: 1px solid #e2e8f0;
+             border-radius: 8px;
+           }
+
+           .nav-button {
+             height: 40px;
+             padding: 0 16px;
+             font-size: 14px;
+             font-weight: 500;
+             border-radius: 6px;
+             border: 1px solid #d1d5db;
+             background: white;
+             color: #374151;
+             transition: all 0.2s ease;
+           }
+
+           .nav-button:hover:not(:disabled) {
+             border-color: #3b82f6;
+             color: #3b82f6;
+             transform: translateY(-1px);
+           }
+
+           .nav-button:disabled {
+             opacity: 0.5;
+             cursor: not-allowed;
+           }
+
+
+
+           .quiz-actions {
+             display: flex;
+             justify-content: center;
+           }
+
+          .action-button {
+            height: 48px;
+            padding: 0 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.2s ease;
+          }
+
+          .action-button.ant-btn-primary {
+            background: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+          }
+
+          .action-button.ant-btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+          }
+
+          .action-button.secondary {
+            background: white;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+          }
+
+          .action-button.secondary:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+          }
+
+          @media (max-width: 768px) {
+            .slide-content {
+              padding: 24px 20px;
+            }
+
+            .slide-title {
+              font-size: 24px !important;
+            }
+
+            .question-title {
+              font-size: 18px !important;
+            }
+
+            .option-text {
+              font-size: 15px;
+            }
+
+            .action-button {
+              width: 100%;
+            }
+          }
+        `
+      }} />
     </div>
   );
 };
