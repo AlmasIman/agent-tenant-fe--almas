@@ -442,14 +442,14 @@ const CourseViewPage: React.FC = () => {
       return (
         <div className="course-slide-content">
           <div className="slide-header">
-            <Title level={2} className="slide-title">
+            {/* <Title level={2} className="slide-title">
               {slide.name}
-            </Title>
+            </Title> */}
             <div className="slide-meta">
-              <Tag color="blue">{slide.type}</Tag>
-              <Text type="secondary">
+              {/* <Tag color="blue">{slide.type}</Tag> */}
+              {/* <Text type="secondary">
                 Слайд {slide.order + 1} из {presentation?.slides.length}
-              </Text>
+              </Text> */}
             </div>
           </div>
           <div className="slide-content">{renderSlide(convertedSlide)}</div>
@@ -549,7 +549,7 @@ const CourseViewPage: React.FC = () => {
         {/* Sidebar */}
         <Sider width={320} className="course-sidebar" collapsed={sidebarCollapsed} onCollapse={setSidebarCollapsed}>
           <div className="sidebar-content">
-            <div className="course-progress">
+            {/* <div className="course-progress">
               <Title level={4}>Прогресс курса</Title>
               <Progress percent={overallProgress} strokeColor="#52c41a" format={(percent) => `${percent}% завершено`} />
               <div className="progress-stats">
@@ -557,7 +557,7 @@ const CourseViewPage: React.FC = () => {
                   {topics.filter((t) => t.completed).length} из {topics.length} тем завершено
                 </Text>
               </div>
-            </div>
+            </div> */}
 
             <Divider />
 
@@ -612,9 +612,9 @@ const CourseViewPage: React.FC = () => {
           <div className="content-wrapper">
             <div className="content-header">
               <div className="content-navigation">
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} type="text">
+                {/* <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} type="text">
                   Назад к курсам
-                </Button>
+                </Button> */}
               </div>
             </div>
 
@@ -979,7 +979,7 @@ const CourseViewPage: React.FC = () => {
             }
 
             .slide-header {
-              margin-bottom: 32px;
+              margin-bottom: 16px;
               text-align: center;
             }
 
@@ -995,10 +995,10 @@ const CourseViewPage: React.FC = () => {
             }
 
             .slide-content {
-              background: white;
-              border-radius: 12px;
-              padding: 32px;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+              background: transparent;
+              border-radius: 0;
+              padding: 0;
+              box-shadow: none;
             }
 
             @media (max-width: 768px) {

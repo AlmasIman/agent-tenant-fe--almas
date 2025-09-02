@@ -50,9 +50,9 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
       case SlideType.TEXT:
         return 'Введите текст слайда здесь...';
       case SlideType.IMAGE:
-        return 'https://via.placeholder.com/800x600?text=Вставьте+URL+изображения';
+        return '';
       case SlideType.IMAGE_TEXT_OVERLAY:
-        return 'https://via.placeholder.com/800x600?text=Вставьте+URL+изображения';
+        return '';
       case SlideType.VIDEO:
         return 'https://www.youtube.com/watch?v=';
       case SlideType.QUIZ:
@@ -199,8 +199,8 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
                       disabled={slides.length === 0}
                       style={{
                         borderRadius: '8px',
-                        border: '2px solid #1890ff',
-                        color: '#1890ff',
+                        border: '2px solid #8F9BA6FF',
+                        color: '#8092A2FF',
                         background: 'white',
                         fontWeight: '500',
                         height: '40px',
@@ -229,7 +229,7 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
                         onClick={handleAddSlide}
                         style={{
                           borderRadius: '8px',
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          background: 'linear-gradient(135deg, #818594FF 0%, #706B74FF 100%)',
                           border: 'none',
                           fontWeight: '500',
                           boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)',

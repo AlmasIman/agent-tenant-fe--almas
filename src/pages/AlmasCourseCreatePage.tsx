@@ -537,7 +537,18 @@ const AlmasCourseCreatePage: React.FC = () => {
           .join(' ') ??
         '',
     );
-    return { url, text };
+    // Если есть координаты первого элемента — отправим x,y (бек готов)
+    let x = 20;
+    let y = 20;
+    if (Array.isArray(c?.textElements) && c.textElements.length) {
+      const t0 = c.textElements[0];
+      if (typeof t0?.x === 'number') x = t0.x;
+      if (typeof t0?.y === 'number') y = t0.y;
+    } else if (typeof c?.x === 'number' || typeof c?.y === 'number') {
+      x = typeof c.x === 'number' ? c.x : x;
+      y = typeof c.y === 'number' ? c.y : y;
+    }
+    return { url, text, x, y };
   };
 
   // EMBED
@@ -765,10 +776,11 @@ const AlmasCourseCreatePage: React.FC = () => {
       } else {
         // Ensure unique order for new slides
         const nextOrder = await getNextOrder();
-        const payloadWithOrder = { ...payload, order: nextOrder };
+        const payloadWithOrder = { ...payload, order: nextOrder } as any;
 
-        // POST /api/presentations/{presentationId}/slides/
-        const { data } = await httpApi.post(`/presentations/${presentationId}/slides/`, payloadWithOrder);
+        // POST /api/slides/ with presentation reference
+        const body = { ...payloadWithOrder, presentation: presentationId };
+        const { data } = await httpApi.post(`/slides/`, body);
         setSlides((prev) => prev.map((x) => (x.id === slide.id ? { ...x, serverId: data?.id, order: nextOrder } : x)));
         message.success(`Слайд создан (ID: ${data?.id})`);
       }
@@ -995,7 +1007,7 @@ const AlmasCourseCreatePage: React.FC = () => {
                         {isEdit ? 'Обновить и открыть' : 'Опубликовать'}
                       </Button>
 
-                      <Button
+                      {/* <Button
                         type="default"
                         icon={<BookOutlined />}
                         onClick={handleGoToQuiz}
@@ -1003,7 +1015,7 @@ const AlmasCourseCreatePage: React.FC = () => {
                         block
                       >
                         Перейти к викторине
-                      </Button>
+                      </Button> */}
                     </Space>
                   </Card>
                 </Col>

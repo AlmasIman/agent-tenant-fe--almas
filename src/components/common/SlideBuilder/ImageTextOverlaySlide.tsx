@@ -13,23 +13,70 @@ const ImageTextOverlaySlide: React.FC<ImageTextOverlaySlideProps> = ({ slide, on
   let imageUrl = '';
   let overlayText = '';
   let textElements: any[] = [];
+  // Fallback: parsed slide.data if exists inside content
+  let dataFallback: any = null;
 
   try {
     const parsedContent = JSON.parse(slide.content);
-    imageUrl = parsedContent.url || parsedContent.imageUrl || '';
-    overlayText = parsedContent.text || '';
-    textElements = parsedContent.textElements || [];
+    // Prefer explicit content payload, but remember nested data as fallback
+    const payload = parsedContent.imageTextOverlay || parsedContent;
+    dataFallback = parsedContent.data || null;
+    imageUrl = payload.url || payload.imageUrl || '';
+    overlayText = payload.text || '';
+    textElements = payload.textElements || [];
+    // If backend provided x/y without textElements → create one element (content level)
+    if ((!textElements || textElements.length === 0) && (typeof payload.x === 'number' || typeof payload.y === 'number')) {
+      textElements = [
+        {
+          id: 't1',
+          text: overlayText,
+          x: typeof payload.x === 'number' ? payload.x : 20,
+          y: typeof payload.y === 'number' ? payload.y : 20,
+          fontSize: 20,
+          color: '#ffffff',
+          fontFamily: 'Arial, sans-serif',
+          fontWeight: 'bold',
+          fontStyle: 'normal',
+          textDecoration: 'none',
+          textAlign: 'left',
+          rotation: 0,
+          opacity: 1,
+          shadow: { enabled: true, color: '#000000', blur: 4, offsetX: 0, offsetY: 2 },
+          stroke: { enabled: false, color: '#ffffff', width: 1 },
+          backgroundColor: { enabled: true, color: 'rgba(0,0,0,0.6)', opacity: 0.6 },
+        },
+      ];
+    }
   } catch {
-    // If content is not JSON, try to extract from slide data directly
-    if (slide.content && typeof slide.content === 'string') {
-      try {
-        const simpleParsed = JSON.parse(slide.content);
-        imageUrl = simpleParsed.url || '';
-        overlayText = simpleParsed.text || '';
-      } catch {
-        // If still not JSON, use content as URL
-        imageUrl = slide.content;
-      }
+    // ignore, we'll fallback below
+  }
+
+  // Absolute fallback: if dataFallback present (from backend mapping) — use it
+  if ((!imageUrl || !overlayText) && dataFallback && typeof dataFallback === 'object') {
+    imageUrl = imageUrl || dataFallback.url || dataFallback.imageUrl || '';
+    overlayText = overlayText || dataFallback.text || '';
+    const hasXY = typeof dataFallback.x === 'number' || typeof dataFallback.y === 'number';
+    if ((!textElements || textElements.length === 0) && hasXY) {
+      textElements = [
+        {
+          id: 't1',
+          text: overlayText,
+          x: typeof dataFallback.x === 'number' ? dataFallback.x : 20,
+          y: typeof dataFallback.y === 'number' ? dataFallback.y : 20,
+          fontSize: 20,
+          color: '#ffffff',
+          fontFamily: 'Arial, sans-serif',
+          fontWeight: 'bold',
+          fontStyle: 'normal',
+          textDecoration: 'none',
+          textAlign: 'left',
+          rotation: 0,
+          opacity: 1,
+          shadow: { enabled: true, color: '#000000', blur: 4, offsetX: 0, offsetY: 2 },
+          stroke: { enabled: false, color: '#ffffff', width: 1 },
+          backgroundColor: { enabled: true, color: 'rgba(0,0,0,0.6)', opacity: 0.6 },
+        },
+      ];
     }
   }
 
@@ -64,9 +111,9 @@ const ImageTextOverlaySlide: React.FC<ImageTextOverlaySlideProps> = ({ slide, on
                       key={element.id}
                       className="text-element"
                       style={{
-                        left: `${element.x}%`,
-                        top: `${element.y}%`,
-                        transform: `translate(-50%, -50%) rotate(${element.rotation}deg)`,
+                        left: typeof element.x === 'number' ? `${element.x}px` : element.x,
+                        top: typeof element.y === 'number' ? `${element.y}px` : element.y,
+                        transform: `rotate(${element.rotation || 0}deg)`,
                         fontSize: `${element.fontSize}px`,
                         color: element.color,
                         fontFamily: element.fontFamily,
@@ -196,6 +243,7 @@ const ImageTextOverlaySlide: React.FC<ImageTextOverlaySlideProps> = ({ slide, on
           .text-element {
             position: absolute;
             font-weight: 500;
+            transform-origin: top left;
           }
 
           .simple-text-overlay {
