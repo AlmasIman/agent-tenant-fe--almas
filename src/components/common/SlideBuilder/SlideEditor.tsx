@@ -153,14 +153,15 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
       try {
         const parsed = JSON.parse(slide.content);
         if (parsed.flashcards) {
-          content = '';
-
-          // Преобразуем карточки обратно в текстовый формат
-          const cardsText = (parsed.flashcards.cards || [])
+          const cards = parsed.flashcards.cards || [];
+          form.setFieldsValue({
+            flashcardsCards: cards,
+            flashcardsShuffle: parsed.flashcards.shuffle || false,
+            flashcardsShowProgress: parsed.flashcards.showProgress || false,
+          });
+          const cardsText = cards
             .map((card: any) => `${card.front} | ${card.back} | ${card.category} | ${card.difficulty}`)
             .join('\n');
-
-          content = cardsText;
           setPreviewText(cardsText);
         }
       } catch (error) {
@@ -400,24 +401,15 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
       }
 
       if (values.type === SlideType.FLASHCARDS) {
-        const content = values.flashcardsContent || '';
+        const cards = (values.flashcardsCards || []).map((card: any, index: number) => ({
+          id: card.id || (index + 1).toString(),
+          front: card.front || '',
+          back: card.back || '',
+          category: card.category || 'Общее',
+          difficulty: card.difficulty || 'Легко',
+        }));
         const shuffle = values.flashcardsShuffle || false;
         const showProgress = values.flashcardsShowProgress || false;
-
-        // Парсим карточки из текста
-        const cards = content
-          .split('\n')
-          .filter((line: string) => line.trim() && line.includes('|'))
-          .map((line: string, index: number) => {
-            const parts = line.split('|').map((part: string) => part.trim());
-            return {
-              id: (index + 1).toString(),
-              front: parts[0] || '',
-              back: parts[1] || '',
-              category: parts[2] || 'Общее',
-              difficulty: parts[3] || 'Легко',
-            };
-          });
 
         processedContent = JSON.stringify({
           flashcards: {
@@ -1077,36 +1069,37 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               </span>
             </div>
 
-            <Form.Item
-              name="flashcardsContent"
-              label={
-                <span style={{ fontWeight: '600', color: '#262626' }}>📝 Карточки (каждая строка = одна карточка)</span>
-              }
-            >
-              <TextArea
-                rows={8}
-                placeholder="Вопрос | Ответ | Категория | Сложность
-
-Примеры:
-Что такое React? | JavaScript библиотека для UI | Программирование | Легко
-Столица России | Москва | География | Легко
-2 + 2 = ? | 4 | Математика | Легко"
-                style={{
-                  borderRadius: '8px',
-                  border: '2px solid #f0f0f0',
-                  transition: 'all 0.3s ease',
-                  fontFamily: 'monospace',
-                  fontSize: '14px',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#1890ff';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(24, 144, 255, 0.2)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#f0f0f0';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
+            <Form.Item label={<span style={{ fontWeight: '600', color: '#262626' }}>📝 Карточки</span>}>
+              <Form.List name="flashcardsCards">
+                {(fields, { add, remove }) => (
+                  <div>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 200px 160px 40px', gap: '8px', marginBottom: '8px' }}>
+                        <Form.Item {...restField} name={[name, 'front']} rules={[{ required: true, message: 'Enter question' }]}>
+                          <Input placeholder="Question" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, 'back']} rules={[{ required: true, message: 'Enter answer' }]}>
+                          <Input placeholder="Answer" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, 'category']}>
+                          <Input placeholder="Category" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, 'difficulty']}>
+                          <Select placeholder="Difficulty">
+                            <Option value="Легко">Легко</Option>
+                            <Option value="Средне">Средне</Option>
+                            <Option value="Сложно">Сложно</Option>
+                          </Select>
+                        </Form.Item>
+                        <Button danger type="text" onClick={() => remove(name)}>✕</Button>
+                      </div>
+                    ))}
+                    <Button type="dashed" onClick={() => add()} style={{ width: '100%' }}>
+                      Добавить карточку
+                    </Button>
+                  </div>
+                )}
+              </Form.List>
             </Form.Item>
 
             <div
