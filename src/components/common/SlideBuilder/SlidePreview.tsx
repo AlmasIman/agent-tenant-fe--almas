@@ -274,6 +274,70 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
           </div>
         );
 
+      case SlideType.IMAGE_TEXT_OVERLAY:
+        // Не выравниваем по центру контейнер, чтобы координаты x/y работали как есть
+        const containerStyle: React.CSSProperties = {
+          ...slideStyle,
+          display: 'block',
+          textAlign: 'left',
+          padding: 0,
+        };
+        return (
+          <div style={containerStyle}>
+            {slide.settings.showTitle && (
+              <Title level={2} style={{ marginBottom: 16, textAlign: slide.settings.alignment }}>
+                {slide.title}
+              </Title>
+            )}
+            {(() => {
+              try {
+                const parsed = JSON.parse(slide.content);
+                const url = parsed.url || slide.content;
+                const text = parsed.text || '';
+                // Берём координаты из первого textElements
+                let x = 20;
+                let y = 20;
+                if (Array.isArray(parsed.textElements) && parsed.textElements.length) {
+                  const t0 = parsed.textElements[0];
+                  if (typeof t0?.x === 'number') x = t0.x;
+                  if (typeof t0?.y === 'number') y = t0.y;
+                }
+                return (
+                  <div style={{ position: 'relative', width: '100%', display: 'block' }}>
+                    <img
+                      src={url}
+                      alt={slide.title}
+                      style={{
+                        maxWidth: '100%',
+                        height: 'auto',
+                        borderRadius: `${slide.settings.borderRadius || 0}px`,
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: x,
+                        top: y,
+                        color: slide.settings.textColor || '#000',
+                        fontSize: `${slide.settings.fontSize || 24}px`,
+                        fontWeight: 600,
+                        textShadow: '0 1px 2px rgba(0,0,0,0.25)',
+                        background: 'rgba(255,255,255,0.2)',
+                        padding: 4,
+                        borderRadius: 4,
+                      }}
+                    >
+                      {text}
+                    </div>
+                  </div>
+                );
+              } catch {
+                return <Paragraph>Неверный формат контента</Paragraph>;
+              }
+            })()}
+          </div>
+        );
+
       case SlideType.VIDEO:
         return (
           <div style={slideStyle}>

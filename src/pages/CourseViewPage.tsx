@@ -459,7 +459,6 @@ const CourseViewPage: React.FC = () => {
         {/* Slides Sections */}
         {presentation?.slides.map((slide, index) => {
           const convertedSlide = convertSlide(slide);
-          console.log(`Rendering slide ${index + 1}:`, { id: slide.id, name: slide.name, order: slide.order });
           return (
             <div key={slide.id} ref={(el) => (slideRefs.current[index + 1] = el)} className="course-section">
               <div className="course-slide-content">
@@ -601,7 +600,7 @@ const CourseViewPage: React.FC = () => {
             {/* <Button icon={<HeartOutlined />} type="text">
               Нравится
             </Button> */}
-            <Button icon={<EditOutlined />} onClick={() => navigate(`/almas-course-create/${article.id}`)}>
+            <Button icon={<EditOutlined />} onClick={() => navigate(`/almas-course-create/${article?.id}`)}>
               Редактировать
             </Button>
           </div>
@@ -613,7 +612,7 @@ const CourseViewPage: React.FC = () => {
         {/* Sidebar */}
         <Sider width={320} className="course-sidebar" collapsed={sidebarCollapsed} onCollapse={setSidebarCollapsed}>
           <div className="sidebar-content">
-            <div className="course-progress">
+            {/* <div className="course-progress">
               <Title level={4}>Прогресс курса</Title>
               <Progress percent={overallProgress} strokeColor="#52c41a" format={(percent) => `${percent}%`} />
               <div className="progress-stats">
@@ -621,7 +620,7 @@ const CourseViewPage: React.FC = () => {
                   {topics.filter((t) => t.completed).length} из {topics.length} тем завершено
                 </Text>
               </div>
-            </div>
+            </div> */}
 
             <Divider />
 
@@ -676,9 +675,9 @@ const CourseViewPage: React.FC = () => {
           <div className="content-wrapper">
             <div className="content-header">
               <div className="content-navigation">
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} type="text">
+                {/* <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} type="text">
                   Назад к курсам
-                </Button>
+                </Button> */}
               </div>
             </div>
 
@@ -1064,7 +1063,7 @@ const CourseViewPage: React.FC = () => {
             }
 
             .slide-header {
-              margin-bottom: 32px;
+              margin-bottom: 16px;
               text-align: center;
             }
 

@@ -32,6 +32,9 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
     dropZones: any[];
     draggableItems: any[];
   } | null>(null);
+  const [overlayPos, setOverlayPos] = useState<{ x: number; y: number }>({ x: 60, y: 60 });
+  const [overlayDragging, setOverlayDragging] = useState<boolean>(false);
+  const [overlayDragOffset, setOverlayDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     let content = slide.content;
@@ -83,6 +86,10 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
             imageData: parsed.url || '',
             textElements: parsed.textElements,
           });
+          const first = Array.isArray(parsed.textElements) && parsed.textElements.length ? parsed.textElements[0] : null;
+          if (first && typeof first.x === 'number' && typeof first.y === 'number') {
+            setOverlayPos({ x: first.x, y: first.y });
+          }
         }
       } catch (error) {
         // Если не JSON, используем как есть
@@ -146,14 +153,15 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
       try {
         const parsed = JSON.parse(slide.content);
         if (parsed.flashcards) {
-          content = '';
-
-          // Преобразуем карточки обратно в текстовый формат
-          const cardsText = (parsed.flashcards.cards || [])
+          const cards = parsed.flashcards.cards || [];
+          form.setFieldsValue({
+            flashcardsCards: cards,
+            flashcardsShuffle: parsed.flashcards.shuffle || false,
+            flashcardsShowProgress: parsed.flashcards.showProgress || false,
+          });
+          const cardsText = cards
             .map((card: any) => `${card.front} | ${card.back} | ${card.category} | ${card.difficulty}`)
             .join('\n');
-
-          content = cardsText;
           setPreviewText(cardsText);
         }
       } catch (error) {
@@ -298,6 +306,26 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           processedContent = JSON.stringify({
             url: values.content || '',
             text: values.overlayText || '',
+            textElements: [
+              {
+                id: 't1',
+                text: values.overlayText || '',
+                x: overlayPos.x,
+                y: overlayPos.y,
+                fontSize: 24,
+                color: '#222222',
+                fontFamily: 'Arial, sans-serif',
+                rotation: 0,
+                opacity: 1,
+                textAlign: 'left',
+                fontWeight: 'bold',
+                fontStyle: 'normal',
+                textDecoration: 'none',
+                shadow: { enabled: false, color: '#000000', blur: 2, offsetX: 1, offsetY: 1 },
+                stroke: { enabled: false, color: '#ffffff', width: 1 },
+                backgroundColor: { enabled: false, color: '#ffffff', opacity: 0.5 },
+              },
+            ],
           });
         }
       }
@@ -373,24 +401,15 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
       }
 
       if (values.type === SlideType.FLASHCARDS) {
-        const content = values.flashcardsContent || '';
+        const cards = (values.flashcardsCards || []).map((card: any, index: number) => ({
+          id: card.id || (index + 1).toString(),
+          front: card.front || '',
+          back: card.back || '',
+          category: card.category || 'Общее',
+          difficulty: card.difficulty || 'Легко',
+        }));
         const shuffle = values.flashcardsShuffle || false;
         const showProgress = values.flashcardsShowProgress || false;
-
-        // Парсим карточки из текста
-        const cards = content
-          .split('\n')
-          .filter((line: string) => line.trim() && line.includes('|'))
-          .map((line: string, index: number) => {
-            const parts = line.split('|').map((part: string) => part.trim());
-            return {
-              id: (index + 1).toString(),
-              front: parts[0] || '',
-              back: parts[1] || '',
-              category: parts[2] || 'Общее',
-              difficulty: parts[3] || 'Легко',
-            };
-          });
 
         processedContent = JSON.stringify({
           flashcards: {
@@ -542,7 +561,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
       case SlideType.IMAGE_TEXT_OVERLAY:
         return (
           <>
-            <div
+            {/* <div
               style={{
                 background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
                 borderRadius: '12px',
@@ -558,7 +577,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px' }}>
                 Создайте изображение с наложенным текстом для презентаций
               </span>
-            </div>
+            </div> */}
 
             <Form.Item name="content" label="URL изображения">
               <Input placeholder="Введите URL изображения" />
@@ -567,6 +586,65 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
             <Form.Item name="overlayText" label="Текст для наложения">
               <TextArea rows={3} placeholder="Введите текст, который будет отображаться поверх изображения" />
             </Form.Item>
+
+            {/* Мини-просмотр с перетаскиванием текста */}
+            <div style={{ marginBottom: 16 }}>
+              <div
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  maxWidth: 540,
+                  minHeight: 240,
+                  border: '1px dashed #d9d9d9',
+                  borderRadius: 8,
+                  overflow: 'hidden',
+                  userSelect: 'none',
+                }}
+                onMouseMove={(e) => {
+                  if (!overlayDragging) return;
+                  const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+                  const x = e.clientX - rect.left - overlayDragOffset.x;
+                  const y = e.clientY - rect.top - overlayDragOffset.y;
+                  setOverlayPos({ x: Math.max(0, x), y: Math.max(0, y) });
+                }}
+                onMouseUp={() => setOverlayDragging(false)}
+                onMouseLeave={() => setOverlayDragging(false)}
+              >
+                {form.getFieldValue('content') ? (
+                  <img
+                    src={form.getFieldValue('content')}
+                    alt="preview"
+                    style={{ width: '100%', height: 'auto', display: 'block' }}
+                    onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+                  />
+                ) : (
+                  <div style={{ padding: 16, color: '#999' }}>Укажите URL изображения, чтобы увидеть предпросмотр</div>
+                )}
+                {!!form.getFieldValue('overlayText') && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: overlayPos.x,
+                      top: overlayPos.y,
+                      color: '#222',
+                      fontWeight: 600,
+                      background: 'rgba(255,255,255,0.2)',
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      cursor: 'move',
+                    }}
+                    onMouseDown={(e) => {
+                      const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+                      setOverlayDragging(true);
+                      setOverlayDragOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+                    }}
+                  >
+                    {form.getFieldValue('overlayText')}
+                  </div>
+                )}
+              </div>
+              <div style={{ marginTop: 8, color: '#8c8c8c' }}>Перетащите текст мышью на нужное место</div>
+            </div>
 
             <Form.Item label="Редактор изображений с текстом">
               <Space direction="vertical" style={{ width: '100%' }}>
@@ -991,36 +1069,37 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               </span>
             </div>
 
-            <Form.Item
-              name="flashcardsContent"
-              label={
-                <span style={{ fontWeight: '600', color: '#262626' }}>📝 Карточки (каждая строка = одна карточка)</span>
-              }
-            >
-              <TextArea
-                rows={8}
-                placeholder="Вопрос | Ответ | Категория | Сложность
-
-Примеры:
-Что такое React? | JavaScript библиотека для UI | Программирование | Легко
-Столица России | Москва | География | Легко
-2 + 2 = ? | 4 | Математика | Легко"
-                style={{
-                  borderRadius: '8px',
-                  border: '2px solid #f0f0f0',
-                  transition: 'all 0.3s ease',
-                  fontFamily: 'monospace',
-                  fontSize: '14px',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#1890ff';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(24, 144, 255, 0.2)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#f0f0f0';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
+            <Form.Item label={<span style={{ fontWeight: '600', color: '#262626' }}>📝 Карточки</span>}>
+              <Form.List name="flashcardsCards">
+                {(fields, { add, remove }) => (
+                  <div>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 200px 160px 40px', gap: '8px', marginBottom: '8px' }}>
+                        <Form.Item {...restField} name={[name, 'front']} rules={[{ required: true, message: 'Enter question' }]}>
+                          <Input placeholder="Question" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, 'back']} rules={[{ required: true, message: 'Enter answer' }]}>
+                          <Input placeholder="Answer" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, 'category']}>
+                          <Input placeholder="Category" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, 'difficulty']}>
+                          <Select placeholder="Difficulty">
+                            <Option value="Легко">Легко</Option>
+                            <Option value="Средне">Средне</Option>
+                            <Option value="Сложно">Сложно</Option>
+                          </Select>
+                        </Form.Item>
+                        <Button danger type="text" onClick={() => remove(name)}>✕</Button>
+                      </div>
+                    ))}
+                    <Button type="dashed" onClick={() => add()} style={{ width: '100%' }}>
+                      Добавить карточку
+                    </Button>
+                  </div>
+                )}
+              </Form.List>
             </Form.Item>
 
             <div
@@ -1357,8 +1436,11 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         destroyOnClose
       >
         <ImageTextEditor
-          onSave={(imageData, textElements) => {
+          onSave={(imageData, textElements, imgUrl) => {
             setImageEditorData({ imageData, textElements });
+            if (imgUrl && typeof imgUrl === 'string') {
+              form.setFieldsValue({ content: imgUrl });
+            }
             setImageEditorVisible(false);
             message.success('Изображение с текстом сохранено!');
           }}
