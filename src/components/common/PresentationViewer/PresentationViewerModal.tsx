@@ -14,6 +14,7 @@ import VideoSlide from '@app/components/common/SlideBuilder/VideoSlide';
 import QuizSlide from '@app/components/common/SlideBuilder/QuizSlide';
 import FlashcardsSlide from '@app/components/common/SlideBuilder/FlashcardsSlide';
 import FillWordsSlide from '@app/components/common/SlideBuilder/FillWordsSlide';
+import MarkWordSlide from '@app/components/common/SlideBuilder/MarkWordSlide';
 import TrueFalseSlide from '@app/components/common/SlideBuilder/TrueFalseSlide';
 import CodeSlide from '@app/components/common/SlideBuilder/CodeSlide';
 import ChartSlide from '@app/components/common/SlideBuilder/ChartSlide';
@@ -275,7 +276,9 @@ const PresentationViewerModal: React.FC<PresentationViewerModalProps> = ({
       case 'fill_in_blank':
         return <FillWordsSlide slide={slide} onComplete={handleSlideComplete} />;
       case 'true_false':
-        return <TrueFalseSlide slide={slide} onComplete={handleSlideComplete} />;
+        return <TrueFalseSlide slide={slide} />;
+      case 'mark_word':
+        return <MarkWordSlide slide={slide} />;
       case 'code':
         return <CodeSlide slide={slide} onComplete={handleSlideComplete} />;
       case 'chart':

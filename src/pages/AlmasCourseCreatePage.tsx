@@ -77,6 +77,8 @@ const mapSlideTypeToApi = (t: SlideType | string | undefined | null) => {
       return 'fill_in_blank';
     case 'fill_in_blank':
       return 'fill_in_blank';
+    case 'mark_word':
+      return 'mark_word';
     case 'true_false':
       return 'true_false';
     case 'quiz':
@@ -614,6 +616,14 @@ const AlmasCourseCreatePage: React.FC = () => {
     };
   };
 
+  const buildMarkWordData = (content: any) => {
+    const parsed = tryJson(content);
+    const c = parsed?.markWord ?? parsed;
+    const text = asString(c?.text ?? '');
+    const correct = asArray(c?.correctWords).map((x: any) => asString(x)).filter(Boolean);
+    return { text, correctWords: correct };
+  };
+
   // QUIZ
   const letterToIndex = (s: any) => {
     if (typeof s !== 'string') return null;
@@ -720,6 +730,8 @@ const AlmasCourseCreatePage: React.FC = () => {
         return { ...base, type: apiType, data: buildFlashcardsData(content) };
       case 'fill_in_blank':
         return { ...base, type: apiType, data: buildFillInBlankData(content) };
+      case 'mark_word':
+        return { ...base, type: apiType, data: buildMarkWordData(content) };
       case 'true_false':
         return { ...base, type: apiType, data: buildTrueFalseData(content) };
       case 'quiz':

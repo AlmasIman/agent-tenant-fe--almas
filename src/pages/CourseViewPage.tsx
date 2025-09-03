@@ -59,6 +59,7 @@ import VideoSlide from '@app/components/common/SlideBuilder/VideoSlide';
 import QuizSlide from '@app/components/common/SlideBuilder/QuizSlide';
 import FlashcardsSlide from '@app/components/common/SlideBuilder/FlashcardsSlide';
 import FillWordsSlide from '@app/components/common/SlideBuilder/FillWordsSlide';
+import MarkWordSlide from '@app/components/common/SlideBuilder/MarkWordSlide';
 import TrueFalseSlide from '@app/components/common/SlideBuilder/TrueFalseSlide';
 import CodeSlide from '@app/components/common/SlideBuilder/CodeSlide';
 import ChartSlide from '@app/components/common/SlideBuilder/ChartSlide';
@@ -418,6 +419,8 @@ const CourseViewPage: React.FC = () => {
       mappedType = 'FILL_WORDS';
     } else if (apiTypeLower === 'true_false') {
       mappedType = 'TRUE_FALSE';
+    } else if (apiTypeLower === 'mark_word') {
+      mappedType = 'MARK_WORD';
     }
 
     return {
@@ -451,6 +454,8 @@ const CourseViewPage: React.FC = () => {
         return <FlashcardsSlide {...slideProps} />;
       case 'FILL_WORDS':
         return <FillWordsSlide {...slideProps} />;
+      case 'MARK_WORD':
+        return <MarkWordSlide {...slideProps} />;
       case 'TRUE_FALSE':
         return <TrueFalseSlide {...slideProps} />;
       case 'CODE':

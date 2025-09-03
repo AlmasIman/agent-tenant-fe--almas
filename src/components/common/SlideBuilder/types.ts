@@ -13,6 +13,7 @@ export enum SlideType {
   FLASHCARDS = 'FLASHCARDS',
   FILL_WORDS = 'FILL_WORDS',
   TRUE_FALSE = 'TRUE_FALSE',
+  MARK_WORD = 'MARK_WORD',
   IMAGE_DRAG_DROP = 'IMAGE_DRAG_DROP',
   IMAGE_TEXT_OVERLAY = 'IMAGE_TEXT_OVERLAY',
 }
@@ -131,6 +132,10 @@ export interface SlideContent {
     question: string;
     answer: boolean;
     explanation?: string;
+  };
+  markWord?: {
+    text: string;
+    correctWords: string[];
   };
   imageDragDrop?: {
     imageUrl: string;

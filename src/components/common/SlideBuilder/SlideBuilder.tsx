@@ -224,6 +224,7 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
                         <Select.Option value={SlideType.IMAGE_TEXT_OVERLAY}>Изображение с текстом</Select.Option>
                         <Select.Option value={SlideType.QUIZ}>Викторина</Select.Option>
                         <Select.Option value={SlideType.FLASHCARDS}>Флеш-карточки</Select.Option>
+                        <Select.Option value={SlideType.MARK_WORD}>Отметь слова</Select.Option>
                         <Select.Option value={SlideType.TRUE_FALSE}>Вопрос True/False</Select.Option>
                       </Select>
                       <Button
@@ -275,6 +276,7 @@ const SlideBuilder: React.FC<SlideBuilderProps> = ({
                       <Select.Option value={SlideType.QUIZ}>Викторина</Select.Option>
                       <Select.Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Select.Option>
                       <Select.Option value={SlideType.TRUE_FALSE}>Вопрос True/False</Select.Option>
+                      <Select.Option value={SlideType.MARK_WORD}>Отметь слова</Select.Option>
                       <Select.Option value={SlideType.FLASHCARDS}>Флеш-карточки</Select.Option>
                     </Select>
                     <Button type="primary" icon={<PlusOutlined />} onClick={handleAddSlide}>

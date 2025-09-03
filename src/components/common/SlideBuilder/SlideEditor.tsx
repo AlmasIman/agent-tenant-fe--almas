@@ -426,6 +426,19 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         });
       }
 
+      if (values.type === SlideType.MARK_WORD) {
+        const text = values.markWordText || '';
+        const correctWords = String(values.markWordCorrect || '')
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+
+        processedContent = JSON.stringify({
+          text,
+          correctWords,
+        });
+      }
+
       if (values.type === SlideType.FLASHCARDS) {
         const cards = (values.flashcardsCards || []).map((card: any, index: number) => ({
           id: card.id || (index + 1).toString(),
@@ -1395,6 +1408,46 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           </>
         );
 
+      case SlideType.MARK_WORD:
+        return (
+          <>
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #1677ff 0%, #69c0ff 100%)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '20px',
+                color: 'white',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '20px', marginRight: '8px' }}>🔖</span>
+                <span style={{ fontWeight: '600', fontSize: '16px' }}>Отметь правильные слова</span>
+              </div>
+              <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px' }}>
+                Укажите текст и список слов, которые считаются правильными
+              </span>
+            </div>
+
+            <Form.Item
+              name="markWordText"
+              label={<span style={{ fontWeight: '600', color: '#262626' }}>📄 Текст</span>}
+              rules={[{ required: true, message: 'Введите текст' }]}
+            >
+              <TextArea rows={6} placeholder="Введите текст упражнения" />
+            </Form.Item>
+
+            <Form.Item
+              name="markWordCorrect"
+              label={<span style={{ fontWeight: '600', color: '#262626' }}>✅ Правильные слова</span>}
+              extra="Через запятую. Пример: Python, популярный, язык"
+              rules={[{ required: true, message: 'Укажите хотя бы одно слово' }]}
+            >
+              <Input placeholder="Python, популярный, язык" />
+            </Form.Item>
+          </>
+        );
+
       case SlideType.IMAGE_DRAG_DROP:
         return (
           <>
@@ -1573,6 +1626,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                   <Option value={SlideType.FLASHCARDS}>Флеш-карточки</Option>
                   <Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Option>
                   <Option value={SlideType.TRUE_FALSE}>Вопрос True/False</Option>
+                  <Option value={SlideType.MARK_WORD}>Отметь слова</Option>
                   {/* <Option value={SlideType.IMAGE_DRAG_DROP}>Drag & Drop на изображении</Option> */}
                 </Select>
               </Form.Item>
