@@ -733,7 +733,7 @@ const CourseViewPage: React.FC = () => {
           }
 
           .course-header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 24px;
             display: flex;
@@ -877,12 +877,18 @@ const CourseViewPage: React.FC = () => {
             .course-layout {
               width: 100%;
               background: white;
-              overflow: hidden;
+              overflow: visible;
+              position: relative;
             }
 
             .course-sidebar {
               background: #fafafa;
               border-right: 1px solid #f0f0f0;
+              position: sticky;
+              top: 0;
+              height: 100vh;
+              overflow-y: auto;
+              z-index: 10;
             }
 
             .sidebar-content {
@@ -1028,7 +1034,7 @@ const CourseViewPage: React.FC = () => {
             }
 
             .course-content {
-              max-width: 800px;
+              max-width: 1000px;
               margin: 0 auto;
               padding: 0;
             }
@@ -1055,7 +1061,7 @@ const CourseViewPage: React.FC = () => {
             }
 
             .course-slide-content {
-              max-width: 900px;
+              max-width: 1100px;
               margin: 0 auto;
               border: none;
               background: transparent;
