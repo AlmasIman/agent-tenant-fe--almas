@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Form, Input, Select, Button, Space, Tabs, Switch, Slider, Row, Col, message, Card, Tag, Tooltip } from 'antd';
-import { SaveOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, EditOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Select, Button, Space, Tabs, Switch, Slider, Row, Col, message, Card, Tag, Tooltip, Radio } from 'antd';
+import { SaveOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, EditOutlined, CheckOutlined } from '@ant-design/icons';
 import RichEditor from '@app/components/common/RichEditor';
 import FillWordsPreview from './FillWordsPreview';
 import FlashcardsPreview from './FlashcardsPreview';
@@ -147,6 +147,19 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         }
       } catch (error) {
         console.error('Error parsing fill words content:', error);
+      }
+    }
+
+    if (slide.type === SlideType.TRUE_FALSE && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        form.setFieldsValue({
+          trueFalseQuestion: parsed.question || '',
+          trueFalseAnswer: parsed.answer,
+          trueFalseExplanation: parsed.explanation || '',
+        });
+      } catch (error) {
+        console.error('Error parsing true/false content:', error);
       }
     }
 
@@ -398,6 +411,18 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
             showHints: showHints,
             caseSensitive: caseSensitive,
           },
+        });
+      }
+
+      if (values.type === SlideType.TRUE_FALSE) {
+        const question = values.trueFalseQuestion || '';
+        const answer = values.trueFalseAnswer;
+        const explanation = values.trueFalseExplanation || '';
+
+        processedContent = JSON.stringify({
+          question: question,
+          answer: answer,
+          explanation: explanation,
         });
       }
 
@@ -1278,6 +1303,98 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           </>
         );
 
+      case SlideType.TRUE_FALSE:
+        return (
+          <>
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '20px',
+                color: 'white',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '20px', marginRight: '8px' }}>✅</span>
+                <span style={{ fontWeight: '600', fontSize: '16px' }}>Вопрос True/False</span>
+              </div>
+              <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px' }}>
+                Создайте вопрос с вариантами ответа "Правда" или "Ложь"
+              </span>
+            </div>
+
+            <Form.Item
+              name="trueFalseQuestion"
+              label={<span style={{ fontWeight: '600', color: '#262626' }}>❓ Вопрос</span>}
+              rules={[{ required: true, message: 'Введите вопрос' }]}
+              extra='Сформулируйте вопрос, на который можно ответить "Правда" или "Ложь"'
+            >
+              <TextArea
+                rows={4}
+                placeholder="Например: Python был создан в 1991 году?"
+                style={{
+                  borderRadius: '8px',
+                  border: '2px solid #f0f0f0',
+                  transition: 'all 0.3s ease',
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#52c41a';
+                  e.target.style.boxShadow = '0 0 0 2px rgba(82, 196, 26, 0.2)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#f0f0f0';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="trueFalseAnswer"
+              label={<span style={{ fontWeight: '600', color: '#262626' }}>✅ Правильный ответ</span>}
+              rules={[{ required: true, message: 'Выберите правильный ответ' }]}
+              extra="Выберите правильный ответ на вопрос"
+            >
+              <Radio.Group>
+                <Space direction="vertical">
+                  <Radio value={true} style={{ fontSize: '16px', padding: '8px' }}>
+                    <CheckOutlined style={{ color: '#52c41a', marginRight: '8px' }} />
+                    Правда (True)
+                  </Radio>
+                  <Radio value={false} style={{ fontSize: '16px', padding: '8px' }}>
+                    <CloseOutlined style={{ color: '#ff4d4f', marginRight: '8px' }} />
+                    Ложь (False)
+                  </Radio>
+                </Space>
+              </Radio.Group>
+            </Form.Item>
+
+            <Form.Item
+              name="trueFalseExplanation"
+              label={<span style={{ fontWeight: '600', color: '#262626' }}>💡 Объяснение (необязательно)</span>}
+              extra="Добавьте объяснение правильного ответа для лучшего понимания"
+            >
+              <TextArea
+                rows={3}
+                placeholder="Например: Python действительно был создан Гвидо ван Россумом в 1991 году..."
+                style={{
+                  borderRadius: '8px',
+                  border: '2px solid #f0f0f0',
+                  transition: 'all 0.3s ease',
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#52c41a';
+                  e.target.style.boxShadow = '0 0 0 2px rgba(82, 196, 26, 0.2)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#f0f0f0';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </Form.Item>
+          </>
+        );
+
       case SlideType.IMAGE_DRAG_DROP:
         return (
           <>
@@ -1385,7 +1502,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
           <Switch />
         </Form.Item>
       </Col>
-      {(currentSlide.type === SlideType.VIDEO || currentSlide.type === SlideType.EMBED) && (
+      {(slide.type === SlideType.VIDEO || slide.type === SlideType.EMBED) && (
         <>
           <Col span={12}>
             <Form.Item name="autoPlay" label="Автовоспроизведение" valuePropName="checked">
@@ -1455,6 +1572,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                   {/* <Option value={SlideType.PROGRESS}>Прогресс</Option> */}
                   <Option value={SlideType.FLASHCARDS}>Флеш-карточки</Option>
                   <Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Option>
+                  <Option value={SlideType.TRUE_FALSE}>Вопрос True/False</Option>
                   {/* <Option value={SlideType.IMAGE_DRAG_DROP}>Drag & Drop на изображении</Option> */}
                 </Select>
               </Form.Item>

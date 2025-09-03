@@ -77,6 +77,8 @@ const mapSlideTypeToApi = (t: SlideType | string | undefined | null) => {
       return 'fill_in_blank';
     case 'fill_in_blank':
       return 'fill_in_blank';
+    case 'true_false':
+      return 'true_false';
     case 'quiz':
       return 'quiz';
     default:
@@ -599,6 +601,19 @@ const AlmasCourseCreatePage: React.FC = () => {
     return { text, answers };
   };
 
+  const buildTrueFalseData = (content: any) => {
+    const parsed = tryJson(content);
+    const question = asString(parsed?.question ?? '');
+    const answer = Boolean(parsed?.answer);
+    const explanation = asString(parsed?.explanation ?? '');
+    
+    return {
+      question,
+      answer,
+      explanation,
+    };
+  };
+
   // QUIZ
   const letterToIndex = (s: any) => {
     if (typeof s !== 'string') return null;
@@ -705,6 +720,8 @@ const AlmasCourseCreatePage: React.FC = () => {
         return { ...base, type: apiType, data: buildFlashcardsData(content) };
       case 'fill_in_blank':
         return { ...base, type: apiType, data: buildFillInBlankData(content) };
+      case 'true_false':
+        return { ...base, type: apiType, data: buildTrueFalseData(content) };
       case 'quiz':
         return { ...base, type: apiType as any, data: buildQuizData(content) };
       default:
@@ -791,9 +808,8 @@ const AlmasCourseCreatePage: React.FC = () => {
         const nextOrder = await getNextOrder();
         const payloadWithOrder = { ...payload, order: nextOrder } as any;
 
-        // POST /api/slides/ with presentation reference
-        const body = { ...payloadWithOrder, presentation: presentationId };
-        const { data } = await httpApi.post(`/slides/`, body);
+        // POST /api/presentations/{id}/slides/
+        const { data } = await httpApi.post(`/presentations/${presentationId}/slides/`, payloadWithOrder);
         setSlides((prev) => prev.map((x) => (x.id === slide.id ? { ...x, serverId: data?.id, order: nextOrder } : x)));
         message.success(`Слайд создан (ID: ${data?.id})`);
       }

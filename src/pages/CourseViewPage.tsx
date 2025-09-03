@@ -59,6 +59,7 @@ import VideoSlide from '@app/components/common/SlideBuilder/VideoSlide';
 import QuizSlide from '@app/components/common/SlideBuilder/QuizSlide';
 import FlashcardsSlide from '@app/components/common/SlideBuilder/FlashcardsSlide';
 import FillWordsSlide from '@app/components/common/SlideBuilder/FillWordsSlide';
+import TrueFalseSlide from '@app/components/common/SlideBuilder/TrueFalseSlide';
 import CodeSlide from '@app/components/common/SlideBuilder/CodeSlide';
 import ChartSlide from '@app/components/common/SlideBuilder/ChartSlide';
 import EmbedSlide from '@app/components/common/SlideBuilder/EmbedSlide';
@@ -372,10 +373,57 @@ const CourseViewPage: React.FC = () => {
       };
     }
 
+    // fill_in_blank → подготовить fillWords и выставить тип FILL_WORDS
+    if (apiSlide.type.toLowerCase() === 'fill_in_blank' || apiSlide.type.toLowerCase() === 'fill_words') {
+      const text: string = (apiSlide.data?.text as string) || '';
+      const answers: string[] = Array.isArray(apiSlide.data?.answers) ? apiSlide.data.answers : [];
+      const blanks: Array<{ id: string; word: string; position: number }> = [];
+      if (text && answers.length) {
+        let i = 0;
+        let idx = 0;
+        while (i < text.length && idx < answers.length) {
+          if (text[i] === '_') {
+            const start = i;
+            while (i < text.length && text[i] === '_') i++;
+            blanks.push({ id: String(idx + 1), word: String(answers[idx] || ''), position: start });
+            idx++;
+          } else {
+            i++;
+          }
+        }
+      }
+      content = {
+        fillWords: {
+          text,
+          blanks,
+          showHints: false,
+          caseSensitive: false,
+        },
+      } as any;
+    }
+
+    // true_false → подготовить данные для TrueFalseSlide
+    if (apiSlide.type.toLowerCase() === 'true_false') {
+      content = {
+        question: apiSlide.data?.question || '',
+        answer: Boolean(apiSlide.data?.answer),
+        explanation: apiSlide.data?.explanation || '',
+      };
+    }
+
+    // Normalize type for internal renderer
+    const apiTypeLower = String(apiSlide.type || '').toLowerCase();
+    let mappedType = apiSlide.type.toUpperCase();
+    if (apiTypeLower === 'fill_in_blank' || apiTypeLower === 'fill_words') {
+      mappedType = 'FILL_WORDS';
+    } else if (apiTypeLower === 'true_false') {
+      mappedType = 'TRUE_FALSE';
+    }
+
     return {
       id: apiSlide.id.toString(),
       title: apiSlide.name,
-      type: apiSlide.type.toUpperCase(),
+      type: mappedType,
       content: JSON.stringify(content),
       order: apiSlide.order,
       settings: {},
@@ -403,6 +451,8 @@ const CourseViewPage: React.FC = () => {
         return <FlashcardsSlide {...slideProps} />;
       case 'FILL_WORDS':
         return <FillWordsSlide {...slideProps} />;
+      case 'TRUE_FALSE':
+        return <TrueFalseSlide {...slideProps} />;
       case 'CODE':
         return <CodeSlide {...slideProps} />;
       case 'CHART':

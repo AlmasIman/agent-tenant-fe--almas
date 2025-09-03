@@ -14,6 +14,7 @@ import VideoSlide from '@app/components/common/SlideBuilder/VideoSlide';
 import QuizSlide from '@app/components/common/SlideBuilder/QuizSlide';
 import FlashcardsSlide from '@app/components/common/SlideBuilder/FlashcardsSlide';
 import FillWordsSlide from '@app/components/common/SlideBuilder/FillWordsSlide';
+import TrueFalseSlide from '@app/components/common/SlideBuilder/TrueFalseSlide';
 import CodeSlide from '@app/components/common/SlideBuilder/CodeSlide';
 import ChartSlide from '@app/components/common/SlideBuilder/ChartSlide';
 import EmbedSlide from '@app/components/common/SlideBuilder/EmbedSlide';
@@ -199,6 +200,15 @@ const PresentationViewerModal: React.FC<PresentationViewerModalProps> = ({
         },
       };
     }
+
+    // Special handling for true_false - wrap in trueFalse object for renderer
+    if (apiSlide.type.toLowerCase() === 'true_false') {
+      content = {
+        question: apiSlide.data?.question || '',
+        answer: Boolean(apiSlide.data?.answer),
+        explanation: apiSlide.data?.explanation || '',
+      };
+    }
     
     const apiTypeLower = String(apiSlide.type || '').toLowerCase();
     let mappedType: SlideType;
@@ -224,6 +234,9 @@ const PresentationViewerModal: React.FC<PresentationViewerModalProps> = ({
       case 'fill_in_blank':
         mappedType = SlideType.FILL_WORDS;
         break;
+      case 'true_false':
+        mappedType = SlideType.TRUE_FALSE;
+        break;
       case 'quiz':
         mappedType = SlideType.QUIZ;
         break;
@@ -247,7 +260,7 @@ const PresentationViewerModal: React.FC<PresentationViewerModalProps> = ({
 
     const slide = convertSlide(currentSlide);
 
-    switch (currentSlide.type.toLowerCase()) {
+    switch (String(currentSlide.type || '').toLowerCase().trim()) {
       case 'text':
         return <TextSlide slide={slide} onComplete={handleSlideComplete} />;
       case 'image':
@@ -258,8 +271,11 @@ const PresentationViewerModal: React.FC<PresentationViewerModalProps> = ({
         return <QuizSlide slide={slide} onComplete={handleSlideComplete} />;
       case 'flashcards':
         return <FlashcardsSlide slide={slide} onComplete={handleSlideComplete} />;
+      case 'fill_words':
       case 'fill_in_blank':
         return <FillWordsSlide slide={slide} onComplete={handleSlideComplete} />;
+      case 'true_false':
+        return <TrueFalseSlide slide={slide} onComplete={handleSlideComplete} />;
       case 'code':
         return <CodeSlide slide={slide} onComplete={handleSlideComplete} />;
       case 'chart':

@@ -12,6 +12,7 @@ export enum SlideType {
   PROGRESS = 'PROGRESS',
   FLASHCARDS = 'FLASHCARDS',
   FILL_WORDS = 'FILL_WORDS',
+  TRUE_FALSE = 'TRUE_FALSE',
   IMAGE_DRAG_DROP = 'IMAGE_DRAG_DROP',
   IMAGE_TEXT_OVERLAY = 'IMAGE_TEXT_OVERLAY',
 }
@@ -125,6 +126,11 @@ export interface SlideContent {
     }>;
     showHints?: boolean;
     caseSensitive?: boolean;
+  };
+  trueFalse?: {
+    question: string;
+    answer: boolean;
+    explanation?: string;
   };
   imageDragDrop?: {
     imageUrl: string;

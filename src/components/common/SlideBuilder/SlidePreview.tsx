@@ -16,6 +16,8 @@ import {
   BookOutlined,
   FormOutlined,
   DragOutlined,
+  CheckOutlined,
+  CloseCircleOutlined,
 } from '@ant-design/icons';
 import { Slide, SlideType } from './types';
 import GameSlide from './GameSlide';
@@ -23,6 +25,7 @@ import AchievementSlide from './AchievementSlide';
 import FlashcardsSlide from './FlashcardsSlide';
 import FillWordsSlide from './FillWordsSlide';
 import QuizSlide from './QuizSlide';
+import TrueFalseSlide from './TrueFalseSlide';
 
 const { Title, Paragraph } = Typography;
 
@@ -60,6 +63,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         return <BookOutlined />;
       case SlideType.FILL_WORDS:
         return <FormOutlined />;
+      case SlideType.TRUE_FALSE:
+        return <CheckOutlined />;
       case SlideType.IMAGE_DRAG_DROP:
         return <DragOutlined />;
       default:
@@ -95,6 +100,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         return 'Флеш-карточки';
       case SlideType.FILL_WORDS:
         return 'Заполнить пропуски';
+      case SlideType.TRUE_FALSE:
+        return 'Вопрос True/False';
       case SlideType.IMAGE_DRAG_DROP:
         return 'Drag & Drop на изображении';
       default:
@@ -130,6 +137,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
         return 'purple';
       case SlideType.FILL_WORDS:
         return 'cyan';
+      case SlideType.TRUE_FALSE:
+        return 'green';
       case SlideType.IMAGE_DRAG_DROP:
         return 'orange';
       default:
@@ -529,6 +538,18 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, onClose }) => {
               </Title>
             )}
             <FillWordsSlide slide={slide} />
+          </div>
+        );
+
+      case SlideType.TRUE_FALSE:
+        return (
+          <div style={slideStyle}>
+            {slide.settings.showTitle && (
+              <Title level={2} style={{ marginBottom: 16, textAlign: slide.settings.alignment }}>
+                {slide.title}
+              </Title>
+            )}
+            <TrueFalseSlide slide={slide} />
           </div>
         );
 
