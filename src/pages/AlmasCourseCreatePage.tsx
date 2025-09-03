@@ -73,6 +73,8 @@ const mapSlideTypeToApi = (t: SlideType | string | undefined | null) => {
       return 'embed';
     case 'flashcards':
       return 'flashcards';
+    case 'fill_words':
+      return 'fill_in_blank';
     case 'fill_in_blank':
       return 'fill_in_blank';
     case 'quiz':
@@ -575,15 +577,26 @@ const AlmasCourseCreatePage: React.FC = () => {
 
   // FILL_IN_BLANK
   const buildFillInBlankData = (content: any) => {
-    const c = tryJson(content?.fillWords ?? content); // в части компонентов это лежит в content.fillWords
-    return {
-      text: asString(c?.text ?? ''),
-      blanks: asArray(c?.blanks)
-        .map((b: any) => asString(b))
-        .filter(Boolean),
-      showHints: !!c?.showHints,
-      caseSensitive: !!c?.caseSensitive,
-    };
+    // Сначала парсим целиком, затем достаём fillWords при наличии
+    const parsed = tryJson(content);
+    const c = parsed?.fillWords ?? parsed; // редактор сохраняет под fillWords, а API может прислать плоско {text, answers}
+    const text = asString(c?.text ?? '');
+    // поддержим оба формата: answers (API) и blanks (локальный расширенный)
+    const answersFromApi = asArray(c?.answers).map((x: any) => asString(x)).filter(Boolean);
+    if (answersFromApi.length) {
+      return { text, answers: answersFromApi };
+    }
+    // если пришло в виде blanks с объектами — возьмём слова по порядку появления
+    const blanks = asArray(c?.blanks)
+      .map((b: any) => ({
+        id: String(b?.id ?? ''),
+        word: asString(b?.word ?? ''),
+        position: asNumber(b?.position, -1),
+      }))
+      .filter((b: any) => b.word && b.position >= 0)
+      .sort((a: any, b: any) => a.position - b.position);
+    const answers = blanks.map((b: any) => b.word);
+    return { text, answers };
   };
 
   // QUIZ

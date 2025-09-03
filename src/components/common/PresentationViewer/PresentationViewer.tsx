@@ -24,6 +24,7 @@ import AchievementSlide from '@app/components/common/SlideBuilder/AchievementSli
 import ProgressSlide from '@app/components/common/SlideBuilder/ProgressSlide';
 import ImageDragDropSlide from '@app/components/common/SlideBuilder/ImageDragDropSlide';
 import ImageTextOverlaySlide from '@app/components/common/SlideBuilder/ImageTextOverlaySlide';
+import { SlideType } from '@app/components/common/SlideBuilder/types';
 
 const { Title, Text } = Typography;
 
@@ -190,11 +191,74 @@ const PresentationViewer: React.FC<PresentationViewerProps> = ({
         },
       };
     }
+
+    // Special handling for fill_in_blank - wrap in fillWords object for renderer
+    if (apiSlide.type.toLowerCase() === 'fill_in_blank') {
+      const text: string = (apiSlide.data?.text as string) || '';
+      const answers: string[] = Array.isArray(apiSlide.data?.answers) ? apiSlide.data.answers : [];
+      // Build blanks positions by scanning underscores groups (supports '_' and '___')
+      const blanks: Array<{ id: string; word: string; position: number }> = [];
+      if (text && answers.length) {
+        let i = 0;
+        let idx = 0;
+        while (i < text.length && idx < answers.length) {
+          if (text[i] === '_') {
+            const start = i;
+            while (i < text.length && text[i] === '_') i++;
+            blanks.push({ id: String(idx + 1), word: String(answers[idx] || ''), position: start });
+            idx++;
+          } else {
+            i++;
+          }
+        }
+      }
+      content = {
+        fillWords: {
+          text,
+          blanks,
+          showHints: false,
+          caseSensitive: false,
+        },
+      };
+    }
     
+    // map API type to internal SlideType
+    const apiTypeLower = String(apiSlide.type || '').toLowerCase();
+    let mappedType: SlideType;
+    switch (apiTypeLower) {
+      case 'text':
+        mappedType = SlideType.TEXT;
+        break;
+      case 'image':
+        mappedType = SlideType.IMAGE;
+        break;
+      case 'video':
+        mappedType = SlideType.VIDEO;
+        break;
+      case 'image_text_overlay':
+        mappedType = SlideType.IMAGE_TEXT_OVERLAY;
+        break;
+      case 'embed':
+        mappedType = SlideType.EMBED;
+        break;
+      case 'flashcards':
+        mappedType = SlideType.FLASHCARDS;
+        break;
+      case 'fill_in_blank':
+        mappedType = SlideType.FILL_WORDS;
+        break;
+      case 'quiz':
+        mappedType = SlideType.QUIZ;
+        break;
+      default:
+        mappedType = SlideType.TEXT;
+        break;
+    }
+
     return {
       id: apiSlide.id.toString(),
       title: apiSlide.name,
-      type: apiSlide.type.toUpperCase(),
+      type: mappedType,
       content: JSON.stringify(content),
       order: apiSlide.order,
       settings: {},
@@ -228,7 +292,7 @@ const PresentationViewer: React.FC<PresentationViewerProps> = ({
       case 'interactive':
         return <InteractiveSlide slide={slide} onComplete={handleSlideComplete} />;
       case 'achievement':
-        return <AchievementSlide slide={slide} onComplete={handleSlideComplete} />;
+        return <AchievementSlide slide={slide} />;
       case 'progress':
         return <ProgressSlide slide={slide} onComplete={handleSlideComplete} />;
       case 'image_drag_drop':

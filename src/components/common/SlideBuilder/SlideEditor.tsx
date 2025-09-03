@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Button, Space, Tabs, Switch, Slider, Row, Col, message, Card } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Modal, Form, Input, Select, Button, Space, Tabs, Switch, Slider, Row, Col, message, Card, Tag, Tooltip } from 'antd';
 import { SaveOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, EditOutlined } from '@ant-design/icons';
 import RichEditor from '@app/components/common/RichEditor';
 import FillWordsPreview from './FillWordsPreview';
@@ -20,6 +20,7 @@ interface SlideEditorProps {
 
 const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) => {
   const [form] = Form.useForm();
+  const fillTextRef = useRef<any>(null);
   const [currentSlide, setCurrentSlide] = useState<Slide>(slide);
   const [activeTab, setActiveTab] = useState('content');
   const [previewText, setPreviewText] = useState('');
@@ -1157,6 +1158,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
             <Form.Item
               name="fillWordsText"
               label={<span style={{ fontWeight: '600', color: '#262626' }}>📄 Исходный текст</span>}
+              extra="Используйте три подчёркивания ___ в местах, где должен быть пропуск."
             >
               <TextArea
                 rows={6}
@@ -1166,6 +1168,8 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                   border: '2px solid #f0f0f0',
                   transition: 'all 0.3s ease',
                 }}
+                ref={fillTextRef}
+                onChange={(e) => setPreviewText(e.target.value)}
                 onFocus={(e) => {
                   e.target.style.borderColor = '#1890ff';
                   e.target.style.boxShadow = '0 0 0 2px rgba(24, 144, 255, 0.2)';
@@ -1177,11 +1181,49 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
               />
             </Form.Item>
 
+            <div style={{ display: 'flex', gap: 8, marginTop: -8, marginBottom: 12 }}>
+              <Tooltip title="Вставить шаблон пропуска в позицию курсора">
+                <Button
+                  size="small"
+                  onClick={() => {
+                    const el = fillTextRef.current?.resizableTextArea?.textArea as HTMLTextAreaElement | undefined;
+                    if (!el) return;
+                    const start = el.selectionStart || 0;
+                    const end = el.selectionEnd || 0;
+                    const value = el.value || '';
+                    const next = value.slice(0, start) + ' ___ ' + value.slice(end);
+                    form.setFieldsValue({ fillWordsText: next });
+                    setPreviewText(next);
+                    // restore cursor after inserted template
+                    requestAnimationFrame(() => {
+                      el.focus();
+                      const pos = start + 4;
+                      el.setSelectionRange(pos, pos);
+                    });
+                  }}
+                >
+                  Вставить ___
+                </Button>
+              </Tooltip>
+
+              {(() => {
+                const blanksCount = (previewText.match(/_{3,}/g) || []).length;
+                const hintsCount = (previewHints.split('\n').map((s) => s.trim()).filter(Boolean) as string[]).length;
+                return (
+                  <Space size={6} wrap>
+                    <Tag color="blue">Пропусков: {blanksCount}</Tag>
+                    <Tag color={hintsCount === blanksCount ? 'green' : 'orange'}>Подсказок: {hintsCount}</Tag>
+                  </Space>
+                );
+              })()}
+            </div>
+
             <Form.Item
               name="fillWordsHints"
               label={
                 <span style={{ fontWeight: '600', color: '#262626' }}>💡 Подсказки (каждая строка = одно слово)</span>
               }
+              extra="Формат: правильное_слово: необязательная подсказка"
             >
               <TextArea
                 rows={4}
@@ -1193,6 +1235,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                   border: '2px solid #f0f0f0',
                   transition: 'all 0.3s ease',
                 }}
+                onChange={(e) => setPreviewHints(e.target.value)}
                 onFocus={(e) => {
                   e.target.style.borderColor = '#1890ff';
                   e.target.style.boxShadow = '0 0 0 2px rgba(24, 144, 255, 0.2)';
@@ -1411,7 +1454,7 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
                   {/* <Option value={SlideType.ACHIEVEMENT}>Достижение</Option> */}
                   {/* <Option value={SlideType.PROGRESS}>Прогресс</Option> */}
                   <Option value={SlideType.FLASHCARDS}>Флеш-карточки</Option>
-                  {/* <Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Option> */}
+                  <Option value={SlideType.FILL_WORDS}>Заполнить пропуски</Option>
                   {/* <Option value={SlideType.IMAGE_DRAG_DROP}>Drag & Drop на изображении</Option> */}
                 </Select>
               </Form.Item>
@@ -1436,11 +1479,8 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
         destroyOnClose
       >
         <ImageTextEditor
-          onSave={(imageData, textElements, imgUrl) => {
+          onSave={(imageData, textElements) => {
             setImageEditorData({ imageData, textElements });
-            if (imgUrl && typeof imgUrl === 'string') {
-              form.setFieldsValue({ content: imgUrl });
-            }
             setImageEditorVisible(false);
             message.success('Изображение с текстом сохранено!');
           }}
