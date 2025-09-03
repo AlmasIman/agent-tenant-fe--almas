@@ -183,6 +183,19 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSave, onCancel }) =>
       }
     }
 
+    if (slide.type === SlideType.MARK_WORD && slide.content) {
+      try {
+        const parsed = JSON.parse(slide.content);
+        const c = parsed?.markWord ?? parsed;
+        form.setFieldsValue({
+          markWordText: c?.text || '',
+          markWordCorrect: Array.isArray(c?.correctWords) ? c.correctWords.join(', ') : '',
+        });
+      } catch (error) {
+        // ignore
+      }
+    }
+
     if (slide.type === SlideType.QUIZ && slide.content) {
       try {
         const parsed = JSON.parse(slide.content);
