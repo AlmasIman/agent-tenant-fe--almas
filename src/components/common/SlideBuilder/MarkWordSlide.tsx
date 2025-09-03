@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Card, Typography, Tag } from 'antd';
+import { Card, Typography, Tag, Button, Space } from 'antd';
 import { Slide } from './types';
 
 const { Title, Paragraph } = Typography;
@@ -35,8 +35,12 @@ const MarkWordSlide: React.FC<MarkWordSlideProps> = ({ slide }) => {
 
   const tokens = useMemo(() => splitWords(text), [text]);
   const [selected, setSelected] = useState<Record<number, boolean>>({});
+  const [checked, setChecked] = useState<boolean>(false);
 
-  const toggle = (idx: number) => setSelected((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  const toggle = (idx: number) => {
+    if (checked) return;
+    setSelected((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
 
   const isCorrect = (token: string): boolean => {
     const norm = normalize(token);
@@ -44,11 +48,27 @@ const MarkWordSlide: React.FC<MarkWordSlideProps> = ({ slide }) => {
     return correctWords.map(normalize).includes(norm);
   };
 
+  const correctSelectedCount = useMemo(() => {
+    return Object.entries(selected).reduce((acc, [i, on]) => {
+      if (!on) return acc;
+      const token = tokens[Number(i)] || '';
+      return acc + (isCorrect(token) ? 1 : 0);
+    }, 0);
+  }, [selected, tokens]);
+
+  const totalCorrect = correctWords.length;
+
+  const handleCheck = () => setChecked(true);
+  const handleReset = () => {
+    setSelected({});
+    setChecked(false);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ textAlign: 'left' }}>
         <Title level={4} style={{ marginBottom: 8 }}>
-          Click the various types of berries mentioned in the text below!
+          Отметьте правильные слова в тексте ниже
         </Title>
       </div>
 
@@ -60,8 +80,23 @@ const MarkWordSlide: React.FC<MarkWordSlideProps> = ({ slide }) => {
             if (space) return <span key={`sp-${idx}`}>{tk}</span>;
             const active = !!selected[idx];
             const correct = isCorrect(tk);
-            const color = active ? (correct ? '#1677ff' : '#d9d9d9') : 'transparent';
-            const textColor = active ? (correct ? '#1677ff' : '#595959') : '#262626';
+            let borderColor = '#91caff';
+            let textColor = '#262626';
+            if (active && !checked) {
+              borderColor = '#1677ff';
+              textColor = '#1677ff';
+            }
+            if (checked) {
+              if (active && correct) {
+                borderColor = '#52c41a';
+                textColor = '#52c41a';
+              } else if (active && !correct) {
+                borderColor = '#ff4d4f';
+                textColor = '#ff4d4f';
+              } else if (!active && correct) {
+                borderColor = '#faad14';
+              }
+            }
             return (
               <span
                 key={idx}
@@ -72,7 +107,7 @@ const MarkWordSlide: React.FC<MarkWordSlideProps> = ({ slide }) => {
                   padding: '2px 8px',
                   margin: '2px 2px',
                   borderRadius: 6,
-                  border: `2px solid ${active ? color : '#91caff'}`,
+                  border: `2px solid ${borderColor}`,
                   color: textColor,
                 }}
               >
@@ -83,9 +118,16 @@ const MarkWordSlide: React.FC<MarkWordSlideProps> = ({ slide }) => {
         </Paragraph>
       </Card>
 
-      <div>
-        <Tag color="blue">Правильных слов: {correctWords.length}</Tag>
-      </div>
+      <Space align="center" style={{ justifyContent: 'center' }}>
+        {!checked ? (
+          <Button type="primary" onClick={handleCheck}>Проверить</Button>
+        ) : (
+          <Button onClick={handleReset}>Попробовать снова</Button>
+        )}
+        <Tag color={checked ? (correctSelectedCount === totalCorrect ? 'green' : 'orange') : 'blue'}>
+          Правильных слов: {totalCorrect}
+        </Tag>
+      </Space>
     </div>
   );
 };
